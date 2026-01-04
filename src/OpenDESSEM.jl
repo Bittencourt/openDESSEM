@@ -41,7 +41,9 @@ export validate_id, validate_name, validate_positive, validate_non_negative
 export get_id, has_id, update_metadata, add_tag, set_property, is_empty
 export ThermalPlant, ConventionalThermal, CombinedCyclePlant
 export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
+export RenewablePlant, WindFarm, SolarFarm
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
+export TrackingSystem, FIXED, SINGLE_AXIS, DUAL_AXIS
 
 # More modules will be added as we implement them:
 # include("core/Model.jl")

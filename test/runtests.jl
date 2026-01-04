@@ -14,6 +14,7 @@ using Test
     include("unit/test_entities_base.jl")
     include("unit/test_thermal_entities.jl")
     include("unit/test_hydro_entities.jl")
+    include("unit/test_renewable_entities.jl")
 
     # More tests will be added as we implement:
     # include("unit/test_network_entities.jl")
