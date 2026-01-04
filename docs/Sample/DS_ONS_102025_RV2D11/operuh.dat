@@ -1,0 +1,2073 @@
+&
+&AES
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00066  L     RHQ            
+OPERUH ELEM   00066  14  CACONDE         6   1.0
+OPERUH LIM    00066  I       F                      600.00
+&
+OPERUH REST   00067  L     RHQ            
+OPERUH ELEM   00067  14  CACONDE         6   1.0
+OPERUH LIM    00067  I       F             32.00
+&
+OPERUH REST   00071  L     RHQ            
+OPERUH ELEM   00071  16  A.S.OLIVEIRA    6   1.0
+OPERUH LIM    00071  I       F                      550.00
+&
+OPERUH REST   00072  L     RHQ            
+OPERUH ELEM   00072  16  A.S.OLIVEIRA    6   1.0
+OPERUH LIM    00072  I       F             19.00
+&
+OPERUH REST   00075  L     RHV            
+OPERUH ELEM   00075  37  B.BONITA        1   1.0
+OPERUH LIM    00075  I       F             446.5
+&
+OPERUH REST   00078  L     RHV            
+OPERUH ELEM   00078  37  B.BONITA        1   1.0
+OPERUH LIM    00078  I       F                       452.5
+&
+OPERUH REST   00079  L     RHQ            
+OPERUH ELEM   00079  37  B.BONITA        6   1.0
+OPERUH LIM    00079  I       F                     1300.00
+&
+OPERUH REST   00096  L     RHV            
+OPERUH ELEM   00096  40  PROMISSAO       1   1.0
+OPERUH LIM    00096  I       F             381.0
+&
+OPERUH REST   00099  L     RHQ            
+OPERUH ELEM   00099  40  PROMISSAO       6   1.0
+OPERUH LIM    00099  I       F            160.00
+&
+OPERUH REST   00100  L     RHQ            
+OPERUH ELEM   00100  40  PROMISSAO       6   1.0
+OPERUH LIM    00100  I       F                     1400.00
+&
+OPERUH REST   00102  L     RHV            
+OPERUH ELEM   00102  42  NAVANHANDAVA    1   1.0
+OPERUH LIM    00102  I       F             357.0
+&
+OPERUH REST   03107  L     RHQ            
+OPERUH ELEM   03107  18  A.VERMELHA      3   1.0
+OPERUH LIM    03107  I       F            800.00
+&
+OPERUH REST   03111  V     RHQ            2845.13
+OPERUH ELEM   03111  18  A.VERMELHA      3   1.0
+OPERUH VAR    03111 I       F                                          600.00
+&
+OPERUH REST   07454  L     RHV            
+OPERUH ELEM   07454  39  IBITINGA        1   1.0
+OPERUH LIM    07454  I       F            403.70
+&
+&ALUPAR
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00491  L     RHQ            
+OPERUH ELEM   00491 284  F.GOMES         6   1.0
+OPERUH LIM    00491  I       F             52.10
+&
+OPERUH REST   00816  V     RHQ             295.45
+OPERUH ELEM   00816 284  F.GOMES         3   1.0
+OPERUH VAR    00816 I       F                                   700          
+&
+OPERUH REST   08890  L     RHQ            
+OPERUH ELEM   08890 101  SAO JOSE        4   1.0
+OPERUH LIM    08890  I       F                     9745.00
+&
+OPERUH REST   08891  L     RHQ            
+OPERUH ELEM   08891 101  SAO JOSE        4   1.0
+OPERUH LIM    08891 13 07 0 16 17 0                7796.00
+&
+&AUREN ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   04330  L     RHQ            
+OPERUH ELEM   04330 126  PICADA          4   1.0
+OPERUH LIM    04330  I       F              1.00
+&
+&Vazao Remanescente
+OPERUH REST   07574  L     RHQ            
+OPERUH ELEM   07574  46  P.PRIMAVERA     4   1.0
+OPERUH LIM    07574  I       F              3.00
+&
+OPERUH REST   08364  L     RHQ            
+OPERUH ELEM   08364  15  E. CUNHA        4   1.0
+OPERUH LIM    08364  I       F                      990.00
+&
+OPERUH REST   08713  L     RHQ            
+OPERUH ELEM   08713  37  B.BONITA        4   1.0
+OPERUH LIM    08713  I      15 17 0                2816.00
+&
+OPERUH REST   08876  L     RHQ            
+OPERUH ELEM   08876  40  PROMISSAO       4   1.0
+OPERUH LIM    08876  I       F                     4960.00
+&
+OPERUH REST   08907  L     RHQ            
+OPERUH ELEM   08907  16  A.S.OLIVEIRA    4   1.0
+OPERUH LIM    08907 16 13 0 17 16 1                1650.00
+&
+OPERUH REST   08909  L     RHQ            
+OPERUH ELEM   08909  16  A.S.OLIVEIRA    4   1.0
+OPERUH LIM    08909 15 08 0 16 12 0                1650.00
+&
+OPERUH REST   08923  L     RHQ            
+OPERUH ELEM   08923  46  P.PRIMAVERA     4   1.0
+OPERUH LIM    08923  I       F                    38626.00
+&
+&BROOKFIELD ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   01283  L     RHQ            
+OPERUH ELEM   01283 185  B.BRAUNA        6   1.0
+OPERUH LIM    01283  I       F             30.00
+&
+&Baesa
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Representada na restrição 3524
+&OPERUH REST   00367  L     RHQ            
+&OPERUH ELEM   00367  86  B.GRANDE        6   1.0
+&OPERUH LIM    00367  I       F             16.00
+&
+&CBA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00499  L     RHQ            
+OPERUH ELEM   00499 249  OURINHOS        6   1.0
+OPERUH LIM    00499  I       F                     2000.00
+&
+OPERUH REST   08659  L     RHQ            
+OPERUH ELEM   08659 241  S.VERDINHO      4   1.0
+OPERUH LIM    08659  I       F                     1013.00
+&
+&CEC
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00107  L     RHQ            
+OPERUH ELEM   00107  95  Q.QUEIXO        6   1.0
+OPERUH LIM    00107  I       F              0.50
+&
+&CEEE
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00108  L     RHQ            
+OPERUH ELEM   00108 110  ERNESTINA       6   1.0
+OPERUH LIM    00108  I       F                      750.00
+&
+OPERUH REST   00109  L     RHQ            
+OPERUH ELEM   00109 111  PASSO REAL      6   1.0
+OPERUH LIM    00109  I       F                     2400.00
+&
+OPERUH REST   00110  L     RHQ            
+OPERUH ELEM   00110 112  JACUI           6   1.0
+OPERUH LIM    00110  I       F                     2400.00
+&
+OPERUH REST   00116  L     RHQ            
+OPERUH ELEM   00116 114  D. FRANCISCA    6   1.0
+OPERUH LIM    00116  I       F            100.00
+&
+OPERUH REST   08206  L     RHQ            
+OPERUH ELEM   08206 112  JACUI           4   1.0
+OPERUH LIM    08206  I       F             30.00
+&
+OPERUH REST   08360  L     RHV            
+OPERUH ELEM   08360 111  PASSO REAL      1   1.0
+OPERUH LIM    08360  I       F                      325.00
+&
+OPERUH REST   08893  L     RHV            
+OPERUH ELEM   08893 112  JACUI           1   1.0
+OPERUH LIM    08893  I       F                      274.50
+&
+OPERUH REST   08894  L     RHQ            
+OPERUH ELEM   08894 111  PASSO REAL      6   1.0
+OPERUH LIM    08894  I       F             30.00
+&
+&CERAN
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Condicionada
+&Ponto de Controle:1.000m³/s < Vazão Afluente < 1.500 m³/s
+&OPERUH REST   08903  L     RHQ            
+&OPERUH ELEM   08903  98  MONTE CLARO     3   1.0
+&OPERUH LIM    08903  I      11 17 0       330.00
+&
+&CESP
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00205  L     RHQ            
+OPERUH ELEM   00205 121  PARAIBUNA       6   1.0
+OPERUH LIM    00205  I       F                      120.00
+&
+OPERUH REST   00390  L     RHQ            
+OPERUH ELEM   00390 121  PARAIBUNA       6   1.0
+OPERUH LIM    00390  I       F             10.00
+&
+OPERUH REST   00396  L     RHQ            
+OPERUH ELEM   00396  46  P.PRIMAVERA     6   1.0
+OPERUH LIM    00396  I       F                    24000.00
+&
+OPERUH REST   00503  L     RHV            
+OPERUH ELEM   00503 121  PARAIBUNA       1   1.0
+OPERUH LIM    00503  I       F             695.9
+&
+&Condicao para reducao da defluencia de 4600 m3/s para 3900 m3/s, conforme FSARH 6967:
+&Condicionado a programacao com no minimo 24h de antecedencia para fazer o planejamento dos controles socioambientais
+OPERUH REST   06967  L     RHQ            
+OPERUH ELEM   06967  46  P.PRIMAVERA     6   1.0
+OPERUH LIM    06967  I       F           4600.00
+&
+&Condicionada a Vazão Defluente entre 3.900 m³/s e 4.600 m³/s
+OPERUH REST   06969  V     RHQ            4579.05
+OPERUH ELEM   06969  46  P.PRIMAVERA     6   1.0
+OPERUH VAR    06969 I       F                                100.00          
+&
+&Condicionada a Vazão Defluente entre 3.900 m³/s e 4.600 m³/s
+OPERUH REST   06970  V     RHQ            4579.05
+OPERUH ELEM   06970  46  P.PRIMAVERA     6   1.0
+OPERUH VAR    06970 I       F                                          100.00
+&
+&COPEL
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00236  L     RHQ            
+OPERUH ELEM   00236  73  DESV.JORDAO     6   1.0
+OPERUH LIM    00236  I       F             10.00
+&
+OPERUH REST   00237  L     RHQ            
+OPERUH ELEM   00237  82  S.CAXIAS        6   1.0
+OPERUH LIM    00237  I       F                    30000.00
+&
+OPERUH REST   00239  L     RHQ            
+OPERUH ELEM   00239 115  G.P.SOUZA       4   1.0
+OPERUH LIM    00239  I       F                      140.00
+&
+OPERUH REST   00400  L     RHQ            
+OPERUH ELEM   00400  57  MAUA            6   1.0
+OPERUH LIM    00400  I       F             78.80
+&
+&Vazao Remanescente
+OPERUH REST   00401  L     RHQ            
+OPERUH ELEM   00401  57  MAUA            4   1.0
+OPERUH LIM    00401  I       F             18.80
+&
+OPERUH REST   00403  L     RHQ            
+OPERUH ELEM   00403  82  S.CAXIAS        6   1.0
+OPERUH LIM    00403  I       F            200.00
+&
+&Vazao Remanescente
+OPERUH REST   00538  L     RHQ            
+OPERUH ELEM   00538  71  ST.CLARA PR     4   1.0
+OPERUH LIM    00538  I       F              6.47
+&
+&Vazao Remanescente
+OPERUH REST   00539  L     RHQ            
+OPERUH ELEM   00539  72  FUNDAO          4   1.0
+OPERUH LIM    00539  I       F              6.92
+&
+OPERUH REST   00911  L     RHQ            
+OPERUH ELEM   00911 228  COLIDER         3   1.0
+OPERUH LIM    00911  I       F            192.00
+&
+OPERUH REST   00970  V     RHQ               478.
+OPERUH ELEM   00970 228  COLIDER         3   1.0
+OPERUH VAR    00970 I       F                                             550
+&
+OPERUH REST   00971  V     RHQ               478.
+OPERUH ELEM   00971 228  COLIDER         3   1.0
+OPERUH VAR    00971 I       F                                   550          
+&
+OPERUH REST   02709  L     RHQ            
+OPERUH ELEM   02709 115  G.P.SOUZA       3   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    02709  I       F              2.40
+OPERUH LIM    02709 16 08 0 16 16 1            0
+&
+OPERUH REST   00057  L     RHQ            
+OPERUH ELEM   00057 228  COLIDER         6   1.0
+OPERUH LIM    00057  I       F                     1800.00
+&
+OPERUH REST   07575  L     RHQ            
+OPERUH ELEM   07575  57  MAUA            6   1.0
+OPERUH LIM    07575  I       F                     2400.00
+&
+OPERUH REST   08816  L     RHV            
+OPERUH ELEM   08816 115  G.P.SOUZA       1   1.0
+OPERUH LIM    08816  I       F                      844.00
+&
+OPERUH REST   08871  L     RHQ            
+OPERUH ELEM   08871 228  COLIDER         3   1.0
+OPERUH LIM    08871  I       F            470.00
+&
+&Cemig
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00123  L     RHQ            
+OPERUH ELEM   00123 156  TRES MARIAS     6   1.0
+OPERUH LIM    00123  I       F                     2600.00
+&
+&Vazao Remanescente
+OPERUH REST   00141  L     RHQ            
+OPERUH ELEM   00141 162  QUEIMADO        4   1.0
+OPERUH LIM    00141  I       F              1.00
+&
+OPERUH REST   00145  L     RHQ            
+OPERUH ELEM   00145 148  IRAPE           6   1.0
+OPERUH LIM    00145  I       F                     2100.00
+&
+OPERUH REST   00152  L     RHQ            
+OPERUH ELEM   00152 192  GUILMAN-AMO     6   1.0
+OPERUH LIM    00152  I       F                      550.00
+&
+OPERUH REST   00153  L     RHQ            
+OPERUH ELEM   00153 193  SA CARVALHO     6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00153  I       F             10.00
+&
+OPERUH REST   00155  L     RHQ            
+OPERUH ELEM   00155 193  SA CARVALHO     6   1.0
+OPERUH LIM    00155  I       F                      550.00
+&
+&Vazao Remanescente
+OPERUH REST   00162  L     RHQ            
+OPERUH ELEM   00162 143  AIMORES         4   1.0
+OPERUH LIM    00162  I       F             16.00
+&
+OPERUH REST   00163  L     RHQ            
+OPERUH ELEM   00163 143  AIMORES         6   1.0
+OPERUH LIM    00163  I       F                     7000.00
+&
+OPERUH REST   00164  L     RHQ            
+OPERUH ELEM   00164  24  EMBORCACAO      6   1.0
+OPERUH LIM    00164  I       F                     5000.00
+&
+OPERUH REST   00179  L     RHQ            
+OPERUH ELEM   00179   1  CAMARGOS        6   1.0
+OPERUH LIM    00179  I       F                     1100.00
+&
+OPERUH REST   00180  L     RHQ            
+OPERUH ELEM   00180   1  CAMARGOS        6   1.0
+OPERUH LIM    00180  I       F             34.00
+&
+OPERUH REST   00191  L     RHQ            
+OPERUH ELEM   00191   2  ITUTINGA        6   1.0
+OPERUH LIM    00191  I       F             34.00
+&
+OPERUH REST   00192  L     RHQ            
+OPERUH ELEM   00192   2  ITUTINGA        6   1.0
+OPERUH LIM    00192  I       F                     1170.00
+&
+OPERUH REST   00201  L     RHQ            
+OPERUH ELEM   00201  10  IGARAPAVA       6   1.0
+OPERUH LIM    00201  I       F                     4500.00
+&
+&Valor valido ate 31/10: 150 m3/s
+OPERUH REST   08009  L     RHQ            
+OPERUH ELEM   08009 156  TRES MARIAS     6   1.0
+OPERUH LIM    08009  I       F            150.00
+&
+&Valor valido ate 31/10: 150 m3/s
+OPERUH REST   07027  L D   RHQ            
+OPERUH ELEM   07027 156  TRES MARIAS     6   1.0
+OPERUH LIM    07027  I       F               150
+&
+&Valor valido ate 31/10: 800 m3/s
+OPERUH REST   07028  L D   RHQ            
+OPERUH ELEM   07028 169  SOBRADINHO      6   1.0
+OPERUH LIM    07028  I       F               800
+&
+&Valor valido ate 31/10: 800 m3/s
+OPERUH REST   07029  L D   RHQ            
+OPERUH ELEM   07029 178  XINGO           6   1.0
+OPERUH LIM    07029  I       F               800
+&
+OPERUH REST   00382  L     RHQ            
+OPERUH ELEM   00382 162  QUEIMADO        6   1.0
+OPERUH LIM    00382  I       F             17.00
+&
+OPERUH REST   00384  L     RHQ            
+OPERUH ELEM   00384 148  IRAPE           6   1.0
+OPERUH LIM    00384  I       F             23.40
+&
+OPERUH REST   00502  L     RHQ            
+OPERUH ELEM   00502  10  IGARAPAVA       6   1.0
+OPERUH LIM    00502  I       F            172.00
+&
+&Vazao Remanescente
+OPERUH REST   00515  L     RHQ            
+OPERUH ELEM   00515 217  ROSAL           4   1.0
+OPERUH LIM    00515  I       F              2.10
+&
+&Vazao Remanescente
+OPERUH REST   00524  L     RHQ            
+OPERUH ELEM   00524  27  C.BRANCO I      4   1.0
+OPERUH LIM    00524  I       F              7.00
+&
+OPERUH REST   00525  L     RHQ            
+OPERUH ELEM   00525  27  C.BRANCO I      4   1.0
+OPERUH LIM    00525  I       F                      880.00
+&
+OPERUH REST   00526  L     RHQ            
+OPERUH ELEM   00526  28  C.BRANCO II     6   1.0
+OPERUH LIM    00526  I       F             72.00
+&
+OPERUH REST   00752  L     RHQ            
+OPERUH ELEM   00752   1  CAMARGOS        6   1.0
+OPERUH LIM    00752  I       F                     1000.00
+&
+OPERUH REST   00794  L     RHQ            
+OPERUH ELEM   00794   4  FUNIL GDE       6   1.0
+OPERUH LIM    00794  I       F             70.00
+&
+OPERUH REST   02417  V     RHQ             141.34
+OPERUH ELEM   02417 148  IRAPE           3   1.0
+OPERUH VAR    02417 I       F                                              55
+&
+OPERUH REST   02418  V     RHQ             141.34
+OPERUH ELEM   02418 148  IRAPE           3   1.0
+OPERUH VAR    02418 I       F                                    55          
+&
+OPERUH REST   03299  L     RHQ            
+OPERUH ELEM   03299 143  AIMORES         6   1.0
+OPERUH LIM    03299  I       F             80.00
+&
+OPERUH REST   04055  L     RHQ            
+OPERUH ELEM   04055   4  FUNIL GDE       6   1.0
+OPERUH LIM    04055  I       F                     1600.00
+&
+OPERUH REST   04508  L     RHQ            
+OPERUH ELEM   04508 162  QUEIMADO        6   1.0
+OPERUH LIM    04508  I       F                      280.00
+&
+OPERUH REST   05853  L     RHQ            
+OPERUH ELEM   05853 134  S.GRANDE        6   1.0
+OPERUH LIM    05853  I       F             12.71
+&
+&Vazao Remanescente
+OPERUH REST   05855  L     RHQ            
+OPERUH ELEM   05855 134  S.GRANDE        4   1.0
+OPERUH LIM    05855  I       F              3.50
+&
+OPERUH REST   07460  V     RHQ             164.69
+OPERUH ELEM   07460   4  FUNIL GDE       6   1.0
+&Flexibilizado para convergencia
+OPERUH VAR    0746011 00 0 11 01 0                               50
+OPERUH VAR    0746011 01 0 11 07 1                                0
+OPERUH VAR    0746011 15 0 12 00 0                                0
+OPERUH VAR    0746012 00 0 12 07 1                                0
+OPERUH VAR    0746012 15 0 13 00 0                                0
+OPERUH VAR    0746013 00 0 13 07 1                                0
+OPERUH VAR    0746013 15 0 14 00 0                                0
+OPERUH VAR    0746014 00 0 14 07 1                                0
+OPERUH VAR    0746014 15 0 15 00 0                                0
+OPERUH VAR    0746015 00 0 15 07 1                                0
+OPERUH VAR    0746015 15 0 16 00 0                                0
+OPERUH VAR    0746016 00 0 16 01 0                                5
+OPERUH VAR    0746016 01 0 16 07 1                                0
+OPERUH VAR    0746016 15 0 17 00 0                                0
+OPERUH VAR    0746017 00 0 17 01 0                                5
+OPERUH VAR    0746017 01 0 17 07 1                                0
+OPERUH VAR    0746017 15 0  F                                     0
+&
+OPERUH REST   07711  L     RHQ            
+OPERUH ELEM   07711  27  C.BRANCO I      6   1.0
+OPERUH LIM    07711  I       F             72.00
+&
+OPERUH REST   07847  L     RHQ            
+OPERUH ELEM   07847 156  TRES MARIAS     6   1.0
+OPERUH LIM    07847  I       F                     2000.00
+&
+OPERUH REST   08005  L     RHQ            
+OPERUH ELEM   08005  24  EMBORCACAO      6   1.0
+OPERUH LIM    08005  I       F             48.00
+&
+OPERUH REST   08026  L     RHQ            
+OPERUH ELEM   08026  25  NOVA PONTE      6   1.0
+OPERUH LIM    08026  I       F                     2732.00
+&
+OPERUH REST   08904  L D   RHQ            
+OPERUH ELEM   08904 156  TRES MARIAS     6   1.0
+OPERUH LIM    08904  I       F            420.00
+&
+&Ceran
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00203  L     RHQ            
+OPERUH ELEM   00203  97  C.ALVES         4   1.0
+OPERUH LIM    00203  I       F             17.00
+&
+&Vazao Remanescente
+OPERUH REST   00204  L     RHQ            
+OPERUH ELEM   00204  99  14 DE JULHO     4   1.0
+OPERUH LIM    00204  I       F             28.22
+&
+&Vazao Remanescente
+OPERUH REST   00387  L     RHQ            
+OPERUH ELEM   00387  98  MONTE CLARO     4   1.0
+OPERUH LIM    00387  I       F             18.60
+&
+&Cesap
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00530  L     RHQ            
+OPERUH ELEM   00530 215  SALTO PILAO     4   1.0
+OPERUH LIM    00530  I       F              7.20
+&
+&Chesf
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00216  L     RHQ            
+OPERUH ELEM   00216 190  B.ESPERANCA     6   1.0
+OPERUH LIM    00216  I       F                     1600.00
+&
+OPERUH REST   00219  L     RHQ            
+OPERUH ELEM   00219 190  B.ESPERANCA     6   1.0
+OPERUH LIM    00219  I       F            240.00
+&
+OPERUH REST   00220  L     RHQ            
+OPERUH ELEM   00220 169  SOBRADINHO      6   1.0
+OPERUH LIM    00220  I       F                     8000.00
+&
+OPERUH REST   00225  L     RHQ            
+OPERUH ELEM   00225 178  XINGO           6   1.0
+OPERUH LIM    00225  I       F                     8000.00
+&
+OPERUH REST   00535  V     RHQ             814.38
+OPERUH ELEM   00535 178  XINGO           6   1.0
+OPERUH VAR    00535 I       F                                             300
+&
+OPERUH REST   02639  V     RHQ             814.38
+OPERUH ELEM   02639 178  XINGO           6   1.0
+OPERUH VAR    02639 I       F                                   300          
+&
+OPERUH REST   03201  L D   RHQ            
+OPERUH ELEM   03201 174  P.AFONSO123     6   1.0
+OPERUH LIM    03201  I       F            210.00
+&
+OPERUH REST   07671  L     RHQ            
+OPERUH ELEM   07671 178  XINGO           6   1.0
+OPERUH LIM    07671  I       F            800.00
+&
+OPERUH REST   07672  L     RHQ            
+OPERUH ELEM   07672 169  SOBRADINHO      6   1.0
+OPERUH LIM    07672  I       F            800.00
+&
+OPERUH REST   07987  L     RHQ            
+OPERUH ELEM   07987 175  P.AFONSO 4      4   1.0
+OPERUH LIM    07987  I       F                     7500.00
+&
+OPERUH REST   08321  L     RHQ            
+OPERUH ELEM   08321 174  P.AFONSO123     4   1.0
+OPERUH LIM    08321  I       F                     9616.00
+&
+OPERUH REST   08534  L     RHQ            
+OPERUH ELEM   08534 169  SOBRADINHO      4   1.0
+OPERUH LIM    08534  I       F                    20800.00
+&
+&Consórcio Candonga
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00228  L     RHQ            
+OPERUH ELEM   00228 139  CANDONGA        6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00228  I       F             30.00
+&
+&Consórcio Jauru
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00398  L     RHQ            
+OPERUH ELEM   00398 195  JAURU           4   1.0
+OPERUH LIM    00398  I       F              1.00
+&
+&Consórcio Porto Estrela
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00232  L     RHQ            
+OPERUH ELEM   00232 135  P.ESTRELA       6   1.0
+OPERUH LIM    00232  I       F             10.00
+&
+OPERUH REST   00233  L     RHQ            
+OPERUH ELEM   00233 135  P.ESTRELA       6   1.0
+OPERUH LIM    00233  I       F                     2000.00
+&
+&Corumbá Concessões S.A
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   04928  L     RHQ            
+OPERUH ELEM   04928  29  CORUMBA IV      6   1.0
+OPERUH LIM    04928  I       F             13.70
+&
+&ECE
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00612  L     RHQ            
+OPERUH ELEM   00612 286  STOANT JARI     4   1.0
+OPERUH LIM    00612  I       F             45.00
+&
+&EDP
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00063  L     RHQ            
+OPERUH ELEM   00063 204  C.CALDEIRAO     6   1.0
+OPERUH LIM    00063  I       F             52.50
+&
+OPERUH REST   00276  L     RHQ            
+OPERUH ELEM   00276 144  MASCARENHAS     6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00276  I       F            150.00
+&
+OPERUH REST   00323  L     RHQ            
+OPERUH ELEM   00323 261  LAJEADO         6   1.0
+OPERUH LIM    00323  I       F            255.00
+&
+OPERUH REST   08706  L     RHQ            
+OPERUH ELEM   08706 286  STOANT JARI     4   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    08706  I      17 17 0                  45.00
+&
+OPERUH REST   08707  L     RHV            
+OPERUH ELEM   08707 286  STOANT JARI     1   1.0
+OPERUH LIM    08707  I      17 17 0                  29.95
+&
+OPERUH REST   08708  L     RHV            
+OPERUH ELEM   08708 286  STOANT JARI     1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    08708  I      17 17 0        29.02
+OPERUH LIM    08708 12 00 0 17 17 0        29.20
+&
+OPERUH REST   08780  L     RHQ            
+OPERUH ELEM   08780 261  LAJEADO         4   1.0
+OPERUH LIM    08780 13 08 0 17 17 0               46306.00
+&
+OPERUH REST   08781  L     RHQ            
+OPERUH ELEM   08781 257  P.ANGICAL       4   1.0
+OPERUH LIM    08781 13 08 0 17 17 0               31926.00
+&
+OPERUH REST   08857  L     RHQ            
+OPERUH ELEM   08857 230  SAO MANOEL      4   1.0
+OPERUH LIM    08857 11 08 0 14 17 0                9218.00
+&
+&ELETROBRASAMAZONAS
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   02771  L     RHQ            
+OPERUH ELEM   02771 277  BALBINA         6   1.0
+OPERUH LIM    02771  I       F                     1400.00
+&
+&ENEL
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00104  L     RHQ            
+OPERUH ELEM   00104  32  C.DOURADA       6   1.0
+OPERUH LIM    00104  I       F             20.00
+&
+OPERUH REST   00106  L     RHQ            
+OPERUH ELEM   00106  32  C.DOURADA       6   1.0
+OPERUH LIM    00106  I       F                    10000.00
+&
+OPERUH REST   00202  L     RHQ            
+OPERUH ELEM   00202  11  V.GRANDE        6   1.0
+OPERUH LIM    00202  I       F                     5000.00
+&
+OPERUH REST   00374  L     RHQ            
+OPERUH ELEM   00374  11  V.GRANDE        6   1.0
+OPERUH LIM    00374  I       F            178.00
+&
+OPERUH REST   07848  L     RHQ            
+OPERUH ELEM   07848  53  PARANAPANEMA    6   1.0
+OPERUH LIM    07848  I       F                     1653.00
+&
+&ENGIE
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00170  L     RHQ            
+OPERUH ELEM   00170  26  MIRANDA         6   1.0
+OPERUH LIM    00170  I       F                     3600.00
+&
+OPERUH REST   00199  L     RHQ            
+OPERUH ELEM   00199   9  JAGUARA         6   1.0
+OPERUH LIM    00199  I       F                     4300.00
+&
+&Conforme FSARH 7026 valido de 01/06 até 30/11
+& Defluente de Serra da Mesa < 300m3/s, nivel min de Cana Brava
+&Vazão Defluente  < 300 -> 332.50 m
+&Vazão Defluente >= 300 -> 332.00 m
+&Vazão defluente no NP = 659.90
+OPERUH REST   00353  L     RHV            
+OPERUH ELEM   00353 252  CANA BRAVA      1   1.0
+OPERUH LIM    00353  I       F             332.0
+&
+OPERUH REST   00354  L     RHQ            
+OPERUH ELEM   00354  77  S.SANTIAGO      6   1.0
+OPERUH LIM    00354  I       F                    19000.00
+&
+OPERUH REST   00357  L     RHV            
+OPERUH ELEM   00357  78  S.OSORIO        1   1.0
+OPERUH LIM    00357  I       F             396.0
+&
+OPERUH REST   00358  L     RHQ            
+OPERUH ELEM   00358  91  MACHADINHO      6   1.0
+OPERUH LIM    00358  I       F            120.00
+&
+OPERUH REST   00373  L     RHQ            
+OPERUH ELEM   00373   9  JAGUARA         6   1.0
+OPERUH LIM    00373  I       F            168.00
+&
+OPERUH REST   00471  L     RHQ            
+OPERUH ELEM   00471 267  ESTREITO        6   1.0
+OPERUH LIM    00471 16 00 0  F            744.00
+&
+OPERUH REST   00472  L     RHQ            
+OPERUH ELEM   00472  77  S.SANTIAGO      4   1.0
+OPERUH LIM    00472  I       F                    17000.00
+&
+OPERUH REST   00567  L     RHQ            
+OPERUH ELEM   00567 252  CANA BRAVA      6   1.0
+OPERUH LIM    00567  I       F             90.00
+&
+OPERUH REST   00568  L     RHQ            
+OPERUH ELEM   00568 253  S.SALVADOR      6   1.0
+OPERUH LIM    00568  I       F             90.00
+&
+OPERUH REST   00618  L     RHV            
+OPERUH ELEM   00618   9  JAGUARA         1   1.0
+OPERUH LIM    00618  I       F            557.00
+&
+OPERUH REST   00747  L     RHQ            
+OPERUH ELEM   00747  78  S.OSORIO        6   1.0
+OPERUH LIM    00747  I       F            200.00
+&
+OPERUH REST   00950  L     RHQ            
+OPERUH ELEM   00950  92  ITA             6   1.0
+OPERUH LIM    00950  I       F            150.00
+&
+OPERUH REST   05609  L     RHV            
+OPERUH ELEM   05609 267  ESTREITO        1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    05609  I       F            155.47
+&
+OPERUH REST   06812  V     RHQ                49.
+OPERUH ELEM   06812 281  P.PEDRA         6   1.0
+OPERUH VAR    06812 I       F                                  2.30          
+&
+OPERUH REST   07977  L     RHQ            
+OPERUH ELEM   07977 281  P.PEDRA         6   1.0
+OPERUH LIM    07977  I       F             45.00
+&
+OPERUH REST   08620  L     RHQ            
+OPERUH ELEM   08620   9  JAGUARA         4   1.0
+OPERUH LIM    08620  I       F                    12905.00
+&
+OPERUH REST   08867  L     RHQ            
+OPERUH ELEM   08867 267  ESTREITO        6   1.0
+OPERUH LIM    08867  I      16 00 0      1000.00
+&
+OPERUH REST   08892  L     RHQ            
+OPERUH ELEM   08892 253  S.SALVADOR      4   1.0
+OPERUH LIM    08892  I       F                    12868.00
+&
+&Eletrogoes
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00542  L     RHQ            
+OPERUH ELEM   00542 276  RONDON II       4   1.0
+OPERUH LIM    00542  I       F              8.50
+&
+&Eletronorte
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00261  L     RHQ            
+OPERUH ELEM   00261 275  TUCURUI         6   1.0
+OPERUH LIM    00261  I       F           2000.00
+&
+OPERUH REST   08609  L     RHQ            
+OPERUH ELEM   08609 277  BALBINA         6   1.0
+OPERUH LIM    08609  I       F            390.00
+&
+&Eletrosul
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00267  L     RHQ            
+OPERUH ELEM   00267 102  P.S.JOAO        4   1.0
+OPERUH LIM    00267  I       F             46.20
+&
+OPERUH REST   00543  L     RHQ            
+OPERUH ELEM   00543 102  P.S.JOAO        6   1.0
+OPERUH LIM    00543  I       F             50.00
+&
+&Emae
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00275  L     RHQ            
+OPERUH ELEM   00275 119  H.BORDEN        6   1.0
+OPERUH LIM    00275  I       F              6.00
+&
+OPERUH REST   00706  L     RHV            
+OPERUH ELEM   00706 117  GUARAPIRANG     1   1.0
+OPERUH LIM    00706  I       F                      736.29
+&
+OPERUH REST   00730  L     RHV            
+OPERUH ELEM   00730 118  BILLINGS        1   1.0
+OPERUH LIM    00730  I       F                      745.47
+&
+OPERUH REST   00788  L     RHQ            
+OPERUH ELEM   00788 119  H.BORDEN        3   1.0
+OPERUH LIM    00788  I       F                        6.00
+&
+OPERUH REST   05692  L     RHQ            
+OPERUH ELEM   05692 118  BILLINGS        6   1.0
+OPERUH LIM    05692  I       F                        0.00
+&
+&EnergisaSoluções
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   03292  L     RHQ            
+OPERUH ELEM   03292 192  GUILMAN-AMO     4   1.0
+OPERUH LIM    03292  I       F              0.80
+&
+OPERUH REST   06589  L     RHQ            
+OPERUH ELEM   06589 192  GUILMAN-AMO     6   1.0
+OPERUH LIM    06589  I       F             10.00
+&
+&Enerpeixe
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00440  L     RHQ            
+OPERUH ELEM   00440 257  P.ANGICAL       6   1.0
+OPERUH LIM    00440  I       F            360.00
+&
+&FOZ DO CHAPECÓ
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00277  L     RHQ            
+OPERUH ELEM   00277 103  F.CHAPECO       4   1.0
+OPERUH LIM    00277  I       F             75.00
+&
+OPERUH REST   00988  L     RHQ            
+OPERUH ELEM   00988 103  F.CHAPECO       6   1.0
+OPERUH ELEM   00988  95  Q.QUEIXO        6   1.0
+OPERUH LIM    00988  I       F            200.00
+&
+&Furnas
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00282  L     RHQ            
+OPERUH ELEM   00282 123  FUNIL           6   1.0
+OPERUH LIM    00282  I       F             70.00
+&
+OPERUH REST   00284  V     RHQ               171.
+OPERUH ELEM   00284 123  FUNIL           6   1.0
+OPERUH VAR    00284 I       F                                             100
+&
+OPERUH REST   00286  L     RHQ            
+OPERUH ELEM   00286  30  CORUMBA I       6   1.0
+OPERUH LIM    00286  I       F            120.00
+&
+OPERUH REST   00287  L     RHQ            
+OPERUH ELEM   00287  31  ITUMBIARA       6   1.0
+OPERUH LIM    00287  I       F                     7000.00
+&
+OPERUH REST   00296  L     RHQ            
+OPERUH ELEM   00296   6  FURNAS          6   1.0
+OPERUH LIM    00296  I       F                     4000.00
+&
+OPERUH REST   00300  L     RHQ            
+OPERUH ELEM   00300   7  M.MORAES        6   1.0
+OPERUH LIM    00300  I       F                     4400.00
+&
+OPERUH REST   00303  L     RHQ            
+OPERUH ELEM   00303   8  L.C.BARRETO     6   1.0
+OPERUH LIM    00303  I       F                     4500.00
+&
+OPERUH REST   00305  L     RHQ            
+OPERUH ELEM   00305  12  P.COLOMBIA      6   1.0
+OPERUH LIM    00305  I       F                     7000.00
+&
+& Cota max. condicionada a Vazão Afluente (m3/s)
+&Afluente      Cota
+&até 2700     445.21
+&    3000     445.19
+&    4000     445.10
+&    5000     444.98
+&    6000     444.83
+&    7000     444.61
+&    8000     444.40
+&    9000     444.11
+&   10000     443.74
+&   10569     443.50
+OPERUH REST   00312  L     RHV            
+OPERUH ELEM   00312  17  MARIMBONDO      1   1.0
+OPERUH LIM    00312  I       F                      445.21
+&
+OPERUH REST   00315  L     RHQ            
+OPERUH ELEM   00315  17  MARIMBONDO      6   1.0
+OPERUH LIM    00315  I       F                     6000.00
+&
+OPERUH REST   00320  L     RHQ            
+OPERUH ELEM   00320 278  MANSO           6   1.0
+OPERUH LIM    00320  I       F                     1550.00
+&
+OPERUH REST   00441  L     RHV            
+OPERUH ELEM   00441 123  FUNIL           1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00441  I       F            451.80
+&
+OPERUH REST   00442  L     RHQ            
+OPERUH ELEM   00442  31  ITUMBIARA       6   1.0
+OPERUH LIM    00442  I       F             70.00
+&
+OPERUH REST   00443  L     RHQ            
+OPERUH ELEM   00443   6  FURNAS          6   1.0
+OPERUH LIM    00443  I       F            131.00
+&
+OPERUH REST   00444  L     RHV            
+OPERUH ELEM   00444   7  M.MORAES        1   1.0
+OPERUH LIM    00444  I       F             655.3
+&
+OPERUH REST   00445  L     RHQ            
+OPERUH ELEM   00445   7  M.MORAES        6   1.0
+OPERUH LIM    00445  I       F            149.00
+&
+OPERUH REST   00446  L     RHQ            
+OPERUH ELEM   00446   8  L.C.BARRETO     6   1.0
+OPERUH LIM    00446  I       F            153.00
+&
+OPERUH REST   00447  L     RHQ            
+OPERUH ELEM   00447  12  P.COLOMBIA      6   1.0
+OPERUH LIM    00447  I       F            189.00
+&
+OPERUH REST   00449  L     RHQ            
+OPERUH ELEM   00449  17  MARIMBONDO      6   1.0
+OPERUH LIM    00449  I       F            312.00
+&
+OPERUH REST   00494  L     RHQ            
+OPERUH ELEM   00494  20  BATALHA         6   1.0
+OPERUH LIM    00494  I       F             23.00
+&
+OPERUH REST   05060  L     RHV            
+OPERUH ELEM   05060 120  JAGUARI         1   1.0
+OPERUH LIM    05060  I       F            608.50
+&
+OPERUH REST   05061  L     RHQ            
+OPERUH ELEM   05061 120  JAGUARI         6   1.0
+OPERUH LIM    05061  I       F              4.00
+&
+&Condicionada a cota <= 623 m
+&Cota 10/10 613.59
+OPERUH REST   05167  L     RHQ            
+OPERUH ELEM   05167 120  JAGUARI         6   1.0
+OPERUH LIM    05167  I       F                       60.00
+&
+OPERUH REST   05645  L     RHQ            
+OPERUH ELEM   05645 278  MANSO           6   1.0
+OPERUH LIM    05645  I       F             80.00
+&
+OPERUH REST   05969  L     RHQ            
+OPERUH ELEM   05969 123  FUNIL           6   1.0
+OPERUH LIM    05969  I       F                      700.00
+&
+OPERUH REST   08017  L     RHQ            
+OPERUH ELEM   08017  17  MARIMBONDO      4   1.0
+OPERUH LIM    08017  I       F                        0.00
+&
+OPERUH REST   08595  L     RHQ            
+OPERUH ELEM   08595 141  BAGUARI         4   1.0
+OPERUH LIM    08595  I      17 17 0               10815.00
+&
+OPERUH REST   08746  L     RHQ            
+OPERUH ELEM   08746  12  P.COLOMBIA      4   1.0
+OPERUH LIM    08746  I       F                    14222.22
+&
+&GE Vernova
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   08912  L     RHQ            
+OPERUH ELEM   08912 311  CACU            4   1.0
+OPERUH LIM    08912  I      15 12 0                 860.00
+&
+&Grupo Rede
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00322  L     RHQ            
+OPERUH ELEM   00322 196  GUAPORE         4   1.0
+OPERUH LIM    00322  I       F              3.00
+&
+&IJUI
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00324  L     RHQ            
+OPERUH ELEM   00324 101  SAO JOSE        6   1.0
+OPERUH LIM    00324  I       F             43.80
+&
+&Itiquira Energética S.A.
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00334  L     RHQ            
+OPERUH ELEM   00334 305  ITIQUIRA II     6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00334  I       F             34.00
+&
+&JIRAU ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00544  L     RHQ            
+OPERUH ELEM   00544 285  JIRAU           6   1.0
+OPERUH LIM    00544  I       F           3240.00
+&
+&JIRAUENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   08134  L     RHV            
+OPERUH ELEM   08134 285  JIRAU           1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    08134  I       F                       82.58
+&
+&Light
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00335  L     RHV            
+OPERUH ELEM   00335 122  S.BRANCA        1   1.0
+OPERUH LIM    00335  I       F             607.5
+&
+OPERUH REST   00336  L     RHQ            
+OPERUH ELEM   00336 122  S.BRANCA        6   1.0
+OPERUH LIM    00336  I       F                      300.00
+&
+OPERUH REST   00344  L     RHQ            
+OPERUH ELEM   00344 124  LAJES           6   1.0
+OPERUH LIM    00344  I       F              5.50
+&
+OPERUH REST   00346  L     RHQ            
+OPERUH ELEM   00346 133  P.PASSOS        6   1.0
+OPERUH LIM    00346  I       F            120.00
+&
+OPERUH REST   00465  L     RHQ            
+OPERUH ELEM   00465 122  S.BRANCA        6   1.0
+OPERUH LIM    00465  I       F             30.00
+&
+OPERUH REST   00466  L     RHQ            
+OPERUH ELEM   00466 125  STA CECILIA     6   1.0
+OPERUH LIM    00466  I       F             71.00
+&
+OPERUH REST   00467  L     RHQ            
+OPERUH ELEM   00467 133  P.PASSOS        6   1.0
+OPERUH LIM    00467  I       F                      160.00
+&
+OPERUH REST   03318  L     RHQ            
+OPERUH ELEM   03318 181  SANTANA         4   1.0
+OPERUH LIM    03318  I       F                       30.00
+&
+&NEOENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   02044  L     RHQ            
+OPERUH ELEM   02044 229  TELES PIRES     3   1.0
+OPERUH LIM    02044  I       F            390.00
+&
+OPERUH REST   02635  V     RHQ                34.
+OPERUH ELEM   02635 154  ITAPEBI         6   1.0
+OPERUH VAR    02635 I       F                                             260
+&
+OPERUH REST   02636  V     RHQ                34.
+OPERUH ELEM   02636 154  ITAPEBI         6   1.0
+OPERUH VAR    02636 I       F                                   260          
+&
+OPERUH REST   06530  L     RHQ            
+OPERUH ELEM   06530 154  ITAPEBI         6   1.0
+OPERUH LIM    06530  I       F             40.00
+&
+OPERUH REST   07390  L     RHQ            
+OPERUH ELEM   07390 154  ITAPEBI         6   1.0
+OPERUH LIM    07390  I       F                      660.00
+&
+OPERUH REST   08621  L     RHQ            
+OPERUH ELEM   08621 154  ITAPEBI         4   1.0
+OPERUH LIM    08621  I       F                    13944.00
+&
+&NORTE_ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   01176  L D   RHQ            
+OPERUH ELEM   01176 288  BELO MONTE      3   1.0
+OPERUH LIM    01176  I       F            300.00
+&
+&Valido ate 30/11/2025
+OPERUH REST   07679  L D   RHQ            
+OPERUH ELEM   07679 314  PIMENTAL        6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    07679  I      12 00 0       460.00    725.97
+&
+&ONS
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Representada na restrição 99218
+&OPERUH REST   00962  L     RHQ            
+&OPERUH ELEM   00962  83  B.IGUACU        6   1.0
+&OPERUH LIM    00962  I       F            200.00
+&
+OPERUH REST   01022  L     RHV            
+OPERUH ELEM   01022 124  LAJES           1   1.0
+OPERUH LIM    01022  I       F            397.50
+&
+&Cota máxima sazonal de 1/outubro a 29/fevereiro (412.56 m)
+OPERUH REST   02596  L     RHV            
+OPERUH ELEM   02596 124  LAJES           1   1.0
+OPERUH LIM    02596  I       F                      412.56
+&
+&Valido ate 30/11
+OPERUH REST   07026  L D   RHQ            
+OPERUH ELEM   07026 251  S.MESA          6   1.0
+OPERUH LIM    07026  I       F            300.00
+&
+&Valido ate 30/11
+OPERUH REST   08194  L     RHQ            
+OPERUH ELEM   08194 251  S.MESA          6   1.0
+OPERUH LIM    08194  I       F            300.00
+&
+OPERUH REST   07033  L     RHV            
+OPERUH ELEM   07033 172  ITAPARICA       1   1.0
+OPERUH LIM    07033  I       F            300.66
+&
+OPERUH REST   07035  L     RHV            
+OPERUH ELEM   07035  17  MARIMBONDO      1   1.0
+OPERUH LIM    07035  I       F            431.47
+&
+OPERUH REST   07037  L     RHV            
+OPERUH ELEM   07037  18  A.VERMELHA      1   1.0
+OPERUH LIM    07037  I       F            375.19
+&
+OPERUH REST   07039  L     RHV            
+OPERUH ELEM   07039  33  S.SIMAO         1   1.0
+OPERUH LIM    07039  I       F            392.30
+&
+&Valido ate 31/10: 1000 m3/s
+OPERUH REST   08797  L     RHQ            
+OPERUH ELEM   08797 178  XINGO           6   1.0
+OPERUH LIM    08797 11 00 0  F                         829
+OPERUH LIM    08797 11 15 0  F                         891
+OPERUH LIM    08797 11 16 0  F                        1166
+OPERUH LIM    08797 11 17 0  F                        1434
+OPERUH LIM    08797 11 18 0  F                        1520
+OPERUH LIM    08797 11 21 0  F                        1436
+OPERUH LIM    08797 11 22 0  F                        1174
+OPERUH LIM    08797 11 23 0  F                         892
+OPERUH LIM    08797 12 00 0  F                        1000
+&
+OPERUH REST   08805  L S   RHQ             
+OPERUH ELEM   08805   6  FURNAS          6   1.0
+OPERUH LIM    08805  I       F                      846.00
+&
+OPERUH REST   98805  L D   RHQ            
+OPERUH ELEM   98805   6  FURNAS          6   1.0
+OPERUH LIM    98805  I      12 00 0                 846.00
+&
+OPERUH REST   08808  L D   RHQ            
+OPERUH ELEM   08808  24  EMBORCACAO      6   1.0
+OPERUH LIM    08808  I       F                      972.00
+&
+OPERUH REST   08809  L D   RHQ            
+OPERUH ELEM   08809  31  ITUMBIARA       6   1.0
+OPERUH LIM    08809  I       F                     2928.00
+&
+OPERUH REST   08913  L     RHQ            
+OPERUH ELEM   08913  47  JURUMIRIM       4   1.0
+OPERUH LIM    08913  I       F                        0.00
+&
+OPERUH REST   08914  L     RHQ            
+OPERUH ELEM   08914  49  CHAVANTES       4   1.0
+OPERUH LIM    08914  I       F                        0.00
+&
+OPERUH REST   08915  L     RHQ            
+OPERUH ELEM   08915  61  CAPIVARA        4   1.0
+OPERUH LIM    08915  I       F                        0.00
+&
+&PARANAPANEMA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00241  L     RHQ            
+OPERUH ELEM   00241  49  CHAVANTES       6   1.0
+OPERUH LIM    00241  I       F             85.00
+&
+OPERUH REST   00247  L     RHQ            
+OPERUH ELEM   00247  50  L.N.GARCEZ      6   1.0
+OPERUH LIM    00247  I       F            127.00
+&
+OPERUH REST   00249  L     RHQ            
+OPERUH ELEM   00249  51  CANOAS II       6   1.0
+OPERUH LIM    00249  I       F            130.00
+&
+OPERUH REST   00251  L     RHQ            
+OPERUH ELEM   00251  52  CANOAS I        6   1.0
+OPERUH LIM    00251  I       F            137.00
+&
+OPERUH REST   00253  L     RHQ            
+OPERUH ELEM   00253  61  CAPIVARA        6   1.0
+OPERUH LIM    00253  I       F            276.00
+&
+OPERUH REST   00256  L     RHQ            
+OPERUH ELEM   00256  62  TAQUARUCU       6   1.0
+OPERUH LIM    00256  I       F            290.00
+&
+OPERUH REST   00408  L     RHQ            
+OPERUH ELEM   00408  63  ROSANA          6   1.0
+OPERUH LIM    00408  I       F                    24000.00
+&
+OPERUH REST   00409  L     RHQ            
+OPERUH ELEM   00409  63  ROSANA          6   1.0
+OPERUH LIM    00409  I       F            600.00
+&
+OPERUH REST   03394  V     RHQ              116.6
+OPERUH ELEM   03394  49  CHAVANTES       6   1.0
+OPERUH VAR    03394 I       F                                             200
+&
+OPERUH REST   03395  V     RHQ              116.6
+OPERUH ELEM   03395  49  CHAVANTES       6   1.0
+OPERUH VAR    03395 I       F                                   200          
+&
+OPERUH REST   08847  L     RHQ            
+OPERUH ELEM   08847  62  TAQUARUCU       4   1.0
+OPERUH LIM    08847  I      13 11 0               14400.00
+&
+OPERUH REST   08849  L     RHQ            
+OPERUH ELEM   08849  62  TAQUARUCU       4   1.0
+OPERUH LIM    08849 13 13 0 14 15 0               14400.00
+&
+OPERUH REST   08851  L     RHQ            
+OPERUH ELEM   08851  62  TAQUARUCU       4   1.0
+OPERUH LIM    08851 15 08 0 16 11 0               14400.00
+&
+OPERUH REST   08874  L     RHQ            
+OPERUH ELEM   08874  47  JURUMIRIM       6   1.0
+OPERUH LIM    08874  I       F             90.00
+&
+&Valido ate 30/09/2026
+&Condicionada a vazao defluente < 147 m3/s
+OPERUH REST   08875  V     RHQ                92.
+OPERUH ELEM   08875  47  JURUMIRIM       6   1.0
+OPERUH VAR    08875 I       F                                  0.00
+OPERUH VAR    0887511 06 0 11 16 0                            10.00
+OPERUH VAR    0887512 06 0 12 16 0                            10.00
+OPERUH VAR    0887513 06 0 13 16 0                            10.00
+OPERUH VAR    0887514 06 0 14 16 0                            10.00
+OPERUH VAR    0887515 06 0 15 16 0                            10.00
+OPERUH VAR    0887516 06 0 16 16 0                            10.00
+OPERUH VAR    0887517 06 0 17 16 0                            10.00
+&
+&PPESA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00563  L     RHQ            
+OPERUH ELEM   00563 281  P.PEDRA         4   1.0
+OPERUH LIM    00563  I       F              9.70
+&
+&RBE
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00348  L     RHQ            
+OPERUH ELEM   00348 155  RETIRO BAIXO    6   1.0
+OPERUH LIM    00348  I       F             27.67
+&
+&RIOPARANA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00213  L     RHQ            
+OPERUH ELEM   00213  45  JUPIA           6   1.0
+OPERUH LIM    00213  I       F                    16000.00
+&
+&Condicionada a vazao defluente entre 4.000m3/s e 5.000m3/s
+OPERUH REST   00531  V     RHQ             4007.0
+OPERUH ELEM   00531  45  JUPIA           6   1.0
+OPERUH VAR    00531 I       F                                  1000
+&
+&Valido ate 31/10 24h
+&Condicionada a vazao defluente entre 3.300 m3/s e 4.000 m3/s
+&OPERUH REST   05792  V     RHQ             4007.0
+&OPERUH ELEM   05792  45  JUPIA           6   1.0
+&OPERUH VAR    05792 I       F                                   100
+&
+OPERUH REST   00797  L     RHQ            
+OPERUH ELEM   00797  34  I.SOLTEIRA      6   1.0
+OPERUH LIM    00797  I       F           1450.00
+&
+OPERUH REST   03657  L     RHV            
+OPERUH ELEM   03657  34  I.SOLTEIRA      1   1.0
+OPERUH LIM    03657  I       F            325.40
+&
+OPERUH REST   03658  L     RHV            
+OPERUH ELEM   03658  45  JUPIA           1   1.0
+OPERUH LIM    03658  I       F                      280.00
+&
+OPERUH REST   03659  L     RHV            
+OPERUH ELEM   03659  45  JUPIA           1   1.0
+OPERUH LIM    03659  I       F            279.00
+&
+&Condicao para reducao da defluencia de 4000 m3/s para 3300 m3/s, conforme FSARH 5777:
+&Condicionado a programacao com no minimo cinco dias de antecedencia para a mobilizacao da equipe
+&O nivel montante da UHE Porto Primavera deve estar em 257.30 m (VU 100)
+OPERUH REST   05777  L     RHQ            
+OPERUH ELEM   05777  45  JUPIA           6   1.0
+OPERUH LIM    05777  I       F           4000.00
+&
+&Valido conforme FSARH 5777 da UHE Jupia de defluencia de 3300m3/s (257.30 m)
+&OPERUH REST   99219  L     RHQ            
+&OPERUH ELEM   99219  46  P.PRIMAVERA     1   1.0
+&OPERUH LIM    99219  I       F            257.30
+&
+OPERUH REST   08916  L     RHQ            
+OPERUH ELEM   08916  45  JUPIA           4   1.0
+OPERUH LIM    08916 12 03 0 12 15 0      1760.00
+&
+&Rio Canoas Energética S.A.
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00565  L     RHQ            
+OPERUH ELEM   00565  89  GARIBALDI       4   1.0
+OPERUH LIM    00565  I       F             13.00
+&
+OPERUH REST   03049  L     RHQ            
+OPERUH ELEM   03049  89  GARIBALDI       3   1.0
+OPERUH LIM    03049  I       F            116.00
+&
+&Rio Verde
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   01214  L     RHQ            
+OPERUH ELEM   01214 262  SALTO           6   1.0
+OPERUH LIM    01214  I       F             29.13
+&
+&SINOP_ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   06272  L     RHV            
+OPERUH ELEM   06272 227  SINOP           1   1.0
+OPERUH LIM    06272  I       F                      300.00
+&
+OPERUH REST   07246  L     RHQ            
+OPERUH ELEM   07246 227  SINOP           6   1.0
+OPERUH LIM    07246  I       F            173.00
+&
+OPERUH REST   08860  L     RHQ            
+OPERUH ELEM   08860 227  SINOP           3   1.0
+OPERUH LIM    08860  I       F            413.00
+&
+OPERUH REST   08866  L     RHQ            
+OPERUH ELEM   08866 227  SINOP           4   1.0
+OPERUH LIM    08866  I       F             40.00
+&
+&SSIMAO ENERGIA
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00174  L     RHQ            
+OPERUH ELEM   00174  33  S.SIMAO         6   1.0
+OPERUH LIM    00174  I       F                    16000.00
+&
+OPERUH REST   00175  L     RHQ            
+OPERUH ELEM   00175  33  S.SIMAO         6   1.0
+OPERUH LIM    00175  I       F            450.00
+&
+OPERUH REST   02819  L     RHQ            
+OPERUH ELEM   02819  33  S.SIMAO         3   1.0
+OPERUH LIM    02819  I       F            910.00
+&
+&STATKRAFT
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   04420  L     RHQ            
+OPERUH ELEM   04420 145  Suica           6   1.0
+OPERUH LIM    04420  I       F              1.70
+&
+&Santo Antonio Energia S.A.
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   04366  L     RHQ            
+OPERUH ELEM   04366 287  STO ANTONIO     4   1.0
+OPERUH LIM    04366  I       F             40.00
+&
+OPERUH REST   08177  L     RHQ            
+OPERUH ELEM   08177 287  STO ANTONIO     4   1.0
+OPERUH LIM    08177  I       F                    70000.00
+&
+OPERUH REST   08649  L     RHQ            
+OPERUH ELEM   08649 287  STO ANTONIO     4   1.0
+OPERUH LIM    08649  I       F                    69480.00
+&
+OPERUH REST   08859  L     RHV            
+OPERUH ELEM   08859 287  STO ANTONIO     1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    08859  I      14 00 0                  70.51
+&
+&Santo Antônio Energia S.A.
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00351  L     RHQ            
+OPERUH ELEM   00351 287  STO ANTONIO     6   1.0
+OPERUH LIM    00351  I       F           3293.00
+&
+&SÃO ROQUE ENERGÉTICA S.A
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   02864  L     RHQ            
+OPERUH ELEM   02864  88  SAO ROQUE       6   1.0
+OPERUH LIM    02864  I       F             13.70
+&
+OPERUH REST   05939  L     RHQ            
+OPERUH ELEM   05939  88  SAO ROQUE       3   1.0
+OPERUH LIM    05939  I       F             56.00
+&
+&Tijoá
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00210  L     RHV            
+OPERUH ELEM   00210  43  TRES IRMAOS     1   1.0
+OPERUH LIM    00210  I       F             325.4
+&
+OPERUH REST   00814  V     RHQ             355.81
+OPERUH ELEM   00814  43  TRES IRMAOS     3   1.0
+OPERUH VAR    00814 I       F                                             400
+&
+OPERUH REST   07705  L     RHQ            
+OPERUH ELEM   07705  43  TRES IRMAOS     3   1.0
+OPERUH LIM    07705  I       F            180.00
+&
+&Votorantim Energia
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   00363  L     RHQ            
+OPERUH ELEM   00363 189  P. CAVALO       6   1.0
+OPERUH LIM    00363  I       F                     1500.00
+&
+&Cota 10/10 112.19
+&
+&Condicionada a cota entre 113,50 e 114,50m media diaria de 40
+&Condicionada a cota entre 112,50 e 113,49m media diaria de 12
+&Condicionada a cota abaixo 112,50 media diaria de 3
+OPERUH REST   01765  L D   RHQ            
+OPERUH ELEM   01765 189  P. CAVALO       6   1.0
+OPERUH LIM    01765  I       F                           3
+&
+&Condicionada a cota entre 113,50 e 114,50m media diaria de 40
+&Condicionada a cota entre 112,50 e 113,49m media diaria de 12
+&Condicionada a cota abaixo 112,50 media diaria de 3
+OPERUH REST   01764  L D   RHQ            
+OPERUH ELEM   01764 189  P. CAVALO       6   1.0
+OPERUH LIM    01764  I       F                 3
+&
+&&Condicionada a cota superior a 114,5m
+&OPERUH REST   01183  L D   RHQ            
+&OPERUH ELEM   01183 189  P. CAVALO       6   1.0
+&OPERUH LIM    01183  I       F              40.0
+&
+&Vazao Remanescente
+OPERUH REST   00364  L     RHQ            
+OPERUH ELEM   00364 127  SOBRAGI         4   1.0
+OPERUH LIM    00364  I       F              2.00
+&
+OPERUH REST   00777  L     RHQ            
+OPERUH ELEM   00777 126  PICADA          6   1.0
+OPERUH LIM    00777  I       F              6.90
+&
+OPERUH REST   01216  L     RHQ            
+OPERUH ELEM   01216 241  S.VERDINHO      6   1.0
+OPERUH LIM    01216  I       F             29.13
+&
+OPERUH REST   02633  L     RHQ            
+OPERUH ELEM   02633  48  PIRAJU          3   1.0
+OPERUH LIM    02633  I       F             90.00
+&
+&kinross
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+OPERUH REST   03010  L     RHQ            
+OPERUH ELEM   03010 311  CACU            6   1.0
+OPERUH LIM    03010  I       F             30.00
+&
+OPERUH REST   03011  L     RHQ            
+OPERUH ELEM   03011 312  B.COQUEIROS     6   1.0
+OPERUH LIM    03011  I       F             30.00
+&
+&Águas da Pedra
+&-----------------------------------------------------------------------------------------
+&PERUH REST Ind T Descricao VL Inicial
+&XXXXX XXXXXX xxxxx x xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&Vazao Remanescente
+OPERUH REST   00506  L     RHQ            
+OPERUH ELEM   00506 310  DARDANELOS      4   1.0
+OPERUH LIM    00506  I       F             21.00
+&
+&..................Restricoes da Regua 11...................................
+OPERUH REST   99998  L     RHQ
+OPERUH ELEM   99998  66  ITAIPU          6   1.0
+OPERUH LIM    99998  I       F              4891      7760
+&
+&----------------------------------------------------------------------------
+&...................FSARH condicionadas ou por tabela........................
+&----------------------------------------------------------------------------
+&
+&Condicionado ao %VU
+&        VU < 3.0% -> 1473m3/s
+& 3.0% < VU < 4.5% -> 1695m3/s
+&Volume util = 28.08
+&OPERUH REST   01434  L     RHQ            
+&OPERUH ELEM   01434  17  MARIMBONDO      3   1.0
+&OPERUH LIM    01434  I       F                        1695
+&
+&Sazonal (valido ate 31/10)
+&Condicionado ao nivel da UHE Miranda
+& Nivel <= 694.48m -> 80.00m3/s
+& Nivel >  694.48m -> 26.05m3/s
+&Cota 10/10 695.40
+OPERUH REST   07710  L     RHQ            
+OPERUH ELEM   07710  25  NOVA PONTE      6   1.0
+OPERUH LIM    07710  I       F             26.05
+&
+&Condicionada a defluencia < 2000m3s
+OPERUH REST   00791  V     RHQ              628.2
+OPERUH ELEM   00791  77  S.SANTIAGO      6   1.0
+OPERUH VAR    00791 I       F                                             600
+&
+&Taxa de variacao condicionada ao Vutil < 71.19%
+&Volume util = 95.21
+&OPERUH REST   01428  V     RHV            
+&OPERUH ELEM   01428  77  S.SANTIAGO      1   1.0
+&OPERUH VAR    01428 I       F                                0.0083
+&
+& Condicionada
+& Ponto de controle: Previsão de Vazão Afluente (m3/s)
+& Tabela
+&         Vazão Afluente Prevista <  3000 -> 506.00 m
+&  3000 < Vazão Afluente Prevista <  6000 -> 505.50 m
+&  6000 < Vazão Afluente Prevista <  9000 -> 505.00 m
+&  9000 < Vazão Afluente Prevista < 12000 -> 504.50 m
+& 12000 < Vazão Afluente Prevista < 15000 -> 504.00 m
+OPERUH REST   04740  L     RHV            
+OPERUH ELEM   04740  77  S.SANTIAGO      1   1.0
+OPERUH LIM    04740  I       F                      506.00
+&
+&Condicionada a defluencia < 2000m3s
+OPERUH REST   00793  V     RHQ             513.64
+OPERUH ELEM   00793  78  S.OSORIO        6   1.0
+OPERUH VAR    00793 I       F                                             600
+&
+&Condicionado ao nivel
+&           Nivel <  617.0m ->   0m3/s
+& 617.0m <  Nivel <  627.2m -> 140m3/s
+& 627.2m <= Nivel           ->  16m3/s
+&Cota 10/10 646.38
+OPERUH REST   03524  L     RHQ            
+OPERUH ELEM   03524  86 B.GRANDE         6   1.0
+OPERUH LIM    03524  I       F                16
+&
+&Modelagem simplificada do FSARH 2858
+&Condicionado ao nivel
+&           Nivel < 465.0m ->   0m3/s
+& 465.0m <  Nivel < 469.9m -> 250m3/s
+& 469.9m <= Nivel          -> 295m3/s
+&Cota 10/10 479.39
+OPERUH REST   02858  L     RHQ            
+OPERUH ELEM   02858  91  MACHADINHO      3   1.0
+OPERUH LIM    02858  I       F               295
+&
+&Vazao defluente <=5000m3/s -> taxa max  500
+&Vazao defluente > 5000m3/s -> taxa max 1000
+OPERUH REST   01516  V     RHV            1379.84
+OPERUH ELEM   01516  91  MACHADINHO      6   1.0
+OPERUH VAR    01516 I       F                                             500
+&
+&Restrição flexibilizada para 0,15m/dia entre 0%VU e 30% em função da 
+&condição crítica de estiagem da bacia.
+&Volume util entre  0% e 45% -> taxa max 0.00625  (15 cm por dia)
+&Volume util = 95.28
+&OPERUH REST   01297  V     RHV            
+&OPERUH ELEM   01297  91  MACHADINHO      1   1.0
+&OPERUH VAR    01297 I       F                              0.00625
+&
+&Modelagem simplificada dos FSARHs 7509 e 5907
+&Condicionada a vazão defluente total <= 2500 m3/s
+&Vazão defluente no NP = 1886.30
+&Condicionada a geração hidráulica (Ghid)
+&       Ghid >= 780 MW: permitida elevação até 1140 MW (inf = 780 MW, sup = 1140 MW), permitida redução até 780 MW
+&520 =< Ghid <= 760 MW: permitida elevação até 760 MW (inf = partida, sup = 760 MW), proibida redução
+&  0 =< Ghid <= 380 MW: permitida elevação até 380 MW (inf = partida, sup = 380 MW), proibida redução
+OPERUH REST   99220  L     RHQ            
+OPERUH ELEM   99220  91  MACHADINHO      7   1.0
+OPERUH LIM    99220  I      11 08 0          780      1140
+&
+&Modelagem simplificada do FSARH 7509
+&Condicionada a vazão defluente total <= 2500 m3/s
+&Vazão defluente no NP = 1886.30
+OPERUH REST   99221  V     RHV              1140.
+OPERUH ELEM   99221  91  MACHADINHO      7   1.0
+OPERUH VAR    9922111 08 0 11 16 0                              260
+OPERUH VAR    9922111 16 0 12 08 0                                0
+OPERUH VAR    9922112 08 0 12 16 0                              260
+OPERUH VAR    9922112 16 0 13 08 0                                0
+OPERUH VAR    9922113 08 0 13 16 0                              260
+OPERUH VAR    9922113 16 0 14 08 0                                0
+OPERUH VAR    9922114 08 0 14 16 0                              260
+OPERUH VAR    9922114 16 0 15 08 0                                0
+OPERUH VAR    9922115 08 0 15 16 0                              260
+OPERUH VAR    9922115 16 0 16 08 0                                0
+OPERUH VAR    9922116 08 0 16 16 0                              260
+OPERUH VAR    9922116 16 0 17 08 0                                0
+OPERUH VAR    9922117 08 0 17 16 0                              260
+OPERUH VAR    9922117 16 0  F                                     0
+&
+&Vazao defluente <=6000m3/s -> taxa max  500
+&Vazao defluente > 6000m3/s -> taxa max 1000
+OPERUH REST   01518  V     RHV              1994.
+OPERUH ELEM   01518  92  ITA             6   1.0
+OPERUH VAR    01518 I       F                                             500
+&
+&Restricao condicionada ao nivel < 367.10m
+&Cota 10/10 369.56
+&OPERUH REST   00963  V     RHV            
+&OPERUH ELEM   00963  92  ITA             1   1.0
+&OPERUH VAR    00963 I       F                                0.0042
+&
+&        Vazão Afluente Prevista <  1600 -> 370.00 m
+& 1600 < Vazão Afluente Prevista <  2000 -> 369.75 m
+& 2000 < Vazão Afluente Prevista <  3000 -> 369.50 m
+& 3000 < Vazão Afluente Prevista <  4000 -> 369.25 m
+& 4000 < Vazão Afluente Prevista <  6000 -> 368.50 m
+& 6000 < Vazão Afluente Prevista <  8000 -> 367.75 m
+& 8000 < Vazão Afluente Prevista < 10000 -> 367.00 m
+&10000 < Vazão Afluente Prevista         -> 367.00 m
+OPERUH REST   04747  L     RHV            
+OPERUH ELEM   04747  92  ITA             1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    04747  I       F                      369.56
+OPERUH LIM    04747 12       F                      369.50
+&
+&Vazao defluente < 400m3/s -> taxa max 100
+&Vazao defluente >=400m3/s -> taxa max 200
+OPERUH REST   01519  V     RHV              79.35
+OPERUH ELEM   01519  93  P.FUNDO         6   1.0
+OPERUH VAR    01519 I       F                                             100
+&
+&          Nivel < 589.35m -> 0.000833m
+&589.35m < Nivel < 590.00m -> 0.002083m
+&Cota 10/10 597.33
+&OPERUH REST   01520  V     RHV            
+&OPERUH ELEM   01520  93  P.FUNDO         1   1.0
+&OPERUH VAR    01520 I       F                              0.002083
+&
+&Condicionado a vazao turbinada
+&   0m3/s < Qturb <  533m3/s ->  800m3/s
+& 533m3/s < Qturb < 1066m3/s -> 1200m3/s
+&1066m3/s < Qturb < 1600m3/s -> 1600m3/s
+& Qturb = 478.00 m3/s
+OPERUH REST   03422  L     RHQ            
+OPERUH ELEM   03422 228  COLIDER         4   1.0
+OPERUH LIM    03422  I       F                         800
+&
+OPERUH REST   04238  V     RHV              58.75
+OPERUH ELEM   04238  57  MAUA            3   1.0
+OPERUH VAR    04238 I       F                                          120.00
+&
+OPERUH REST   01506  V     RHV              58.75
+OPERUH ELEM   01506  57  MAUA            3   1.0
+OPERUH VAR    01506 I       F                                120.00
+&
+& Hidrograma B da outorga Num. 1522, DE 24 DE JUNHO DE 2024.
+& Hidrograma A: jan - 1.100; fev - 1.600; mar - 2.500; abr - 4.000; mai - 1.800; jun - 1.200; jul - 1.000; ago - 900; set - 750; out - 700; nov - 800 e dez - 900
+& Hidrograma B: jan - 1.100; fev - 1.600; mar - 4.000; abr - 8.000; mai - 4.000; jun - 2.000; jul - 1.200; ago - 900; set - 750; out - 700; nov - 800 e dez - 900
+& Hidrograma B linearizado: Out: Sem 1 a 4 - 700
+OPERUH REST   07004  L S   RHQ             
+OPERUH ELEM   07004 314  PIMENTAL        6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    07004  I       F            460.00
+&
+& Defluencia: mar - 1.600; abr - 4.000; mai - 2.000; jun - 1.200; jul - 900; ago - 750; set - 700; out - 700; nov - 700 e dez - 800
+OPERUH REST   07676  L     RHQ            
+OPERUH ELEM   07676 314  PIMENTAL        6   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    07676  I       F               460
+&
+& Nivel de Jirau condicionado a vazao afluente
+& Acima ou igual a 22700 a cota = 90.00; Consultar tabela para demais vazoes
+& Acima ou igual a 16600 a cota = 87.50; 
+&OPERUH REST   01861  L     RHV            
+&OPERUH ELEM   01861 285  JIRAU           1   1.0
+&Compatibilizado com a vazao afluente prevista no dadvaz
+&OPERUH LIM    01861 11 00 0  F             82.50
+&OPERUH LIM    01861 12 00 0  F             82.50
+&OPERUH LIM    01861 13 00 0  F             82.50
+&OPERUH LIM    01861 14 00 0  F             82.50
+&OPERUH LIM    01861 15 00 0  F             82.50
+&OPERUH LIM    01861 16 00 0  F             82.50
+&OPERUH LIM    01861 17 00 0  F             82.50
+&
+&OPERUH REST   01860  L     RHV            
+&OPERUH ELEM   01860 285  JIRAU           1   1.0
+&Compatibilizado com a vazao afluente prevista no dadvaz
+&OPERUH LIM    01860 11 00 0  F                       82.50
+&OPERUH LIM    01860 12 00 0  F                       82.50
+&OPERUH LIM    01860 13 00 0  F                       82.50
+&OPERUH LIM    01860 14 00 0  F                       82.50
+&OPERUH LIM    01860 15 00 0  F                       82.50
+&OPERUH LIM    01860 16 00 0  F                       82.50
+&OPERUH LIM    01860 17 00 0  F                       82.50
+&
+&Condicionada ao valor de vazao afluente
+& Abaixo de 8000 -> 156m
+& Entre 8000 e 9000 -> 155.43m
+& Entre 9000 e 10000 -> 154.80m
+& Entre 10000 e 11000 -> 154.09m
+& Entre 11000 e 12000 -> 153.28m
+& Entre 12000 e 13000 -> 152.38m
+& Entre 13000 e 14000 -> 151.39m
+& Entre 14000 e 14350 -> 151.00m
+& Acima de 14350 -> 151.00m
+OPERUH REST   01511  L     RHQ            
+OPERUH ELEM   01511 267  ESTREITO        1   1.0
+OPERUH LIM    01511  I       F                      156.00
+&
+& Condicionada a Vazão Defluente
+& 2300m3/s < Qdefl < 4200m3/s 
+&OPERUH REST   05746  V     RHQ              1044.
+&OPERUH ELEM   05746 267  ESTREITO        6   1.0
+&OPERUH VAR    05746 I       F                               1000.00
+&
+&....... OPERACAO ESPECIAL - PARAIBA DO SUL ..........................
+&PARAIBUNA
+& Nivel minimo de 5% VU (3o estagio de deplecionamento) de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+&Volume util = 54.33
+OPERUH REST   99100  L     RHV
+OPERUH ELEM   99100 121  PARAIBUNA       2   1.0
+OPERUH LIM    99100  I       F                 5
+&
+& Nivel minimo de 10% VU (3o estagio de deplecionamento) de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+&Volume util = 33.99
+OPERUH REST   99101  L     RHV
+OPERUH ELEM   99101 122  SANTA BRANCA    2   1.0
+OPERUH LIM    99101  I       F                10
+&
+& Nivel minimo de 20% VU (3o estagio de deplecionamento) de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+&Volume util = 43.56
+OPERUH REST   99102  L     RHV
+OPERUH ELEM   99102 120  JAGUARI         2   1.0
+OPERUH LIM    99102  I       F                20
+&
+& Nivel minimo de 30% VU (para todos os estagios de deplecionamento) de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+&Volume util = 26.59
+OPERUH REST   99103  L     RHV
+OPERUH ELEM   99103 123  FUNIL           2   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    99103  I       F             25.00
+&
+&SANTA CECILIA
+&Vazao de 71 m3/s de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+OPERUH REST   99104  L     RHQ
+OPERUH ELEM   99104 125  STA CECILIA     6   1.0
+OPERUH LIM    99104  I       F                71        71
+&
+&PEREIRA PASSOS
+&Vazao de 120 m3/s de acordo com Resolucao Conjunta ANA/DAEE/IGAM/INEA no 1.382/2015
+&Valor maximo de 160 m3/s em condicoes especiais - somente apos o aumento da defluencia de 71 para 90 m3/s em Santa Cecilia
+OPERUH REST   99105  L     RHQ
+OPERUH ELEM   99105 133  P. PASSOS       6   1.0
+OPERUH LIM    99105  I       F               120       120
+&
+&DESVIO DE TOCOS PARA LAJES
+OPERUH REST   99106  L     RHQ
+OPERUH ELEM   99106 180  TOCOS           5   1.0
+OPERUH LIM    99106  I       F                 0        25
+& 
+&TOCOS
+OPERUH REST   99107  L     RHQ
+OPERUH ELEM   99107 180  TOCOS           6   1.0
+OPERUH LIM    99107  I       F                 0         0
+&
+OPERUH REST   00613  V     RHV            
+OPERUH ELEM   00613 122  SANTA BRANCA    1   1.0
+OPERUH VAR    00613 I       F                               0.00417
+&
+&....... OPERACAO ESPECIAL - TIETE ..........................
+&EDGARD DE SOUZA (desvio)
+OPERUH REST   03402  L     RHQ
+OPERUH ELEM   03402 107  E.SOUZA         5   1.0
+OPERUH LIM    03402  I       F                           0
+&
+&TRAICAO (bombeamento)    
+& Restricao conforme FSARH 3403 para as estacoes de bombeamento Traicao e Pedreira
+OPERUH REST   99201  L     RHQ
+OPERUH ELEM   99201   3  TRAICAO         8   1.0
+OPERUH LIM    99201  I       F                           0
+&
+&PEDREIRA (bombeamento)    
+& Restricao conforme FSARH 3403 para as estacoes de bombeamento Traicao e Pedreira
+OPERUH REST   99202  L     RHQ
+OPERUH ELEM   99202   4  PEDREIRA        8   1.0
+OPERUH LIM    99202  I       F                           0
+&
+&....... OPERACAO ESPECIAL - XINGU ..........................
+&
+&Restrição cadastrada no FSARH 1452-2020, conforme parágrafo 9º do inciso II da Outorga 1815/2020.
+OPERUH REST   99108  V     RHQ               722.
+OPERUH ELEM   99108 314  PIMENTAL        6   1.0
+&PERUH VAR    Ind  DI HI I DF HF F   VarMin(%)  VarMax(%)  VarMin    VarMax
+&XXXXX XXXXXX xxxxxXXXXXXXXXXXXXXX   xxxxxxxxxxXXXXXXXXXXxxxxxxxxxxXXXXXXXXXX
+OPERUH VAR    9910811 00 0  F                                               0
+OPERUH VAR    9910811 06 0  F                                   100       100
+OPERUH VAR    9910811 18 0  F                                               0
+OPERUH VAR    9910812 00 0  F                                               0
+OPERUH VAR    9910812 06 0  F                                   100       100
+OPERUH VAR    9910812 18 0  F                                               0
+OPERUH VAR    9910813 00 0  F                                               0
+OPERUH VAR    9910813 06 0  F                                   100       100
+OPERUH VAR    9910813 18 0  F                                               0
+OPERUH VAR    9910814 00 0  F                                               0
+OPERUH VAR    9910814 06 0  F                                   100       100
+OPERUH VAR    9910814 18 0  F                                               0
+OPERUH VAR    9910815 00 0  F                                               0
+OPERUH VAR    9910815 06 0  F                                   100       100
+OPERUH VAR    9910815 18 0  F                                               0
+OPERUH VAR    9910816 00 0  F                                               0
+OPERUH VAR    9910816 06 0  F                                   100       100
+OPERUH VAR    9910816 18 0  F                                               0
+OPERUH VAR    9910817 00 0  F                                               0
+OPERUH VAR    9910817 06 0  F                                   100       100
+OPERUH VAR    9910817 18 0  F                                               0
+&
+& Bloqueio do vertimento na UHE Belo Monte de acordo com  NT-ONS DPL 0017-2023
+OPERUH REST   99109  L     RHQ            
+OPERUH ELEM   99109 288  BELO MONTE      4   1.0
+OPERUH LIM    99109  I       F                           0
+&
+& Sazonal valido de Set/Maio; Condicionada a vazao afluente
+&         Vazão Afluente Prevista <  4000 -> 96.85 m
+& 4000 <= Vazão Afluente Prevista         -> 96.70 m
+OPERUH REST   00659  L     RHQ            
+OPERUH ELEM   00659 314  PIMENTAL        1   1.0
+&Flexibilizado para convergencia
+OPERUH LIM    00659  I       F             96.70
+&
+&..................Restricoes de variacao de geracao...................................
+&
+OPERUH REST   99212  V     RHQ                  .
+OPERUH ELEM   99212 288  BELO MONTE      7   1.0
+OPERUH VAR    99212 I       F                                   500       500
+&
+OPERUH REST   99213  V     RHQ               240.
+OPERUH ELEM   99213  27  C.BRANC1        7   1.0
+OPERUH VAR    99213 I       F                                    20        20
+&
+OPERUH REST   99214  V     RHQ               140.
+OPERUH ELEM   99214  28  C.BRANC2        7   1.0
+OPERUH VAR    99214 I       F                                    20        20
+&
+&..................Restricoes de outras naturezas......................................
+&
+OPERUH REST   99215  L     RHQ            
+OPERUH ELEM   99215  73  DESV.JORDAO     5   1.0
+OPERUH LIM    99215  I       F                 0       107
+&
+&Conforme FSARH 561
+OPERUH REST   99217  L     RHV            
+OPERUH ELEM   99217  63  ROSANA          6   1.0
+OPERUH ELEM   99217  46  P.PRIMAVERA     6   1.0
+OPERUH LIM    99217  I       F                       24000
+&
+&Conforme FSARHs 962 e 1987
+OPERUH REST   99218  L     RHQ            
+OPERUH ELEM   99218  83  B.IGUACU        6   1.0
+OPERUH LIM    99218 11 00 0 11 15 0       200.00
+OPERUH LIM    99218 11 15 0 12 00 0       350.00
+OPERUH LIM    99218 12 00 0 12 15 0       200.00
+OPERUH LIM    99218 12 15 0 13 00 0       350.00
+OPERUH LIM    99218 13 00 0 13 15 0       200.00
+OPERUH LIM    99218 13 15 0 14 00 0       350.00
+OPERUH LIM    99218 14 00 0 14 15 0       200.00
+OPERUH LIM    99218 14 15 0 15 00 0       350.00
+OPERUH LIM    99218 15 00 0 15 15 0       200.00
+OPERUH LIM    99218 15 15 0 16 00 0       350.00
+OPERUH LIM    99218 16 00 0 16 15 0       200.00
+OPERUH LIM    99218 16 15 0 17 00 0       350.00
+OPERUH LIM    99218 17 00 0 17 15 0       200.00
+OPERUH LIM    99218 17 15 0  F            350.00
+&
+& NP de Manso = 128.70 m3/s
+OPERUH REST   08341  L     RHQ            
+OPERUH ELEM   08341 278  MANSO           3   1.0
+OPERUH LIM    08341  I       F                      154.44
+&
+&Modelagem simplificada dos FSARHs 5647 e 6338
+&Sazonal (valido de 01/05 a 31/10)
+& NP de Manso = 128.70 m3/s
+OPERUH REST   99224  L D   RHQ            
+OPERUH ELEM   99224 278  MANSO           6   1.0
+OPERUH LIM    99224  I       F            115.83    141.57
+&
+&       Vazão Afluente Prevista < 300 -> 299.93 m
+& 300 < Vazão Afluente Prevista < 350 -> 299.87 m
+& 350 < Vazão Afluente Prevista < 400 -> 299.82 m
+& 400 < Vazão Afluente Prevista < 450 -> 299.77 m
+& 450 < Vazão Afluente Prevista < 500 -> 299.73 m
+& 500 < Vazão Afluente Prevista < 550 -> 299.66 m
+& 550 < Vazão Afluente Prevista < 600 -> 299.61 m
+& 600 < Vazão Afluente Prevista < 650 -> 299.57 m
+& 650 < Vazão Afluente Prevista < 700 -> 299.52 m
+& 700 < Vazão Afluente Prevista < 750 -> 299.46 m
+&Sazonal (valido de 01/07 a 31/10)
+OPERUH REST   08185  L     RHV            
+OPERUH ELEM   08185 227  SINOP           1   1.0
+OPERUH LIM    08185  I       F                      299.87
+&
+&Valido ate 17/10
+OPERUH REST   08883  L     RHV            
+OPERUH ELEM   08883 267  ESTREITO        6   1.0
+OPERUH LIM    08883 11 06 0 11 14 0                   1000
+OPERUH LIM    08883 12 06 0 12 14 0                   1000
+OPERUH LIM    08883 13 06 0 13 14 0                   1000
+OPERUH LIM    08883 14 06 0 14 14 0                   1000
+OPERUH LIM    08883 15 06 0 15 14 0                   1000
+OPERUH LIM    08883 16 06 0 16 14 0                   1000
+OPERUH LIM    08883 17 06 0 17 14 0                   1000
+&
+&Valido ate 18/10
+OPERUH REST   08921  L     RHQ            
+OPERUH ELEM   08921 111  PASSO REAL      6   1.0
+OPERUH LIM    08921 13 00 0 13 16 0                  30.00
+OPERUH LIM    08921 14 00 0 14 16 0                  30.00
+OPERUH LIM    08921 15 00 0 15 16 0                  30.00
+OPERUH LIM    08921 16 00 0 16 16 0                  30.00
+OPERUH LIM    08921 17 00 0 17 16 0                  30.00
+&
+&-----------------------------------------------------------------------------------------
+&PERUH REST   Ind    T     Descricao    VL Inicial
+&XXXXX XXXXXX xxxxx  x     xxxxxxxxxxxx xxxxxxxxxx
+&-----------------------------------------------------------------------------------------
+&PERUH ELEM   Ind   Num  Nome         U CD Fator
+&XXXXX XXXXXX xxxxx xxx  xxxxxxxxxxxx x xx xxxxx
+&-----------------------------------------------------------------------------------------
+&PERUH LIM    Ind   DI HI I DF HF F     Minimo    Maximo
+&XXXXX XXXXXX xxxxx xx xx x xx xx x   xxxxxxxxxxXXXXXXXXXX
+&-----------------------------------------------------------------------------------------
+&PERUH VAR    Ind  DI HI I DF HF F   VarMin(%)  VarMax(%)  VarMin    VarMax
+&XXXXX XXXXXX xxxxxXXXXXXXXXXXXXXX   xxxxxxxxxxXXXXXXXXXXxxxxxxxxxxXXXXXXXXXX
+&---------------------------------------------------------------------------------

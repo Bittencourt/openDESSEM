@@ -1,0 +1,22 @@
+&
+& == Condicoes iniciais ==
+&
+&Mnem  REST DREF Valor
+&xxxxx xxxx xxxx xxxxxxxxxx 
+RMPFLX REST 9003        599
+&
+& == Limites ==
+&
+&Mnem  LIM  di hi m df hf m DREF rampa desc rampa sub
+&xxxxx xxxx xx xx x xx xx x xxxx xxxxxxxxxx xxxxxxxxxx 
+RMPFLX LIMI  I       F      9003        100        100
+&
+&Mnem  REST DREF Valor
+&xxxxx xxxx xxxx xxxxxxxxxx 
+RMPFLX REST 9058        530
+&
+& == Limites ==
+&
+&Mnem  LIM  di hi m df hf m DREF rampa desc rampa sub
+&xxxxx xxxx xx xx x xx xx x xxxx xxxxxxxxxx xxxxxxxxxx 
+RMPFLX LIMI  I       F      9058       2400       2400

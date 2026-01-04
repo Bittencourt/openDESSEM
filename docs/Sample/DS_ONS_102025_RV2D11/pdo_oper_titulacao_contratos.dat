@@ -1,0 +1,191 @@
+***********************************************************************
+*                                                                     *
+*            CEPEL - CENTRO DE PESQUISAS DE ENERGIA ELETRICA          *
+*  MODELO DESSEM     - VERSAO 21 - Marco de 2025 (CPLEX)                             *
+*                                                                     *
+***********************************************************************
+
+
+   PROGRAMA LICENCIADO PARA ONS                                                                                                                                                   
+
+
+____________________________________________________________________
+
+  TE  PMO - OUTUBRO/25 - NOVEMBRO/25 - REV 2 - FCF COM CVAR - 12 REE - VALOR ESPE- Data do Caso: 11/10/2025                                                       
+____________________________________________________________________
+
+--------------------------------------------------
+Titulacao dos contrataos de importacao de energia.                              
+--------------------------------------------------
+-----------------------------------------------------------------------------------
+IPER:            Indice do periodo.                                                                                                                                                                     
+TIPO:            Tipo de contrato:                                                                                                                                                                      
+                 CI: Contrato de importacao de energia                                                                                                                                                  
+                 CE: Contrato de exportacao de energia                                                                                                                                                  
+CONTR:           Numero do contrato de imp/exp de energia                                                                                                                                               
+NomeContr:       Nome do contrato de imp/exp de energia                                                                                                                                                 
+Barra:           Barra da rede eletrica                                                                                                                                                                 
+Sist:            Numero do subsistema                                                                                                                                                                   
+Inflexibilidade: Titulacao do contrato da UTE por parcelas devido a inflexibilidade                                                                                                                     
+CustContr:       Custo (Preco) da energia imp/exp                                                                                                                                                       
+Geracao:         Geracao do contrato da UTE por parcelas                                                                                                                                                
+CMO:             Custo marginal de operacao                                                                                                                                                             
+CMB:             Custo marginal de operacao da barra                                                                                                                                                    
+ORD.MER.TOTAL:   Indica que a usina esta na ordem de merito gerando o maximo .                                                                                                                          
+Titulacao:       Titulacao das unidades termicas.                                                                                                                                                       
+-----------------------------------------------------------------------------------
+
+-----;----;-----;-----------;------;----;-----------------;---------;-----------------;----------;------------;-------------;------------------------------;
+IPER ;TIPO;CONTR; NomeContr ;Barra ;Sist; Inflexibilidade ;CustContr;     Geracao     ;   CMO    ;    CMB     ;ORD.MER.TOTAL;          Titulacao           ;
+  -  ; -  ;  -  ;     -     ;  -   ; -  ;       MW        ;  (MW)   ;       MW        ; (R$/MWh) ;  (R$/MWh)  ;      -      ;              -               ;
+-----;----;-----;-----------;------;----;-----------------;---------;-----------------;----------;------------;-------------;------------------------------;
+   1 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   304.30 ;     301.01 ;             ; Inflexibilidade              ;
+   1 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   304.30 ;     301.01 ;     MAX     ; Ordem de merito              ;
+   2 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   300.43 ;     296.76 ;             ; Inflexibilidade              ;
+   2 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   300.43 ;     296.76 ;     MAX     ; Ordem de merito              ;
+   3 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   296.08 ;     292.13 ;             ; Inflexibilidade              ;
+   3 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   296.08 ;     292.13 ;     MAX     ; Ordem de merito              ;
+   4 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   290.70 ;     286.58 ;             ; Inflexibilidade              ;
+   4 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   290.70 ;     286.58 ;     MAX     ; Ordem de merito              ;
+   5 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   289.09 ;     284.95 ;             ; Inflexibilidade              ;
+   5 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   289.09 ;     284.95 ;     MAX     ; Ordem de merito              ;
+   6 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   289.06 ;     284.83 ;             ; Inflexibilidade              ;
+   6 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   289.06 ;     284.83 ;     MAX     ; Ordem de merito              ;
+   7 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   289.19 ;     284.92 ;             ; Inflexibilidade              ;
+   7 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   289.19 ;     284.92 ;     MAX     ; Ordem de merito              ;
+   8 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   287.96 ;     283.86 ;             ; Inflexibilidade              ;
+   8 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   287.96 ;     283.86 ;     MAX     ; Ordem de merito              ;
+   9 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   287.95 ;     283.85 ;             ; Inflexibilidade              ;
+   9 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   287.95 ;     283.85 ;     MAX     ; Ordem de merito              ;
+  10 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   286.90 ;     282.97 ;             ; Inflexibilidade              ;
+  10 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   286.90 ;     282.97 ;     MAX     ; Ordem de merito              ;
+  11 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   287.23 ;     283.23 ;             ; Inflexibilidade              ;
+  11 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   287.23 ;     283.23 ;     MAX     ; Ordem de merito              ;
+  12 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   259.13 ;     258.66 ;             ; Inflexibilidade              ;
+  12 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   259.13 ;     258.66 ;             ; Inflexibilidade              ;
+  13 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   246.04 ;     243.98 ;             ; Inflexibilidade              ;
+  13 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   246.04 ;     243.98 ;             ; Inflexibilidade              ;
+  14 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  14 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  15 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  15 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  16 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  16 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  17 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  17 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  18 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  18 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  19 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  19 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  20 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  20 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  21 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  21 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  22 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  22 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  23 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  23 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  24 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  24 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  25 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  25 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  26 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  26 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  27 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  27 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  28 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  28 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;       0.00 ;             ; Inflexibilidade              ;
+  29 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  29 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  30 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  30 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.01 ;       0.01 ;             ; Inflexibilidade              ;
+  31 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   117.44 ;     101.36 ;             ; Inflexibilidade              ;
+  31 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   117.44 ;     101.36 ;             ; Inflexibilidade              ;
+  32 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   276.80 ;     270.65 ;             ; Inflexibilidade              ;
+  32 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   276.80 ;     270.65 ;     MAX     ; Ordem de merito              ;
+  33 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   291.48 ;     286.23 ;             ; Inflexibilidade              ;
+  33 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   291.48 ;     286.23 ;     MAX     ; Ordem de merito              ;
+  34 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   302.50 ;     297.93 ;             ; Inflexibilidade              ;
+  34 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   302.50 ;     297.93 ;     MAX     ; Ordem de merito              ;
+  35 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   313.50 ;     309.57 ;             ; Inflexibilidade              ;
+  35 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   313.50 ;     309.57 ;     MAX     ; Ordem de merito              ;
+  36 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   321.79 ;     318.33 ;             ; Inflexibilidade              ;
+  36 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   321.79 ;     318.33 ;     MAX     ; Ordem de merito              ;
+  37 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   331.05 ;     328.34 ;             ; Inflexibilidade              ;
+  37 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   331.05 ;     328.34 ;     MAX     ; Ordem de merito              ;
+  38 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   331.03 ;     328.56 ;             ; Inflexibilidade              ;
+  38 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   331.03 ;     328.56 ;     MAX     ; Ordem de merito              ;
+  39 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   326.17 ;     323.03 ;             ; Inflexibilidade              ;
+  39 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   326.17 ;     323.03 ;     MAX     ; Ordem de merito              ;
+  40 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   322.12 ;     319.27 ;             ; Inflexibilidade              ;
+  40 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   322.12 ;     319.27 ;     MAX     ; Ordem de merito              ;
+  41 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   319.67 ;     315.95 ;             ; Inflexibilidade              ;
+  41 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   319.67 ;     315.95 ;     MAX     ; Ordem de merito              ;
+  42 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   316.28 ;     312.34 ;             ; Inflexibilidade              ;
+  42 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   316.28 ;     312.34 ;     MAX     ; Ordem de merito              ;
+  43 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   314.29 ;     310.22 ;             ; Inflexibilidade              ;
+  43 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   314.29 ;     310.22 ;     MAX     ; Ordem de merito              ;
+  44 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   310.61 ;     306.28 ;             ; Inflexibilidade              ;
+  44 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   310.61 ;     306.28 ;     MAX     ; Ordem de merito              ;
+  45 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   309.86 ;     305.53 ;             ; Inflexibilidade              ;
+  45 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   309.86 ;     305.53 ;     MAX     ; Ordem de merito              ;
+  46 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   308.84 ;     304.49 ;             ; Inflexibilidade              ;
+  46 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   308.84 ;     304.49 ;     MAX     ; Ordem de merito              ;
+  47 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   306.90 ;     302.49 ;             ; Inflexibilidade              ;
+  47 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   306.90 ;     302.49 ;     MAX     ; Ordem de merito              ;
+  48 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   304.52 ;     300.05 ;             ; Inflexibilidade              ;
+  48 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   304.52 ;     300.05 ;     MAX     ; Ordem de merito              ;
+  49 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;     0.00 ;      -     ;             ; Inflexibilidade              ;
+  49 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;     0.00 ;      -     ;             ; Inflexibilidade              ;
+  50 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   309.58 ;      -     ;             ; Inflexibilidade              ;
+  50 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   309.58 ;      -     ;     MAX     ; Ordem de merito              ;
+  51 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   289.84 ;      -     ;             ; Inflexibilidade              ;
+  51 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   289.84 ;      -     ;     MAX     ; Ordem de merito              ;
+  52 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   250.64 ;      -     ;             ; Inflexibilidade              ;
+  52 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   250.64 ;      -     ;             ; Inflexibilidade              ;
+  53 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   245.87 ;      -     ;             ; Inflexibilidade              ;
+  53 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   245.87 ;      -     ;             ; Inflexibilidade              ;
+  54 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   317.13 ;      -     ;             ; Inflexibilidade              ;
+  54 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   317.13 ;      -     ;     MAX     ; Ordem de merito              ;
+  55 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   310.31 ;      -     ;             ; Inflexibilidade              ;
+  55 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   310.31 ;      -     ;     MAX     ; Ordem de merito              ;
+  56 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   302.03 ;      -     ;             ; Inflexibilidade              ;
+  56 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   302.03 ;      -     ;     MAX     ; Ordem de merito              ;
+  57 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   288.25 ;      -     ;             ; Inflexibilidade              ;
+  57 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   288.25 ;      -     ;     MAX     ; Ordem de merito              ;
+  58 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   257.71 ;      -     ;             ; Inflexibilidade              ;
+  58 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   257.71 ;      -     ;             ; Inflexibilidade              ;
+  59 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   319.71 ;      -     ;             ; Inflexibilidade              ;
+  59 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   319.71 ;      -     ;     MAX     ; Ordem de merito              ;
+  60 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   310.18 ;      -     ;             ; Inflexibilidade              ;
+  60 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   310.18 ;      -     ;     MAX     ; Ordem de merito              ;
+  61 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   300.64 ;      -     ;             ; Inflexibilidade              ;
+  61 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   300.64 ;      -     ;     MAX     ; Ordem de merito              ;
+  62 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   287.03 ;      -     ;             ; Inflexibilidade              ;
+  62 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   287.03 ;      -     ;     MAX     ; Ordem de merito              ;
+  63 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   249.82 ;      -     ;             ; Inflexibilidade              ;
+  63 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   249.82 ;      -     ;             ; Inflexibilidade              ;
+  64 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   317.17 ;      -     ;             ; Inflexibilidade              ;
+  64 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   317.17 ;      -     ;     MAX     ; Ordem de merito              ;
+  65 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   308.80 ;      -     ;             ; Inflexibilidade              ;
+  65 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   308.80 ;      -     ;     MAX     ; Ordem de merito              ;
+  66 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   302.24 ;      -     ;             ; Inflexibilidade              ;
+  66 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   302.24 ;      -     ;     MAX     ; Ordem de merito              ;
+  67 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   285.63 ;      -     ;             ; Inflexibilidade              ;
+  67 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   285.63 ;      -     ;     MAX     ; Ordem de merito              ;
+  68 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   257.74 ;      -     ;             ; Inflexibilidade              ;
+  68 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   257.74 ;      -     ;             ; Inflexibilidade              ;
+  69 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   318.32 ;      -     ;             ; Inflexibilidade              ;
+  69 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   318.32 ;      -     ;     MAX     ; Ordem de merito              ;
+  70 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   312.59 ;      -     ;             ; Inflexibilidade              ;
+  70 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   312.59 ;      -     ;     MAX     ; Ordem de merito              ;
+  71 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   304.19 ;      -     ;             ; Inflexibilidade              ;
+  71 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   304.19 ;      -     ;     MAX     ; Ordem de merito              ;
+  72 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   287.80 ;      -     ;             ; Inflexibilidade              ;
+  72 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   287.80 ;      -     ;     MAX     ; Ordem de merito              ;
+  73 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   272.60 ;      -     ;             ; Inflexibilidade              ;
+  73 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   272.60 ;      -     ;     MAX     ; Ordem de merito              ;
+  74 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   316.95 ;      -     ;             ; Inflexibilidade              ;
+  74 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   316.95 ;      -     ;     MAX     ; Ordem de merito              ;
+  75 ; CI ;  65 ; TKUTA2-I  ;   -  ;  - ;          111.00 ;     0.00;          111.00 ;   309.45 ;      -     ;             ; Inflexibilidade              ;
+  75 ; CI ; 183 ; TKUTAT-I  ;   -  ;  - ;          219.00 ;   262.77;          219.00 ;   309.45 ;      -     ;     MAX     ; Ordem de merito              ;

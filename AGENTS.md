@@ -597,6 +597,78 @@ julia scripts/code_quality_evaluator.jl
 - claude.md precedence: technical specs, mandatory requirements, code style, implementation status
 - AGENTS.md precedence: quick references, common mistakes, agent-focused content
 
+### git-branch-manager
+
+**Location**: `.factory/droids/git-branch-manager.md`
+
+**Purpose**: Manages git workflow including branch protection, PR/merge request validation, controlled merges to dev and main branches, version tagging, and synchronization between local and remote repositories. Ensures code quality gates are enforced before merges.
+
+**When to Use**:
+- Before merging any branch to dev or main
+- When creating release tags
+- When checking if a branch is ready for merge
+- When synchronizing local and remote repositories
+- For hotfix management
+- For rollback procedures
+
+**How to Invoke**:
+
+```bash
+# Validate before merge to dev
+julia scripts/validate_before_merge.jl --target=dev
+
+# Validate before merge to main
+julia scripts/validate_before_merge.jl --target=main
+
+# Or ask droid directly (in interactive mode)
+"Check if this branch can be merged"
+"Validate PR #123"
+"Is dev ready for main merge?"
+"Sync local with remote"
+"Create release tag v0.1.0"
+```
+
+**What It Manages**:
+1. **Pre-Merge Validation**: 8 checks before allowing merges
+   - Uncommitted changes detection
+   - Remote synchronization verification
+   - Full test suite execution
+   - Code coverage thresholds (90% for main, 85% for dev)
+   - Code formatting verification
+   - Pre-commit checks
+   - Secrets/credentials scanning
+   - Git history quality assessment
+
+2. **Branch Protection**: Enforced rules for dev and main branches
+   - Require pull request before merging
+   - Require status checks to pass
+   - Require branches to be up to date
+   - Block force pushes
+
+3. **Version Management**: Semantic versioning with proper tags
+   - MAJOR.MINOR.PATCH versioning
+   - Automated tag creation
+   - CHANGELOG updates
+   - Pre-release backups
+
+4. **Workflow Control**: Controlled flow through branches
+   - Feature → Dev: Tests pass, coverage >85%
+   - Dev → Main: All tests pass, coverage >90%, integration tests pass
+   - Hotfix bypass for urgent fixes
+   - Quality gate enforcement
+
+**Exit Codes**:
+- `0`: All checks passed - safe to merge
+- `1`: Uncommitted changes detected
+- `2`: Branch not up to date with remote
+- `3`: Tests failed
+- `4`: Coverage below threshold
+- `5`: Code needs formatting
+- `6`: Pre-commit checks failed
+- `7`: Secrets detected in changes
+- `8`: Git history quality issues
+- `9`: Julia version too old
+
 ---
 
 ## Getting Help
@@ -688,12 +760,13 @@ end
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3 | 2026-01-04 | Added git-branch-manager droid: Comprehensive git workflow management including branch protection, PR/merge request validation, controlled merges to dev and main, version tagging, and remote synchronization. Added validation script `scripts/validate_before_merge.jl` with 8 pre-merge checks. |
 | 1.2 | 2025-01-04 | Added code-quality-evaluator droid: Comprehensive quality assessment with test execution, coverage calculation, blind spot detection, linting checks, and automated reporting to docs/CRITICAL_EVALUATION.md. Added "Available Droids" section documenting both code-quality-evaluator and instruction-set-synchronizer. |
 | 1.1 | 2025-01-04 | Synced with claude.md: Updated Julia version to 1.8+, added JuliaFormatter mandatory requirement, added keyword argument spacing convention, added Current Implementation Status section, expanded validation functions list |
 | 1.0 | 2025-01-04 | Initial AGENTS.md created from project documentation |
 
 ---
 
-**Last Updated**: 2025-01-04
+**Last Updated**: 2026-01-04
 **Maintainer**: OpenDESSEM Development Team
 **Status**: Active
