@@ -135,9 +135,19 @@ Expected Output:
 
 ### TASK-002: Renewable Energy Plant Entities
 
-**Status**: 🔵 In Progress (Started 2026-01-04)
+**Status**: 🟢 Completed (2026-01-04)
 **Complexity**: 5/10
 **Precedence**: None (can be done in parallel with TASK-001)
+
+**Completion Notes**:
+- Implemented WindPlant and SolarPlant entities with time-varying capacity forecasts
+- Added RenewableType enum (WIND, SOLAR) and ForecastType enum (DETERMINISTIC, STOCHASTIC, SCENARIO_BASED)
+- Both plant types support capacity_forecast_mw::Vector{Float64} for intermittent generation
+- Implemented curtailment logic with is_dispatchable flag
+- Ramp rate constraints for both plant types
+- Comprehensive validation including forecast dimension checking
+- Full test coverage with 100+ tests for both plant types
+- Fixed network.jl string interpolation issue with R$ currency symbols
 
 **Description**:
 Implement renewable energy plant entities for wind and solar generation, which have different characteristics from thermal and hydro plants:

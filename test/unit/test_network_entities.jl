@@ -613,4 +613,356 @@ using Test
         end
     end
 
+    @testset "NetworkLoad - Constructor" begin
+        @testset "Valid load with profile" begin
+            profile = collect(100.0:10.0:340.0)  # 24-hour profile
+            load = NetworkLoad(;
+                id = "LOAD_001",
+                name = "Industrial Load Alpha",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                is_firm = true,
+                is_interruptible = false,
+                priority = 1,
+                price_elasticity = -0.1,
+                interruption_cost_rs_per_mwh = 5000.0,
+            )
+
+            @test load.id == "LOAD_001"
+            @test load.name == "Industrial Load Alpha"
+            @test load.bus_id == "B_001"
+            @test load.submarket_id == "SE"
+            @test length(load.load_profile_mw) == 24
+            @test load.load_profile_mw[1] == 100.0
+            @test load.load_profile_mw[24] == 330.0
+            @test load.is_firm == true
+            @test load.is_interruptible == false
+            @test load.priority == 1
+            @test load.price_elasticity == -0.1
+            @test load.interruption_cost_rs_per_mwh == 5000.0
+            @test load isa NetworkEntity
+            @test load isa PhysicalEntity
+        end
+
+        @testset "Valid curtaillable load" begin
+            profile = collect(50.0:5.0:165.0)
+            load = NetworkLoad(;
+                id = "LOAD_002",
+                name = "Curtailable Load",
+                bus_id = "B_002",
+                submarket_id = "NE",
+                load_profile_mw = profile,
+                is_firm = false,
+                is_interruptible = true,
+                priority = 5,
+                interruption_cost_rs_per_mwh = 2000.0,
+            )
+
+            @test load.is_firm == false
+            @test load.is_interruptible == true
+            @test load.priority == 5
+            @test load.price_elasticity === nothing  # Default
+        end
+
+        @testset "Default values" begin
+            profile = ones(24) * 100.0
+            load = NetworkLoad(;
+                id = "LOAD_003",
+                name = "Default Load",
+                bus_id = "B_003",
+                submarket_id = "S",
+                load_profile_mw = profile,
+            )
+
+            @test load.is_firm == true  # Default
+            @test load.is_interruptible == false  # Default
+            @test load.priority == 5  # Default
+            @test load.price_elasticity === nothing
+            @test load.interruption_cost_rs_per_mwh === nothing
+            @test load.metadata !== nothing
+        end
+    end
+
+    @testset "NetworkLoad - Validation" begin
+        @testset "Empty load profile" begin
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Empty Profile",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = Float64[],
+            )
+        end
+
+        @testset "Negative demand in profile" begin
+            profile = copy(ones(24) * 100.0)
+            profile[5] = -10.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Negative Demand",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+            )
+        end
+
+        @testset "Zero demand in profile" begin
+            profile = copy(ones(24) * 100.0)
+            profile[10] = 0.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Zero Demand",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+            )
+        end
+
+        @testset "Invalid priority" begin
+            profile = ones(24) * 100.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Zero Priority",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                priority = 0,
+            )
+
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "High Priority",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                priority = 11,
+            )
+        end
+
+        @testset "Invalid price elasticity" begin
+            profile = ones(24) * 100.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Positive Elasticity",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                price_elasticity = 0.1,  # Should be negative
+            )
+
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Too Negative Elasticity",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                price_elasticity = -2.0,  # Should be >= -1.0
+            )
+        end
+
+        @testset "Negative interruption cost" begin
+            profile = ones(24) * 100.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Negative Interruption Cost",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                interruption_cost_rs_per_mwh = -100.0,
+            )
+        end
+
+        @testset "Firm but interruptible contradiction" begin
+            profile = ones(24) * 100.0
+            @test_throws ArgumentError NetworkLoad(;
+                id = "LOAD_001",
+                name = "Contradiction",
+                bus_id = "B_001",
+                submarket_id = "SE",
+                load_profile_mw = profile,
+                is_firm = true,
+                is_interruptible = true,  # Can't be both
+            )
+        end
+    end
+
+    @testset "Submarket - Constructor" begin
+        @testset "Valid SE/CO submarket" begin
+            demand = collect(10000.0:100.0:12300.0)
+            interconnections = Dict("S" => 2000.0, "NE" => 1500.0, "N" => 1000.0)
+            submarket = Submarket(;
+                id = "SE",
+                name = "Sudeste/Centro-Oeste",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_SE_REF",
+            )
+
+            @test submarket.id == "SE"
+            @test submarket.name == "Sudeste/Centro-Oeste"
+            @test length(submarket.demand_forecast_mw) == 24
+            @test submarket.demand_forecast_mw[1] == 10000.0
+            @test submarket.interconnection_capacity_mw["S"] == 2000.0
+            @test submarket.interconnection_capacity_mw["NE"] == 1500.0
+            @test submarket.interconnection_capacity_mw["N"] == 1000.0
+            @test submarket.reference_bus_id == "BUS_SE_REF"
+            @test submarket isa NetworkEntity
+            @test submarket isa PhysicalEntity
+        end
+
+        @testset "Valid South submarket" begin
+            demand = collect(5000.0:50.0:6150.0)
+            interconnections = Dict("SE" => 2000.0, "N" => 500.0)
+            submarket = Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_S_REF",
+            )
+
+            @test submarket.id == "S"
+            @test submarket.name == "South"
+            @test length(submarket.demand_forecast_mw) == 24
+            @test submarket.interconnection_capacity_mw["SE"] == 2000.0
+        end
+
+        @testset "Valid Northeast submarket" begin
+            demand = collect(7000.0:70.0:8610.0)
+            interconnections = Dict("SE" => 1500.0)
+            submarket = Submarket(;
+                id = "NE",
+                name = "Northeast",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_NE_REF",
+            )
+
+            @test submarket.id == "NE"
+            @test submarket.name == "Northeast"
+        end
+
+        @testset "Valid North submarket" begin
+            demand = collect(3000.0:30.0:3690.0)
+            interconnections = Dict("SE" => 1000.0, "S" => 500.0)
+            submarket = Submarket(;
+                id = "N",
+                name = "North",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_N_REF",
+            )
+
+            @test submarket.id == "N"
+            @test submarket.name == "North"
+        end
+    end
+
+    @testset "Submarket - Validation" begin
+        @testset "Invalid submarket ID" begin
+            demand = ones(24) * 5000.0
+            interconnections = Dict("SE" => 1000.0)
+            @test_throws ArgumentError Submarket(;
+                id = "XX",  # Invalid
+                name = "Invalid Submarket",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+
+            @test_throws ArgumentError Submarket(;
+                id = "SUL",  # Too long
+                name = "Invalid Submarket",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Empty demand forecast" begin
+            interconnections = Dict("SE" => 1000.0)
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = Float64[],
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Negative demand forecast" begin
+            demand = copy(ones(24) * 5000.0)
+            demand[5] = -100.0
+            interconnections = Dict("SE" => 1000.0)
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Zero demand forecast" begin
+            demand = copy(ones(24) * 5000.0)
+            demand[10] = 0.0
+            interconnections = Dict("SE" => 1000.0)
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Empty interconnections" begin
+            demand = ones(24) * 5000.0
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = Dict{String,Float64}(),
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Negative interconnection capacity" begin
+            demand = ones(24) * 5000.0
+            interconnections = Dict("SE" => -1000.0)
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Self-interconnection" begin
+            demand = ones(24) * 5000.0
+            interconnections = Dict("S" => 1000.0)  # Self
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+
+        @testset "Invalid interconnection submarket ID" begin
+            demand = ones(24) * 5000.0
+            interconnections = Dict("XX" => 1000.0)  # Invalid
+            @test_throws ArgumentError Submarket(;
+                id = "S",
+                name = "South",
+                demand_forecast_mw = demand,
+                interconnection_capacity_mw = interconnections,
+                reference_bus_id = "BUS_REF",
+            )
+        end
+    end
+
 end
