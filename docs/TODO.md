@@ -21,7 +21,7 @@ This document outlines the remaining development tasks for the OpenDESSEM projec
 
 ### TASK-001: Hydroelectric Plant Entities
 
-**Status**: 🟡 Planned
+**Status**: 🔵 In Progress (Started 2026-01-04)
 **Complexity**: 7/10
 **Precedence**: None (builds on existing entity system)
 
@@ -135,7 +135,7 @@ Expected Output:
 
 ### TASK-002: Renewable Energy Plant Entities
 
-**Status**: 🟡 Planned
+**Status**: 🔵 In Progress (Started 2026-01-04)
 **Complexity**: 5/10
 **Precedence**: None (can be done in parallel with TASK-001)
 
@@ -228,7 +228,7 @@ Expected Output:
 
 ### TASK-003: Electrical Network Entity Types
 
-**Status**: 🟡 Planned
+**Status**: 🔵 In Progress (Started 2026-01-04)
 **Complexity**: 8/10
 **Precedence**: None (can be done in parallel with TASK-001 and TASK-002)
 
