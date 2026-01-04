@@ -42,6 +42,7 @@ export get_id, has_id, update_metadata, add_tag, set_property, is_empty
 export ThermalPlant, ConventionalThermal, CombinedCyclePlant
 export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
 export RenewablePlant, WindFarm, SolarFarm
+export NetworkEntity, Bus, ACLine, DCLine
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
 export TrackingSystem, FIXED, SINGLE_AXIS, DUAL_AXIS
 
