@@ -1,0 +1,328 @@
+# =====================================================
+# OpenDESSEM .gitignore
+# =====================================================
+
+# =====================================================
+# Julia-specific
+# =====================================================
+# Compiled artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.jl.c
+*.jl.*.bc
+
+# Julia package artifacts
+deps/deps.jl
+deps/build.log
+deps/dev/
+deps/src/
+
+# Manifest.toml (comment out for version control)
+# Manifest.toml
+
+# .toml files
+LocalPreferences.toml
+
+# Julia REPL history
+.julia/history/
+
+# Revise
+.revise/
+
+# =====================================================
+# Testing and Coverage
+# =====================================================
+# Test artifacts
+test/*.csv
+test/*.h5
+test/*.hdf5
+test/*.feather
+test/*.parquet
+test/artifacts/
+test/__outputs/
+
+# Coverage reports
+*.cov
+*.info
+coverage/
+lcov.info
+
+# =====================================================
+# IDE and Editor Files
+# =====================================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*/.idea/
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+.un~
+
+# Emacs
+*~
+\#*\#
+.\#*
+.dir-locals.el
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# =====================================================
+# Logs and Temporary Files
+# =====================================================
+*.log
+*.log.*
+*.cache
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# =====================================================
+# Database Files (local development)
+# =====================================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+postgres-data/
+pgdata/
+
+# =====================================================
+# Solver and Model Artifacts
+# =====================================================
+# HiGHS
+*.highs
+*.mps
+
+# Gurobi
+*.lp
+*.rlp
+*.ilp
+*.sol
+*.mst
+*.attr
+*.ord
+*.hue
+*.bas
+*.prm
+*.set
+*.env
+*.pfm
+*.cpp
+*.dt2
+*.prep
+*.lpx
+*.rmp
+*.hnt
+*.tsp
+*.mps
+*.sav
+*.raw
+*.xml
+*.json.gz
+*.sen
+*.ref
+*.presolve
+*.presolved
+*.rlp
+*.dup
+*.fix
+
+# CPLEX
+*.lp
+*.msk
+*.sol
+
+# MOSEK
+*.opf
+*.task
+
+# SCIP
+*.lp
+*.sol
+*.xml
+
+# =====================================================
+# Data Files (large datasets, sensitive data)
+# =====================================================
+data/raw/
+data/processed/
+data/*.csv
+data/*.h5
+data/*.hdf5
+data/*.feather
+data/*.parquet
+data/*.pickle
+data/*.pkl
+data/*.dta
+
+# Exception: example/test data files
+!data/examples/
+!test/fixtures/
+
+# =====================================================
+# Documentation Build Artifacts
+# =====================================================
+docs/build/
+docs/site/
+docs/.nojekyll
+
+# Python Jupyter (if using for examples)
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# Pluto notebooks (Julia)
+.pluto/
+
+# =====================================================
+# Benchmark and Profiling
+# =====================================================
+benchmark/results/
+benchmark/*.html
+benchmark/*.svg
+profile_data/
+
+# =====================================================
+# OS-specific
+# =====================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# =====================================================
+# Project-specific
+# =====================================================
+# Model outputs (don't commit solution files)
+outputs/
+results/
+solutions/
+dispatch_results/
+pld_results/
+
+# Scenario files (if large)
+scenarios/*.h5
+!scenarios/examples/
+
+# Config files with local paths
+config/local_config.yaml
+config/user_config.yaml
+
+# =====================================================
+# Secure and Sensitive Data
+# =====================================================
+# Credentials
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+credentials.json
+.secrets
+.env
+.env.local
+.env.*.local
+
+# =====================================================
+# Backup and Archive
+# =====================================================
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+backup/
+archives/
+old/
+
+# =====================================================
+# Miscellaneous
+# =====================================================
+# Node.js (if using web tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if using for auxiliary scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# R (if using for analysis)
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# MATLAB (if using for comparison)
+*.asv
+*.mex*
+*.mat
+
+# =====================================================
+# Keep these directories but ignore contents
+# =====================================================
+# Keep directory structure, ignore contents
+results/*
+!results/.gitkeep
+outputs/*
+!outputs/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# =====================================================
+# END OF .GITIGNORE
+# =====================================================

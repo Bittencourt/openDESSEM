@@ -1,0 +1,26 @@
+name = "OpenDESSEM"
+uuid = "12345678-1234-1234-1234-123456789abc"  # Placeholder UUID
+authors = ["OpenDESSEM Development Team"]
+version = "0.1.0"
+
+[deps]
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
+[compat]
+julia = "1.10"
+JuMP = "1.0"
+HiGHS = "1.0"
+DataFrames = "1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+JuliaFormatter = "98e50ef6-434e-5e9c-8493-9c607cd922f5"
+
+[targets]
+test = ["Test"]
+docs = ["Documenter"]
+```
