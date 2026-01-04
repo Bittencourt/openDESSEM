@@ -26,6 +26,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.92,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 69.0,
                 must_run = false,
                 downstream_plant_id = "H_002",
                 water_travel_time_hours = 2.0,
@@ -37,6 +39,8 @@ using Dates
             @test plant.min_volume_hm3 == 5000.0
             @test plant.initial_volume_hm3 == 20000.0
             @test plant.efficiency == 0.92
+            @test plant.subsystem_code == 1
+            @test plant.initial_volume_percent ≈ 0.69
             @test plant.downstream_plant_id == "H_002"
             @test plant.water_travel_time_hours == 2.0
         end
@@ -56,10 +60,14 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.88,
                 water_value_rs_per_hm3 = 30.0,
+                subsystem_code = 3,
+                initial_volume_percent = 60.0,
             )
 
             @test plant.downstream_plant_id === nothing
             @test plant.water_travel_time_hours === nothing
+            @test plant.subsystem_code == 3
+            @test plant.initial_volume_percent ≈ 0.60
         end
     end
 
@@ -79,6 +87,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -97,6 +107,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -115,6 +127,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -133,6 +147,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -151,6 +167,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 1.5,  # Invalid!
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -169,6 +187,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = -0.1,  # Invalid!
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
         end
 
@@ -187,6 +207,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
                 downstream_plant_id = "H_002",  # Set but water_travel_time_hours is not
             )
         end
@@ -204,6 +226,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 0.88,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
                 must_run = true,
             )
 
@@ -211,6 +235,8 @@ using Dates
             @test plant.max_flow_m3_per_s == 500.0
             @test plant.min_flow_m3_per_s == 50.0
             @test plant.efficiency == 0.88
+            @test plant.subsystem_code == 1
+            @test plant.initial_volume_percent ≈ 1.0
             @test plant.must_run == true
         end
 
@@ -225,12 +251,16 @@ using Dates
                 max_generation_mw = 200.0,
                 min_generation_mw = 50.0,
                 efficiency = 0.90,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
                 downstream_plant_id = "ROR_003",
                 water_travel_time_hours = 0.5,
             )
 
             @test plant.downstream_plant_id == "ROR_003"
             @test plant.water_travel_time_hours == 0.5
+            @test plant.subsystem_code == 1
+            @test plant.initial_volume_percent ≈ 1.0
         end
     end
 
@@ -246,6 +276,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
             )
         end
 
@@ -260,6 +292,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
             )
         end
 
@@ -274,6 +308,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 1.2,  # Invalid!
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
             )
         end
     end
@@ -288,6 +324,7 @@ using Dates
                 upper_max_volume_hm3 = 500.0,
                 upper_min_volume_hm3 = 50.0,
                 upper_initial_volume_hm3 = 300.0,
+                upper_initial_volume_percent = 60.0,
                 lower_max_volume_hm3 = 1000.0,
                 lower_min_volume_hm3 = 100.0,
                 lower_initial_volume_hm3 = 800.0,
@@ -296,6 +333,7 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                subsystem_code = 1,
                 must_run = false,
             )
 
@@ -308,6 +346,8 @@ using Dates
             @test plant.max_pumping_mw == 400.0
             @test plant.generation_efficiency == 0.85
             @test plant.pumping_efficiency == 0.87
+            @test plant.upper_initial_volume_percent ≈ 0.60
+            @test plant.subsystem_code == 1
         end
     end
 
@@ -329,6 +369,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
 
@@ -349,6 +391,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
 
@@ -369,6 +413,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
 
@@ -389,6 +435,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
 
@@ -409,6 +457,8 @@ using Dates
                 generation_efficiency = 1.2,  # Invalid!
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
 
@@ -429,6 +479,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = -0.1,  # Invalid!
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
         end
     end
@@ -449,6 +501,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
 
             @test plant isa HydroPlant
@@ -467,6 +521,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
             )
 
             @test plant isa HydroPlant
@@ -491,6 +547,8 @@ using Dates
                 generation_efficiency = 0.85,
                 pumping_efficiency = 0.87,
                 min_generation_mw = 0.0,
+                upper_initial_volume_percent = 60.0,
+                subsystem_code = 1,
             )
 
             @test plant isa HydroPlant
@@ -515,6 +573,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
 
             @test plant.min_outflow_m3_per_s == 0.0
@@ -531,6 +591,8 @@ using Dates
                 max_generation_mw = 100.0,
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
+                subsystem_code = 1,
+                initial_volume_percent = 100.0,
             )
 
             @test plant.min_flow_m3_per_s == 0.0
@@ -551,6 +613,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 0.9,
                 water_value_rs_per_hm3 = 0.0,  # Free water
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
 
             @test plant.water_value_rs_per_hm3 == 0.0
@@ -571,6 +635,8 @@ using Dates
                 min_generation_mw = 0.0,
                 efficiency = 1.0,  # Perfect efficiency
                 water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
             )
 
             @test plant.efficiency == 1.0

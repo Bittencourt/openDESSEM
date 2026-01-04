@@ -73,6 +73,8 @@ Represents conventional thermal generating units including:
 - `fuel_cost_rsj_per_mwh::Float64`: Fuel cost (R\$/MWh), can be time-varying
 - `startup_cost_rs::Float64`: Fixed startup cost (R\$)
 - `shutdown_cost_rs::Float64`: Fixed shutdown cost (R\$)
+- `commissioning_date::DateTime`: Plant commissioning date (ONS compatibility)
+- `num_units::Int`: Number of generating units (ONS compatibility)
 - `must_run::Bool`: If true, unit must remain committed (rare)
 - `metadata::EntityMetadata`: Additional metadata
 
@@ -120,6 +122,8 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
     fuel_cost_rsj_per_mwh::Float64
     startup_cost_rs::Float64
     shutdown_cost_rs::Float64
+    commissioning_date::DateTime
+    num_units::Int = 1
     must_run::Bool = false
     metadata::EntityMetadata = EntityMetadata()
 
@@ -139,6 +143,8 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
         fuel_cost_rsj_per_mwh::Float64,
         startup_cost_rs::Float64,
         shutdown_cost_rs::Float64,
+        commissioning_date::DateTime,
+        num_units::Int = 1,
         must_run::Bool = false,
         metadata::EntityMetadata = EntityMetadata(),
     )
@@ -195,6 +201,11 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
         startup_cost_rs = validate_non_negative(startup_cost_rs, "startup_cost_rs")
         shutdown_cost_rs = validate_non_negative(shutdown_cost_rs, "shutdown_cost_rs")
 
+        # Validate num_units
+        if num_units < 1
+            throw(ArgumentError("num_units must be at least 1 (got $num_units)"))
+        end
+
         new(
             id,
             name,
@@ -211,6 +222,8 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
             fuel_cost_rsj_per_mwh,
             startup_cost_rs,
             shutdown_cost_rs,
+            commissioning_date,
+            num_units,
             must_run,
             metadata,
         )
@@ -248,6 +261,8 @@ CCGT plants operate in multiple modes:
 - `shutdown_cost_rs::Float64`: Fixed shutdown cost (R\$)
 - `heat_rate_gas_only::Float64`: Heat rate in gas-only mode (GJ/MWh)
 - `heat_rate_combined::Float64`: Heat rate in combined mode (GJ/MWh)
+- `commissioning_date::DateTime`: Plant commissioning date (ONS compatibility)
+- `num_units::Int`: Number of generating units (ONS compatibility)
 - `must_run::Bool`: If true, unit must remain committed
 - `metadata::EntityMetadata`: Additional metadata
 
@@ -273,7 +288,9 @@ plant = CombinedCyclePlant(;
     startup_cost_rs=20000.0,
     shutdown_cost_rs=10000.0,
     heat_rate_gas_only=9.5,
-    heat_rate_combined=6.5
+    heat_rate_combined=6.5,
+    commissioning_date=DateTime(2010, 5, 15),
+    num_units=1
 )
 ```
 """
@@ -298,6 +315,8 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
     shutdown_cost_rs::Float64
     heat_rate_gas_only::Float64
     heat_rate_combined::Float64
+    commissioning_date::DateTime
+    num_units::Int = 1
     must_run::Bool = false
     metadata::EntityMetadata = EntityMetadata()
 
@@ -322,6 +341,8 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
         shutdown_cost_rs::Float64,
         heat_rate_gas_only::Float64,
         heat_rate_combined::Float64,
+        commissioning_date::DateTime,
+        num_units::Int = 1,
         must_run::Bool = false,
         metadata::EntityMetadata = EntityMetadata(),
     )
@@ -397,6 +418,11 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
         heat_rate_gas_only = validate_positive(heat_rate_gas_only, "heat_rate_gas_only")
         heat_rate_combined = validate_positive(heat_rate_combined, "heat_rate_combined")
 
+        # Validate num_units
+        if num_units < 1
+            throw(ArgumentError("num_units must be at least 1 (got $num_units)"))
+        end
+
         new(
             id,
             name,
@@ -418,6 +444,8 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
             shutdown_cost_rs,
             heat_rate_gas_only,
             heat_rate_combined,
+            commissioning_date,
+            num_units,
             must_run,
             metadata,
         )

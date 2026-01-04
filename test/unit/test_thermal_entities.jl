@@ -28,6 +28,8 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 5, 15),
+                num_units = 2,
                 must_run = false,
             )
 
@@ -46,6 +48,8 @@ using Dates
             @test plant.fuel_cost_rsj_per_mwh == 150.0
             @test plant.startup_cost_rs == 15000.0
             @test plant.shutdown_cost_rs == 8000.0
+            @test plant.commissioning_date == DateTime(2010, 5, 15)
+            @test plant.num_units == 2
             @test plant.must_run == false
         end
 
@@ -66,11 +70,14 @@ using Dates
                 fuel_cost_rsj_per_mwh = 100.0,
                 startup_cost_rs = 10000.0,
                 shutdown_cost_rs = 5000.0,
+                commissioning_date = DateTime(2005, 1, 1),
             )
 
             @test plant.metadata isa EntityMetadata
             @test plant.metadata.version == 1
             @test plant.metadata.source == "unknown"
+            @test plant.commissioning_date == DateTime(2005, 1, 1)
+            @test plant.num_units == 1  # Default
         end
     end
 
@@ -92,6 +99,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 3000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -112,6 +120,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 3000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -132,6 +141,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 3000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -152,6 +162,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 3000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -172,6 +183,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 3000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -192,6 +204,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -212,6 +225,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -232,6 +246,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = -150.0,  # Invalid!
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -252,6 +267,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -272,6 +288,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
     end
@@ -294,6 +311,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 80.0,
                 startup_cost_rs = 50000.0,
                 shutdown_cost_rs = 20000.0,
+                commissioning_date = DateTime(2005, 1, 1),
             )
 
             @test plant.fuel_type == COAL
@@ -316,6 +334,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 20.0,
                 startup_cost_rs = 200000.0,
                 shutdown_cost_rs = 100000.0,
+                commissioning_date = DateTime(1985, 1, 1),
                 must_run = true,
             )
 
@@ -340,6 +359,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 200.0,
                 startup_cost_rs = 3000.0,
                 shutdown_cost_rs = 1000.0,
+                commissioning_date = DateTime(2015, 1, 1),
             )
 
             @test plant.fuel_type == BIOMASS
@@ -364,6 +384,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 120.0,
                 startup_cost_rs = 5000.0,
                 shutdown_cost_rs = 2000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
 
             @test plant.min_generation_mw == 0.0
@@ -386,6 +407,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 80.0,
                 startup_cost_rs = 40000.0,
                 shutdown_cost_rs = 15000.0,
+                commissioning_date = DateTime(2000, 1, 1),
             )
 
             @test plant.ramp_up_mw_per_min == 0.0
@@ -409,6 +431,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 180.0,
                 startup_cost_rs = 2000.0,
                 shutdown_cost_rs = 500.0,
+                commissioning_date = DateTime(2018, 1, 1),
             )
 
             @test plant.min_up_time_hours == 0
@@ -439,6 +462,8 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = 9.5,
                 heat_rate_combined = 6.5,
+                commissioning_date = DateTime(2012, 6, 1),
+                num_units = 1,
             )
 
             @test plant.id == "CCGT_001"
@@ -450,6 +475,8 @@ using Dates
             @test plant.max_generation_combined_mw == 800.0
             @test plant.heat_rate_gas_only == 9.5
             @test plant.heat_rate_combined == 6.5
+            @test plant.commissioning_date == DateTime(2012, 6, 1)
+            @test plant.num_units == 1
         end
     end
 
@@ -476,6 +503,7 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = 9.5,
                 heat_rate_combined = 6.5,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -501,6 +529,7 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = 9.5,
                 heat_rate_combined = 6.5,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -526,6 +555,7 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = -9.5,  # Invalid!
                 heat_rate_combined = 6.5,
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
 
@@ -551,6 +581,7 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = 9.5,
                 heat_rate_combined = 0.0,  # Invalid!
+                commissioning_date = DateTime(2010, 1, 1),
             )
         end
     end
@@ -593,6 +624,7 @@ using Dates
                 fuel_cost_rsj_per_mwh = 150.0,
                 startup_cost_rs = 15000.0,
                 shutdown_cost_rs = 8000.0,
+                commissioning_date = DateTime(2010, 1, 1),
             )
 
             @test plant isa ThermalPlant
@@ -622,6 +654,7 @@ using Dates
                 shutdown_cost_rs = 10000.0,
                 heat_rate_gas_only = 9.5,
                 heat_rate_combined = 6.5,
+                commissioning_date = DateTime(2010, 1, 1),
             )
 
             @test plant isa ThermalPlant

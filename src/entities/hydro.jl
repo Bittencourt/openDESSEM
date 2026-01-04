@@ -37,6 +37,8 @@ Hydroelectric plant with significant water storage reservoir.
 - `min_generation_mw::Float64`: Minimum generation (MW)
 - `efficiency::Float64`: Generation efficiency (0-1)
 - `water_value_rs_per_hm3::Float64`: Opportunity cost of water (R\$ per hm3)
+- `subsystem_code::Int`: Numeric subsystem code (ONS compatibility: 1=SE, 2=S, 3=NE, 4=N)
+- `initial_volume_percent::Float64`: Initial volume as percentage of max (ONS compatibility)
 - `must_run::Bool`: If true, plant must run when water is available
 - `downstream_plant_id::Union{String, Nothing}`: ID of immediately downstream plant
 - `water_travel_time_hours::Union{Float64, Nothing}`: Time for water to reach downstream plant
@@ -85,6 +87,8 @@ Base.@kwdef struct ReservoirHydro <: HydroPlant
     min_generation_mw::Float64
     efficiency::Float64
     water_value_rs_per_hm3::Float64
+    subsystem_code::Int
+    initial_volume_percent::Float64
     must_run::Bool = false
     downstream_plant_id::Union{String,Nothing} = nothing
     water_travel_time_hours::Union{Float64,Nothing} = nothing
@@ -104,6 +108,8 @@ Base.@kwdef struct ReservoirHydro <: HydroPlant
         min_generation_mw::Float64,
         efficiency::Float64,
         water_value_rs_per_hm3::Float64,
+        subsystem_code::Int,
+        initial_volume_percent::Float64,
         must_run::Bool = false,
         downstream_plant_id::Union{String,Nothing} = nothing,
         water_travel_time_hours::Union{Float64,Nothing} = nothing,
@@ -172,6 +178,19 @@ Base.@kwdef struct ReservoirHydro <: HydroPlant
         water_value_rs_per_hm3 =
             validate_non_negative(water_value_rs_per_hm3, "water_value_rs_per_hm3")
 
+        # Validate subsystem_code (ONS compatibility: 1-4)
+        if subsystem_code < 1 || subsystem_code > 4
+            throw(
+                ArgumentError(
+                    "subsystem_code must be between 1 and 4 (got $subsystem_code)",
+                ),
+            )
+        end
+
+        # Validate initial_volume_percent (0-100)
+        initial_volume_percent =
+            validate_percentage(initial_volume_percent, "initial_volume_percent") / 100
+
         # Validate cascade relationships
         if downstream_plant_id !== nothing
             downstream_plant_id = validate_id(downstream_plant_id)
@@ -205,6 +224,8 @@ Base.@kwdef struct ReservoirHydro <: HydroPlant
             min_generation_mw,
             efficiency,
             water_value_rs_per_hm3,
+            subsystem_code,
+            initial_volume_percent,
             must_run,
             downstream_plant_id,
             water_travel_time_hours,
@@ -230,6 +251,8 @@ These plants have little to no storage capacity and generation depends primarily
 - `max_generation_mw::Float64`: Maximum generation capacity (MW)
 - `min_generation_mw::Float64`: Minimum generation (MW)
 - `efficiency::Float64`: Generation efficiency (0-1)
+- `subsystem_code::Int`: Numeric subsystem code (ONS compatibility: 1=SE, 2=S, 3=NE, 4=N)
+- `initial_volume_percent::Float64`: Initial volume as percentage of max (ONS compatibility)
 - `must_run::Bool`: If true, plant must run when water is available
 - `downstream_plant_id::Union{String, Nothing}`: ID of immediately downstream plant
 - `water_travel_time_hours::Union{Float64, Nothing}`: Time for water to reach downstream plant
@@ -266,6 +289,8 @@ Base.@kwdef struct RunOfRiverHydro <: HydroPlant
     max_generation_mw::Float64
     min_generation_mw::Float64
     efficiency::Float64
+    subsystem_code::Int
+    initial_volume_percent::Float64
     must_run::Bool = false
     downstream_plant_id::Union{String,Nothing} = nothing
     water_travel_time_hours::Union{Float64,Nothing} = nothing
@@ -281,6 +306,8 @@ Base.@kwdef struct RunOfRiverHydro <: HydroPlant
         max_generation_mw::Float64,
         min_generation_mw::Float64,
         efficiency::Float64,
+        subsystem_code::Int,
+        initial_volume_percent::Float64,
         must_run::Bool = false,
         downstream_plant_id::Union{String,Nothing} = nothing,
         water_travel_time_hours::Union{Float64,Nothing} = nothing,
@@ -313,6 +340,19 @@ Base.@kwdef struct RunOfRiverHydro <: HydroPlant
         # Validate efficiency (0-1)
         efficiency = validate_percentage(efficiency * 100, "efficiency") / 100
 
+        # Validate subsystem_code (ONS compatibility: 1-4)
+        if subsystem_code < 1 || subsystem_code > 4
+            throw(
+                ArgumentError(
+                    "subsystem_code must be between 1 and 4 (got $subsystem_code)",
+                ),
+            )
+        end
+
+        # Validate initial_volume_percent (0-100)
+        initial_volume_percent =
+            validate_percentage(initial_volume_percent, "initial_volume_percent") / 100
+
         # Validate cascade relationships
         if downstream_plant_id !== nothing
             downstream_plant_id = validate_id(downstream_plant_id)
@@ -342,6 +382,8 @@ Base.@kwdef struct RunOfRiverHydro <: HydroPlant
             max_generation_mw,
             min_generation_mw,
             efficiency,
+            subsystem_code,
+            initial_volume_percent,
             must_run,
             downstream_plant_id,
             water_travel_time_hours,
@@ -365,6 +407,7 @@ Can operate in generation mode (producing electricity) or pumping mode (consumin
 - `upper_max_volume_hm3::Float64`: Maximum upper reservoir volume
 - `upper_min_volume_hm3::Float64`: Minimum upper reservoir volume
 - `upper_initial_volume_hm3::Float64`: Initial upper reservoir volume
+- `upper_initial_volume_percent::Float64`: Initial upper reservoir volume as percentage of max (ONS compatibility)
 - `lower_max_volume_hm3::Float64`: Maximum lower reservoir volume
 - `lower_min_volume_hm3::Float64`: Minimum lower reservoir volume
 - `lower_initial_volume_hm3::Float64`: Initial lower reservoir volume
@@ -373,6 +416,7 @@ Can operate in generation mode (producing electricity) or pumping mode (consumin
 - `generation_efficiency::Float64`: Round-trip efficiency for generation (0-1)
 - `pumping_efficiency::Float64`: Round-trip efficiency for pumping (0-1)
 - `min_generation_mw::Float64`: Minimum generation (MW)
+- `subsystem_code::Int`: Numeric subsystem code (ONS compatibility: 1=SE, 2=S, 3=NE, 4=N)
 - `must_run::Bool`: If true, plant must run when经济效益 favorable
 - `metadata::EntityMetadata`: Additional metadata
 
@@ -412,6 +456,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
     upper_max_volume_hm3::Float64
     upper_min_volume_hm3::Float64
     upper_initial_volume_hm3::Float64
+    upper_initial_volume_percent::Float64
     lower_max_volume_hm3::Float64
     lower_min_volume_hm3::Float64
     lower_initial_volume_hm3::Float64
@@ -420,6 +465,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
     generation_efficiency::Float64
     pumping_efficiency::Float64
     min_generation_mw::Float64
+    subsystem_code::Int
     must_run::Bool = false
     metadata::EntityMetadata = EntityMetadata()
 
@@ -431,6 +477,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
         upper_max_volume_hm3::Float64,
         upper_min_volume_hm3::Float64,
         upper_initial_volume_hm3::Float64,
+        upper_initial_volume_percent::Float64,
         lower_max_volume_hm3::Float64,
         lower_min_volume_hm3::Float64,
         lower_initial_volume_hm3::Float64,
@@ -439,6 +486,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
         generation_efficiency::Float64,
         pumping_efficiency::Float64,
         min_generation_mw::Float64,
+        subsystem_code::Int,
         must_run::Bool = false,
         metadata::EntityMetadata = EntityMetadata(),
     )
@@ -491,6 +539,13 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
             throw(ArgumentError("lower_initial_volume_hm3 must be >= lower_min_volume_hm3"))
         end
 
+        # Validate upper_initial_volume_percent (0-100)
+        upper_initial_volume_percent =
+            validate_percentage(
+                upper_initial_volume_percent,
+                "upper_initial_volume_percent",
+            ) / 100
+
         # Validate capacities
         max_generation_mw =
             validate_strictly_positive(max_generation_mw, "max_generation_mw")
@@ -509,6 +564,15 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
         pumping_efficiency =
             validate_percentage(pumping_efficiency * 100, "pumping_efficiency") / 100
 
+        # Validate subsystem_code (ONS compatibility: 1-4)
+        if subsystem_code < 1 || subsystem_code > 4
+            throw(
+                ArgumentError(
+                    "subsystem_code must be between 1 and 4 (got $subsystem_code)",
+                ),
+            )
+        end
+
         new(
             id,
             name,
@@ -517,6 +581,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
             upper_max_volume_hm3,
             upper_min_volume_hm3,
             upper_initial_volume_hm3,
+            upper_initial_volume_percent,
             lower_max_volume_hm3,
             lower_min_volume_hm3,
             lower_initial_volume_hm3,
@@ -525,6 +590,7 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
             generation_efficiency,
             pumping_efficiency,
             min_generation_mw,
+            subsystem_code,
             must_run,
             metadata,
         )
