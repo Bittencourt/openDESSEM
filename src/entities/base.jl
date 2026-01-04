@@ -49,7 +49,7 @@ Base.@kwdef struct EntityMetadata
     version::Int = 1
     source::String = "unknown"
     tags::Vector{String} = String[]
-    properties::Dict{String, Any} = Dict{String, Any}()
+    properties::Dict{String,Any} = Dict{String,Any}()
 end
 
 """
@@ -122,14 +122,17 @@ Update metadata for an entity.
 This creates a new metadata object with the updated values.
 For mutable entities, consider using a different approach.
 """
-function update_metadata(entity::AbstractEntity; updates::Dict{String, Any}=Dict{String, Any}())
+function update_metadata(
+    entity::AbstractEntity;
+    updates::Dict{String,Any} = Dict{String,Any}(),
+)
     new_metadata = EntityMetadata(
-        created_at=entity.metadata.created_at,
-        updated_at=Dates.now(),
-        version=entity.metadata.version + 1,
-        source=entity.metadata.source,
-        tags=copy(entity.metadata.tags),
-        properties=merge(entity.metadata.properties, updates)
+        created_at = entity.metadata.created_at,
+        updated_at = Dates.now(),
+        version = entity.metadata.version + 1,
+        source = entity.metadata.source,
+        tags = copy(entity.metadata.tags),
+        properties = merge(entity.metadata.properties, updates),
     )
 
     return new_metadata
@@ -154,12 +157,12 @@ function add_tag(entity::AbstractEntity, tag::String)
 
     new_tags = vcat(entity.metadata.tags, tag)
     new_metadata = EntityMetadata(
-        created_at=entity.metadata.created_at,
-        updated_at=Dates.now(),
-        version=entity.metadata.version + 1,
-        source=entity.metadata.source,
-        tags=new_tags,
-        properties=copy(entity.metadata.properties)
+        created_at = entity.metadata.created_at,
+        updated_at = Dates.now(),
+        version = entity.metadata.version + 1,
+        source = entity.metadata.source,
+        tags = new_tags,
+        properties = copy(entity.metadata.properties),
     )
 
     return new_metadata
@@ -183,12 +186,12 @@ function set_property(entity::AbstractEntity, key::String, value::Any)
     new_properties[key] = value
 
     new_metadata = EntityMetadata(
-        created_at=entity.metadata.created_at,
-        updated_at=Dates.now(),
-        version=entity.metadata.version + 1,
-        source=entity.metadata.source,
-        tags=copy(entity.metadata.tags),
-        properties=new_properties
+        created_at = entity.metadata.created_at,
+        updated_at = Dates.now(),
+        version = entity.metadata.version + 1,
+        source = entity.metadata.source,
+        tags = copy(entity.metadata.tags),
+        properties = new_properties,
     )
 
     return new_metadata

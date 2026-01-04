@@ -41,7 +41,7 @@ validate_id("")  # Throws ArgumentError
 validate_id("A"^100)  # Throws ArgumentError (too long)
 ```
 """
-function validate_id(id::String; min_length::Int=1, max_length::Int=50)
+function validate_id(id::String; min_length::Int = 1, max_length::Int = 50)
     if isempty(id)
         throw(ArgumentError("ID cannot be empty"))
     end
@@ -56,7 +56,11 @@ function validate_id(id::String; min_length::Int=1, max_length::Int=50)
 
     # Check for valid characters (alphanumeric, underscore, hyphen)
     if !all(c -> isletter(c) || isdigit(c) || c == '_' || c == '-', id)
-        throw(ArgumentError("ID '$id' contains invalid characters (only alphanumeric, '_', and '-' allowed)"))
+        throw(
+            ArgumentError(
+                "ID '$id' contains invalid characters (only alphanumeric, '_', and '-' allowed)",
+            ),
+        )
     end
 
     return id
@@ -84,7 +88,7 @@ validate_name("Plant A")  # Returns "Plant A"
 validate_name("")  # Throws ArgumentError
 ```
 """
-function validate_name(name::String; min_length::Int=1, max_length::Int=255)
+function validate_name(name::String; min_length::Int = 1, max_length::Int = 255)
     stripped = strip(name)
 
     if isempty(stripped)
@@ -124,7 +128,7 @@ validate_positive(0.0)  # Throws ArgumentError
 validate_positive(-1.0)  # Throws ArgumentError
 ```
 """
-function validate_positive(value::Real, field_name::String="value")
+function validate_positive(value::Real, field_name::String = "value")
     if value <= 0
         throw(ArgumentError("$field_name must be positive (got $value)"))
     end
@@ -153,7 +157,7 @@ validate_non_negative(0.0)  # Returns 0.0
 validate_non_negative(-1.0)  # Throws ArgumentError
 ```
 """
-function validate_non_negative(value::Real, field_name::String="value")
+function validate_non_negative(value::Real, field_name::String = "value")
     if value < 0
         throw(ArgumentError("$field_name must be non-negative (got $value)"))
     end
@@ -175,7 +179,8 @@ Alias for `validate_positive`. Ensures value is > 0.
 # Throws
 - `ArgumentError`: If value is not strictly positive
 """
-validate_strictly_positive(value::Real, field_name::String="value") = validate_positive(value, field_name)
+validate_strictly_positive(value::Real, field_name::String = "value") =
+    validate_positive(value, field_name)
 
 """
     validate_percentage(value::Real, field_name::String="value")
@@ -201,7 +206,7 @@ validate_percentage(-1.0)  # Throws ArgumentError
 validate_percentage(101.0)  # Throws ArgumentError
 ```
 """
-function validate_percentage(value::Real, field_name::String="value")
+function validate_percentage(value::Real, field_name::String = "value")
     if value < 0 || value > 100
         throw(ArgumentError("$field_name must be between 0 and 100 (got $value)"))
     end
@@ -234,13 +239,22 @@ validate_in_range(-1.0, 0.0, 10.0)  # Throws ArgumentError
 validate_in_range(11.0, 0.0, 10.0)  # Throws ArgumentError
 ```
 """
-function validate_in_range(value::Real, min_val::Real, max_val::Real, field_name::String="value")
+function validate_in_range(
+    value::Real,
+    min_val::Real,
+    max_val::Real,
+    field_name::String = "value",
+)
     # Auto-swap if bounds are reversed
     actual_min = min(min_val, max_val)
     actual_max = max(min_val, max_val)
 
     if value < actual_min || value > actual_max
-        throw(ArgumentError("$field_name must be between $actual_min and $actual_max (got $value)"))
+        throw(
+            ArgumentError(
+                "$field_name must be between $actual_min and $actual_max (got $value)",
+            ),
+        )
     end
     return value
 end
@@ -266,7 +280,12 @@ validate_min_leq_max(5.0, 5.0)  # OK
 validate_min_leq_max(10.0, 5.0)  # Throws ArgumentError
 ```
 """
-function validate_min_leq_max(min_val::Real, max_val::Real, min_name::String="min", max_name::String="max")
+function validate_min_leq_max(
+    min_val::Real,
+    max_val::Real,
+    min_name::String = "min",
+    max_name::String = "max",
+)
     if min_val > max_val
         throw(ArgumentError("$min_name ($min_val) must be <= $max_name ($max_val)"))
     end
@@ -295,9 +314,13 @@ validate_one_of("coal", ["coal", "gas", "nuclear"])  # Returns "coal"
 validate_one_of("invalid", ["coal", "gas", "nuclear"])  # Throws ArgumentError
 ```
 """
-function validate_one_of(value, allowed_values::Vector, field_name::String="value")
+function validate_one_of(value, allowed_values::Vector, field_name::String = "value")
     if !(value in allowed_values)
-        throw(ArgumentError("$field_name must be one of $(join(allowed_values, ", ")) (got $value)"))
+        throw(
+            ArgumentError(
+                "$field_name must be one of $(join(allowed_values, ", ")) (got $value)",
+            ),
+        )
     end
     return value
 end
@@ -327,12 +350,14 @@ items = [TestItem("A"), TestItem("A")]
 validate_unique_ids(items)  # Throws ValidationError
 ```
 """
-function validate_unique_ids(items::Vector, item_type::String="items")
+function validate_unique_ids(items::Vector, item_type::String = "items")
     ids = [item.id for item in items]
 
     if length(ids) != length(unique(ids))
         duplicates = ids[findall(x -> count(==(x), ids) > 1, unique(ids))]
-        throw(ValidationError("Duplicate IDs found in $item_type: $(join(duplicates, ", "))"))
+        throw(
+            ValidationError("Duplicate IDs found in $item_type: $(join(duplicates, ", "))"),
+        )
     end
 
     return nothing

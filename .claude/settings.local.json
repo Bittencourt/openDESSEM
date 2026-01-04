@@ -8,7 +8,8 @@
       "Bash(julia:*)",
       "Bash(where:*)",
       "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\":*)",
-      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. test/runtests.jl)"
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. test/runtests.jl)",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=formattools -e 'using Pkg; Pkg.add\\(\"\"JuliaFormatter\"\"\\)')"
     ]
   }
 }

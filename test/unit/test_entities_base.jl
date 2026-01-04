@@ -34,11 +34,11 @@ using Dates
         end
 
         @testset "Custom length limits" begin
-            @test validate_id("AB"; min_length=2) == "AB"
-            @test_throws ArgumentError validate_id("A"; min_length=2)
+            @test validate_id("AB"; min_length = 2) == "AB"
+            @test_throws ArgumentError validate_id("A"; min_length = 2)
 
-            @test validate_id("ABC"; max_length=3) == "ABC"
-            @test_throws ArgumentError validate_id("ABCD"; max_length=3)
+            @test validate_id("ABC"; max_length = 3) == "ABC"
+            @test_throws ArgumentError validate_id("ABCD"; max_length = 3)
         end
     end
 
@@ -180,7 +180,10 @@ using Dates
         end
 
         @testset "Invalid values" begin
-            @test_throws ArgumentError validate_one_of("invalid", ["coal", "gas", "nuclear"])
+            @test_throws ArgumentError validate_one_of(
+                "invalid",
+                ["coal", "gas", "nuclear"],
+            )
             @test_throws ArgumentError validate_one_of(5, [1, 2, 3])
         end
     end
@@ -191,11 +194,7 @@ using Dates
                 id::String
             end
 
-            items = [
-                TestItem("A"),
-                TestItem("B"),
-                TestItem("C")
-            ]
+            items = [TestItem("A"), TestItem("B"), TestItem("C")]
             @test validate_unique_ids(items) === nothing
         end
 
@@ -207,7 +206,7 @@ using Dates
             items = [
                 TestItem2("A"),
                 TestItem2("B"),
-                TestItem2("A")  # Duplicate
+                TestItem2("A"),  # Duplicate
             ]
             @test_throws ValidationError validate_unique_ids(items)
         end
@@ -221,7 +220,7 @@ using Dates
                 TestItem3("A"),
                 TestItem3("B"),
                 TestItem3("A"),  # Duplicate
-                TestItem3("B")   # Duplicate
+                TestItem3("B"),   # Duplicate
             ]
             try
                 validate_unique_ids(items)
@@ -251,12 +250,12 @@ end
     @testset "Constructor with custom values" begin
         now_time = Dates.now()
         metadata = EntityMetadata(
-            created_at=now_time,
-            updated_at=now_time,
-            version=2,
-            source="database",
-            tags=["verified", "2024"],
-            properties=Dict("key1" => "value1")
+            created_at = now_time,
+            updated_at = now_time,
+            version = 2,
+            source = "database",
+            tags = ["verified", "2024"],
+            properties = Dict("key1" => "value1"),
         )
 
         @test metadata.created_at == now_time
@@ -278,32 +277,20 @@ end
     end
 
     @testset "get_id" begin
-        entity = TestEntity(
-            "TEST_001",
-            "Test Entity",
-            EntityMetadata()
-        )
+        entity = TestEntity("TEST_001", "Test Entity", EntityMetadata())
 
         @test get_id(entity) == "TEST_001"
     end
 
     @testset "has_id" begin
-        entity = TestEntity(
-            "TEST_001",
-            "Test Entity",
-            EntityMetadata()
-        )
+        entity = TestEntity("TEST_001", "Test Entity", EntityMetadata())
 
         @test has_id(entity, "TEST_001") == true
         @test has_id(entity, "OTHER_001") == false
     end
 
     @testset "is_empty" begin
-        entity = TestEntity(
-            "TEST_001",
-            "Test Entity",
-            EntityMetadata()
-        )
+        entity = TestEntity("TEST_001", "Test Entity", EntityMetadata())
 
         @test is_empty(entity) == false
     end
@@ -313,13 +300,14 @@ end
             "TEST_001",
             "Test Entity",
             EntityMetadata(
-                created_at=DateTime("2024-01-01T12:00:00"),
-                version=1,
-                source="manual"
-            )
+                created_at = DateTime("2024-01-01T12:00:00"),
+                version = 1,
+                source = "manual",
+            ),
         )
 
-        new_metadata = update_metadata(entity; updates=Dict{String, Any}("new_key" => "new_value"))
+        new_metadata =
+            update_metadata(entity; updates = Dict{String,Any}("new_key" => "new_value"))
 
         @test new_metadata.created_at == DateTime("2024-01-01T12:00:00")
         @test new_metadata.updated_at > entity.metadata.created_at
@@ -332,7 +320,7 @@ end
         entity = TestEntity(
             "TEST_001",
             "Test Entity",
-            EntityMetadata(version=1, tags=["existing"])
+            EntityMetadata(version = 1, tags = ["existing"]),
         )
 
         new_metadata = add_tag(entity, "new_tag")
@@ -350,10 +338,7 @@ end
         entity = TestEntity(
             "TEST_001",
             "Test Entity",
-            EntityMetadata(
-                version=1,
-                properties=Dict("old_key" => "old_value")
-            )
+            EntityMetadata(version = 1, properties = Dict("old_key" => "old_value")),
         )
 
         new_metadata = set_property(entity, "new_key", "new_value")

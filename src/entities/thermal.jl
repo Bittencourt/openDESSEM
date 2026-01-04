@@ -124,30 +124,30 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
     metadata::EntityMetadata = EntityMetadata()
 
     function ConventionalThermal(;
-            id::String,
-            name::String,
-            bus_id::String,
-            submarket_id::String,
-            fuel_type::FuelType,
-            capacity_mw::Float64,
-            min_generation_mw::Float64,
-            max_generation_mw::Float64,
-            ramp_up_mw_per_min::Float64,
-            ramp_down_mw_per_min::Float64,
-            min_up_time_hours::Int,
-            min_down_time_hours::Int,
-            fuel_cost_rsj_per_mwh::Float64,
-            startup_cost_rs::Float64,
-            shutdown_cost_rs::Float64,
-            must_run::Bool = false,
-            metadata::EntityMetadata = EntityMetadata()
-        )
+        id::String,
+        name::String,
+        bus_id::String,
+        submarket_id::String,
+        fuel_type::FuelType,
+        capacity_mw::Float64,
+        min_generation_mw::Float64,
+        max_generation_mw::Float64,
+        ramp_up_mw_per_min::Float64,
+        ramp_down_mw_per_min::Float64,
+        min_up_time_hours::Int,
+        min_down_time_hours::Int,
+        fuel_cost_rsj_per_mwh::Float64,
+        startup_cost_rs::Float64,
+        shutdown_cost_rs::Float64,
+        must_run::Bool = false,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
 
         # Validate ID and name
         id = validate_id(id)
         name = validate_name(name)
         bus_id = validate_id(bus_id)
-        submarket_id = validate_id(submarket_id; min_length=2, max_length=4)
+        submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
 
         # Validate capacity
         capacity_mw = validate_strictly_positive(capacity_mw, "capacity_mw")
@@ -155,30 +155,65 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
         # Validate generation limits
         min_generation_mw = validate_non_negative(min_generation_mw, "min_generation_mw")
         max_generation_mw = validate_positive(max_generation_mw, "max_generation_mw")
-        validate_min_leq_max(min_generation_mw, max_generation_mw, "min_generation_mw", "max_generation_mw")
-        validate_min_leq_max(max_generation_mw, capacity_mw, "max_generation_mw", "capacity_mw")
+        validate_min_leq_max(
+            min_generation_mw,
+            max_generation_mw,
+            "min_generation_mw",
+            "max_generation_mw",
+        )
+        validate_min_leq_max(
+            max_generation_mw,
+            capacity_mw,
+            "max_generation_mw",
+            "capacity_mw",
+        )
 
         # Validate ramp rates
         ramp_up_mw_per_min = validate_non_negative(ramp_up_mw_per_min, "ramp_up_mw_per_min")
-        ramp_down_mw_per_min = validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
+        ramp_down_mw_per_min =
+            validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
 
         # Validate time constraints
         if min_up_time_hours < 0
-            throw(ArgumentError("min_up_time_hours must be non-negative (got $min_up_time_hours)"))
+            throw(
+                ArgumentError(
+                    "min_up_time_hours must be non-negative (got $min_up_time_hours)",
+                ),
+            )
         end
         if min_down_time_hours < 0
-            throw(ArgumentError("min_down_time_hours must be non-negative (got $min_down_time_hours)"))
+            throw(
+                ArgumentError(
+                    "min_down_time_hours must be non-negative (got $min_down_time_hours)",
+                ),
+            )
         end
 
         # Validate costs
-        fuel_cost_rsj_per_mwh = validate_non_negative(fuel_cost_rsj_per_mwh, "fuel_cost_rsj_per_mwh")
+        fuel_cost_rsj_per_mwh =
+            validate_non_negative(fuel_cost_rsj_per_mwh, "fuel_cost_rsj_per_mwh")
         startup_cost_rs = validate_non_negative(startup_cost_rs, "startup_cost_rs")
         shutdown_cost_rs = validate_non_negative(shutdown_cost_rs, "shutdown_cost_rs")
 
-        new(id, name, bus_id, submarket_id, fuel_type, capacity_mw,
-            min_generation_mw, max_generation_mw, ramp_up_mw_per_min, ramp_down_mw_per_min,
-            min_up_time_hours, min_down_time_hours, fuel_cost_rsj_per_mwh,
-            startup_cost_rs, shutdown_cost_rs, must_run, metadata)
+        new(
+            id,
+            name,
+            bus_id,
+            submarket_id,
+            fuel_type,
+            capacity_mw,
+            min_generation_mw,
+            max_generation_mw,
+            ramp_up_mw_per_min,
+            ramp_down_mw_per_min,
+            min_up_time_hours,
+            min_down_time_hours,
+            fuel_cost_rsj_per_mwh,
+            startup_cost_rs,
+            shutdown_cost_rs,
+            must_run,
+            metadata,
+        )
     end
 end
 
@@ -267,62 +302,84 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
     metadata::EntityMetadata = EntityMetadata()
 
     function CombinedCyclePlant(;
-            id::String,
-            name::String,
-            bus_id::String,
-            submarket_id::String,
-            fuel_type::FuelType,
-            capacity_mw::Float64,
-            gas_turbine_capacity_mw::Float64,
-            steam_turbine_capacity_mw::Float64,
-            min_generation_gas_only_mw::Float64,
-            min_generation_combined_mw::Float64,
-            max_generation_combined_mw::Float64,
-            ramp_up_mw_per_min::Float64,
-            ramp_down_mw_per_min::Float64,
-            min_up_time_hours::Int,
-            min_down_time_hours::Int,
-            fuel_cost_rsj_per_mwh::Float64,
-            startup_cost_rs::Float64,
-            shutdown_cost_rs::Float64,
-            heat_rate_gas_only::Float64,
-            heat_rate_combined::Float64,
-            must_run::Bool = false,
-            metadata::EntityMetadata = EntityMetadata()
-        )
+        id::String,
+        name::String,
+        bus_id::String,
+        submarket_id::String,
+        fuel_type::FuelType,
+        capacity_mw::Float64,
+        gas_turbine_capacity_mw::Float64,
+        steam_turbine_capacity_mw::Float64,
+        min_generation_gas_only_mw::Float64,
+        min_generation_combined_mw::Float64,
+        max_generation_combined_mw::Float64,
+        ramp_up_mw_per_min::Float64,
+        ramp_down_mw_per_min::Float64,
+        min_up_time_hours::Int,
+        min_down_time_hours::Int,
+        fuel_cost_rsj_per_mwh::Float64,
+        startup_cost_rs::Float64,
+        shutdown_cost_rs::Float64,
+        heat_rate_gas_only::Float64,
+        heat_rate_combined::Float64,
+        must_run::Bool = false,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
 
         # Validate ID and name
         id = validate_id(id)
         name = validate_name(name)
         bus_id = validate_id(bus_id)
-        submarket_id = validate_id(submarket_id; min_length=2, max_length=4)
+        submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
 
         # Validate capacities
         capacity_mw = validate_strictly_positive(capacity_mw, "capacity_mw")
-        gas_turbine_capacity_mw = validate_positive(gas_turbine_capacity_mw, "gas_turbine_capacity_mw")
-        steam_turbine_capacity_mw = validate_positive(steam_turbine_capacity_mw, "steam_turbine_capacity_mw")
+        gas_turbine_capacity_mw =
+            validate_positive(gas_turbine_capacity_mw, "gas_turbine_capacity_mw")
+        steam_turbine_capacity_mw =
+            validate_positive(steam_turbine_capacity_mw, "steam_turbine_capacity_mw")
 
         # Check that gas + steam capacity equals total capacity (within tolerance)
         total_gt_st = gas_turbine_capacity_mw + steam_turbine_capacity_mw
         if abs(total_gt_st - capacity_mw) > 0.01  # 0.01 MW tolerance
-            throw(ArgumentError("gas_turbine_capacity_mw + steam_turbine_capacity_mw ($total_gt_st) must equal capacity_mw ($capacity_mw)"))
+            throw(
+                ArgumentError(
+                    "gas_turbine_capacity_mw + steam_turbine_capacity_mw ($total_gt_st) must equal capacity_mw ($capacity_mw)",
+                ),
+            )
         end
 
         # Validate generation limits
-        min_generation_gas_only_mw = validate_non_negative(min_generation_gas_only_mw, "min_generation_gas_only_mw")
-        validate_min_leq_max(min_generation_gas_only_mw, gas_turbine_capacity_mw,
-                           "min_generation_gas_only_mw", "gas_turbine_capacity_mw")
+        min_generation_gas_only_mw =
+            validate_non_negative(min_generation_gas_only_mw, "min_generation_gas_only_mw")
+        validate_min_leq_max(
+            min_generation_gas_only_mw,
+            gas_turbine_capacity_mw,
+            "min_generation_gas_only_mw",
+            "gas_turbine_capacity_mw",
+        )
 
-        min_generation_combined_mw = validate_non_negative(min_generation_combined_mw, "min_generation_combined_mw")
-        max_generation_combined_mw = validate_positive(max_generation_combined_mw, "max_generation_combined_mw")
-        validate_min_leq_max(min_generation_combined_mw, max_generation_combined_mw,
-                           "min_generation_combined_mw", "max_generation_combined_mw")
-        validate_min_leq_max(max_generation_combined_mw, capacity_mw,
-                           "max_generation_combined_mw", "capacity_mw")
+        min_generation_combined_mw =
+            validate_non_negative(min_generation_combined_mw, "min_generation_combined_mw")
+        max_generation_combined_mw =
+            validate_positive(max_generation_combined_mw, "max_generation_combined_mw")
+        validate_min_leq_max(
+            min_generation_combined_mw,
+            max_generation_combined_mw,
+            "min_generation_combined_mw",
+            "max_generation_combined_mw",
+        )
+        validate_min_leq_max(
+            max_generation_combined_mw,
+            capacity_mw,
+            "max_generation_combined_mw",
+            "capacity_mw",
+        )
 
         # Validate ramp rates
         ramp_up_mw_per_min = validate_non_negative(ramp_up_mw_per_min, "ramp_up_mw_per_min")
-        ramp_down_mw_per_min = validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
+        ramp_down_mw_per_min =
+            validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
 
         # Validate time constraints
         if min_up_time_hours < 0
@@ -333,19 +390,37 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
         end
 
         # Validate costs and heat rates
-        fuel_cost_rsj_per_mwh = validate_non_negative(fuel_cost_rsj_per_mwh, "fuel_cost_rsj_per_mwh")
+        fuel_cost_rsj_per_mwh =
+            validate_non_negative(fuel_cost_rsj_per_mwh, "fuel_cost_rsj_per_mwh")
         startup_cost_rs = validate_non_negative(startup_cost_rs, "startup_cost_rs")
         shutdown_cost_rs = validate_non_negative(shutdown_cost_rs, "shutdown_cost_rs")
         heat_rate_gas_only = validate_positive(heat_rate_gas_only, "heat_rate_gas_only")
         heat_rate_combined = validate_positive(heat_rate_combined, "heat_rate_combined")
 
-        new(id, name, bus_id, submarket_id, fuel_type, capacity_mw,
-            gas_turbine_capacity_mw, steam_turbine_capacity_mw,
-            min_generation_gas_only_mw, min_generation_combined_mw, max_generation_combined_mw,
-            ramp_up_mw_per_min, ramp_down_mw_per_min,
-            min_up_time_hours, min_down_time_hours, fuel_cost_rsj_per_mwh,
-            startup_cost_rs, shutdown_cost_rs, heat_rate_gas_only, heat_rate_combined,
-            must_run, metadata)
+        new(
+            id,
+            name,
+            bus_id,
+            submarket_id,
+            fuel_type,
+            capacity_mw,
+            gas_turbine_capacity_mw,
+            steam_turbine_capacity_mw,
+            min_generation_gas_only_mw,
+            min_generation_combined_mw,
+            max_generation_combined_mw,
+            ramp_up_mw_per_min,
+            ramp_down_mw_per_min,
+            min_up_time_hours,
+            min_down_time_hours,
+            fuel_cost_rsj_per_mwh,
+            startup_cost_rs,
+            shutdown_cost_rs,
+            heat_rate_gas_only,
+            heat_rate_combined,
+            must_run,
+            metadata,
+        )
     end
 end
 

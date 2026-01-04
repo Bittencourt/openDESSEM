@@ -77,7 +77,7 @@ function check_temp_files()
         ("*.bak", "backup files"),
         ("*.tmp", "temporary files"),
         (".DS_Store", "macOS files"),
-        ("Thumbs.db", "Windows files")
+        ("Thumbs.db", "Windows files"),
     ]
 
     found_temp_files = false
@@ -290,7 +290,7 @@ function main()
         ("Git Status", check_git_status),
         ("Documentation", check_documentation),
         ("Code Formatting", check_formatting),
-        ("Project.toml", check_project_toml)
+        ("Project.toml", check_project_toml),
     ]
 
     results = Bool[]
