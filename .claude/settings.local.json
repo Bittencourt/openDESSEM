@@ -30,7 +30,8 @@
       "Bash(if:*)",
       "Bash(else:*)",
       "Bash(git branch:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ]
   }
 }

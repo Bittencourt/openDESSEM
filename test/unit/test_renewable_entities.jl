@@ -65,7 +65,7 @@ using Test
                 max_generation_mw = 200.0,
                 ramp_up_mw_per_min = 10.0,
                 ramp_down_mw_per_min = 10.0,
-                curtailment_allowed = true,
+                curtailment_allowed = false,  # Consistent with is_dispatchable=false
                 forced_outage_rate = 0.02,
                 is_dispatchable = false,
                 commissioning_date = DateTime(2018, 6, 15),
@@ -85,7 +85,7 @@ using Test
             @test wind.max_generation_mw == 200.0
             @test wind.ramp_up_mw_per_min == 10.0
             @test wind.ramp_down_mw_per_min == 10.0
-            @test wind.curtailment_allowed == true
+            @test wind.curtailment_allowed == false  # Consistent with is_dispatchable=false
             @test wind.forced_outage_rate == 0.02
             @test wind.is_dispatchable == false
             @test wind.num_turbines == 50
@@ -241,23 +241,29 @@ using Test
         end
 
         @testset "Invalid forecast_type" begin
-            @test_throws ArgumentError WindPlant(;
-                id = "W_001",
-                name = "Invalid Forecast Type",
-                bus_id = "B001",
-                submarket_id = "NE",
-                installed_capacity_mw = 200.0,
-                capacity_forecast_mw = [150.0],
-                forecast_type = DETERMINISTIC,  # Will be intercepted by enum check
-                min_generation_mw = 0.0,
-                max_generation_mw = 200.0,
-                ramp_up_mw_per_min = 10.0,
-                ramp_down_mw_per_min = 10.0,
-                curtailment_allowed = false,
-                forced_outage_rate = 0.02,
-                is_dispatchable = false,
-                commissioning_date = DateTime(2020, 1, 1),
-            )
+            # NOTE: Julia's type system prevents passing invalid enum values at compile time
+            # The ForecastType enum validation is handled by the type system itself
+            # This test verifies that all valid enum values are accepted
+            for valid_type in [DETERMINISTIC, STOCHASTIC, SCENARIO_BASED]
+                wind = WindPlant(;
+                    id = "W_001",
+                    name = "Valid Forecast Type",
+                    bus_id = "B001",
+                    submarket_id = "NE",
+                    installed_capacity_mw = 200.0,
+                    capacity_forecast_mw = [150.0],
+                    forecast_type = valid_type,
+                    min_generation_mw = 0.0,
+                    max_generation_mw = 200.0,
+                    ramp_up_mw_per_min = 10.0,
+                    ramp_down_mw_per_min = 10.0,
+                    curtailment_allowed = false,
+                    forced_outage_rate = 0.02,
+                    is_dispatchable = false,
+                    commissioning_date = DateTime(2020, 1, 1),
+                )
+                @test wind.forecast_type == valid_type
+            end
         end
 
         @testset "Invalid generation limits" begin

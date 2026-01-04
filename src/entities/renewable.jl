@@ -261,7 +261,8 @@ Base.@kwdef struct WindPlant <: RenewablePlant
 
         # Curtailment only allowed if dispatchable
         if curtailment_allowed && !is_dispatchable
-            @warn "curtailment_allowed=true but is_dispatchable=false for plant $id" curtailment_allowed = false
+            @warn "curtailment_allowed=true but is_dispatchable=false for plant $id; forcing curtailment_allowed=false"
+            curtailment_allowed = false
         end
 
         # Validate num_turbines
