@@ -5,17 +5,67 @@
 **Project**: Open-source implementation of DESSEM (Daily Short-Term Hydrothermal Scheduling Model) in Julia
 
 **Technology Stack**:
-- Language: Julia 1.10+
+- Language: Julia 1.8+
 - Optimization: JuMP.jl
 - Solvers: HiGHS.jl (primary), Gurobi.jl (optional)
 - Database: PostgreSQL (production), SQLite (development)
 - Testing: Test.jl
+- Code Formatting: JuliaFormatter.jl (Mandatory before commits)
 
 **Architecture Philosophy**:
 - Entity-driven design (model discovers entities dynamically)
 - Database-ready data structures
 - Modular, pluggable constraints
 - Clean separation: data → model → solver → analysis
+
+---
+
+## Current Implementation Status
+
+**Last Updated**: 2025-01-04
+
+### ✅ Completed (Phase 1: Entity System Foundation)
+
+**Validation Utilities** (`src/entities/validation.jl`):
+- `validate_id()`, `validate_name()` - ID and name validation
+- `validate_positive()`, `validate_non_negative()` - Numeric validation
+- `validate_percentage()` - 0-100 range validation
+- `validate_in_range()` - Flexible range validation with auto-swap
+- `validate_min_leq_max()` - Order validation
+- `validate_one_of()` - Enum/value set validation
+- `validate_unique_ids()` - Duplicate detection
+
+**Base Entity Types** (`src/entities/base.jl`):
+- `AbstractEntity` - Root type for all entities
+- `PhysicalEntity` - Base for physical infrastructure
+- `EntityMetadata` - Timestamps, versioning, tags, properties
+- Helper functions: `get_id()`, `has_id()`, `is_empty()`, `update_metadata()`, `add_tag()`, `set_property()`
+
+**Thermal Plant Entities** (`src/entities/thermal.jl`):
+- `FuelType` enum: `NATURAL_GAS`, `COAL`, `FUEL_OIL`, `DIESEL`, `NUCLEAR`, `BIOMASS`, `BIOGAS`, `OTHER`
+- `ConventionalThermal` - Standard thermal plants with full UC support
+- `CombinedCyclePlant` - CCGT plants with multiple operating modes
+
+**Test Coverage**:
+- **166 tests, 100% passing** (97 validation/base tests + 69 thermal plant tests)
+- All entities validated on construction
+- Comprehensive error testing
+
+### 🚧 In Progress
+
+Next priorities (following the detailed plan):
+- Hydro plant entities (reservoir, run-of-river, pumped storage)
+- Renewable entities (wind, solar)
+- Network entities (buses, transmission lines)
+- Market entities (submarkets, loads)
+
+### 📋 Not Started
+
+- Constraint builder system
+- Database loaders (PostgreSQL/SQLite)
+- Variable manager
+- Objective function
+- Solvers interface
 
 ---
 
@@ -30,21 +80,21 @@
 # Step 1: Write failing test
 @testset "ThermalPlant creation" begin
     plant = ConventionalThermal(;
-        id="T001",
-        name="Test Plant",
-        bus_id="B001",
-        submarket_id="SE",
-        fuel_type="natural_gas",
-        capacity_mw=500.0,
-        min_generation_mw=100.0,
-        max_generation_mw=500.0,
-        ramp_up_mw_per_min=50.0,
-        ramp_down_mw_per_min=50.0,
-        min_up_time_hours=4,
-        min_down_time_hours=2,
-        fuel_cost_rsj_per_mwh=150.0,
-        startup_cost_rs=10000.0,
-        shutdown_cost_rs=5000.0
+        id = "T001",
+        name = "Test Plant",
+        bus_id = "B001",
+        submarket_id = "SE",
+        fuel_type = NATURAL_GAS,  # Use FuelType enum
+        capacity_mw = 500.0,
+        min_generation_mw = 100.0,
+        max_generation_mw = 500.0,
+        ramp_up_mw_per_min = 50.0,
+        ramp_down_mw_per_min = 50.0,
+        min_up_time_hours = 4,
+        min_down_time_hours = 2,
+        fuel_cost_rsj_per_mwh = 150.0,
+        startup_cost_rs = 10000.0,
+        shutdown_cost_rs = 5000.0,
     )
 
     @test plant.id == "T001"
@@ -152,7 +202,7 @@ Standard thermal power plant with unit commitment constraints.
 # Fields
 - `id::String`: Unique plant identifier (e.g., "T_001")
 - `name::String`: Human-readable plant name
-- `fuel_type::String`: "coal", "natural_gas", "oil", "biomass", "nuclear"
+- `fuel_type::FuelType`: Enum value (e.g., `NATURAL_GAS`, `COAL`, `NUCLEAR`, `BIOMASS`)
 - `capacity_mw::Float64`: Installed capacity (MW)
 - `min_generation_mw::Float64`: Minimum stable generation (MW)
 - `max_generation_mw::Float64`: Maximum generation (MW)
@@ -174,21 +224,21 @@ Standard thermal power plant with unit commitment constraints.
 # Example
 ```julia
 plant = ConventionalThermal(;
-    id="T_SE_001",
-    name="Sudeste Gas Plant 1",
-    bus_id="SE_230KV_001",
-    submarket_id="SE",
-    fuel_type="natural_gas",
-    capacity_mw=500.0,
-    min_generation_mw=150.0,
-    max_generation_mw=500.0,
-    ramp_up_mw_per_min=50.0,
-    ramp_down_mw_per_min=50.0,
-    min_up_time_hours=6,
-    min_down_time_hours=4,
-    fuel_cost_rsj_per_mwh=150.0,
-    startup_cost_rs=15000.0,
-    shutdown_cost_rs=8000.0
+    id = "T_SE_001",
+    name = "Sudeste Gas Plant 1",
+    bus_id = "SE_230KV_001",
+    submarket_id = "SE",
+    fuel_type = NATURAL_GAS,
+    capacity_mw = 500.0,
+    min_generation_mw = 150.0,
+    max_generation_mw = 500.0,
+    ramp_up_mw_per_min = 50.0,
+    ramp_down_mw_per_min = 50.0,
+    min_up_time_hours = 6,
+    min_down_time_hours = 4,
+    fuel_cost_rsj_per_mwh = 150.0,
+    startup_cost_rs = 15000.0,
+    shutdown_cost_rs = 8000.0,
 )
 ```
 """
@@ -275,12 +325,17 @@ git status
 
 **Julia Style Guide**:
 - Follow official [Julia Style Guide](https://docs.julialang.org/en/v1/manual/style-guide/)
+- **MANDATORY**: Format with JuliaFormatter before committing
+  ```bash
+  julia --project=formattools -e 'using JuliaFormatter; format(".", verbose=true)'
+  ```
 - Use 4 spaces for indentation (no tabs)
 - Maximum line length: 92 characters
 - Function names: `snake_case`
 - Type names: `PascalCase`
 - Constants: `UPPER_SNAKE_CASE`
 - Use `Base.@kwdef` for structs with many fields
+- **Keyword arguments**: Add spaces around `=` (e.g., `id = "T001"`, not `id="T001"`)
 
 **Example**:
 ```julia
