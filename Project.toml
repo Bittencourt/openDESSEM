@@ -9,6 +9,7 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 PWF = "0f4c3beb-4231-4c4d-93e1-709cb40a89e6"
+PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
 
 [compat]
 DataFrames = "1.0"
