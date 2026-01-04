@@ -217,12 +217,265 @@ end
 
 ---
 
+## Task Management Workflow
+
+**CRITICAL**: All development work must be tracked and managed through the TODO list system.
+
+### Task Workflow Overview
+
+```
+1. Check TODO.md for existing tasks
+2. Create task if none exists
+3. Create feature branch for the task
+4. Implement following TDD
+5. Update task status in TODO.md
+6. Create pull request with task information
+7. Merge to main/master
+8. Mark task as completed
+```
+
+### Before Starting ANY Task
+
+**MANDATORY STEPS**:
+
+1. **Check TODO.md** (`docs/TODO.md`) for existing tasks
+   ```bash
+   # Read the TODO list
+   cat docs/TODO.md
+   # or open in your editor
+   ```
+
+2. **Verify task exists** for your planned work
+   - Look for relevant task ID (e.g., TASK-001, TASK-002)
+   - Check task status: 🟡 Planned | 🔵 In Progress | 🟢 Completed | 🔴 Blocked
+   - Review task dependencies (precedence)
+
+3. **Create new task if needed** (if no existing task matches):
+   - Add new task to `docs/TODO.md`
+   - Use consistent format with existing tasks
+   - Include: ID, title, description, complexity, precedence
+   - Set status to 🟡 Planned
+
+4. **Update task status** to 🔵 In Progress
+   - Edit the task status in TODO.md
+   - Add notes about who is working on it (optional)
+   - Commit the TODO.md update
+
+### Branch Naming Convention
+
+**Create a dedicated branch for each task**:
+
+```bash
+# Format: task-{TASK_ID}-{short-description}
+git checkout -b task-TASK-001-hydroelectric-entities
+git checkout -b task-TASK-002-renewable-entities
+git checkout -b task-TASK-003-network-entities
+```
+
+**Branch naming rules**:
+- Prefix with `task-`
+- Include task ID (e.g., TASK-001, TASK-002)
+- Add short, descriptive kebab-case suffix
+- Example: `task-TASK-006-constraint-builder`
+- Avoid: generic names like `feature`, `update`, `fix`
+
+### Development Process
+
+For each task, follow this workflow:
+
+```bash
+# 1. Create/update task in TODO.md
+# Edit docs/TODO.md, set status to 🔵 In Progress
+git add docs/TODO.md
+git commit -m "docs(tasks): start TASK-XXX - task title"
+
+# 2. Create feature branch
+git checkout -b task-TASK-XXX-short-description
+
+# 3. Follow TDD workflow
+julia --project=test test/runtests.jl  # Run tests continuously
+
+# 4. Make commits with task reference
+git commit -m "feat(scope): implement feature for TASK-XXX
+
+- Implement X, Y, Z
+- Addresses requirements in TASK-XXX
+- See docs/TODO.md for full task description
+
+Refs: TASK-XXX"
+
+# 5. Update TODO.md with progress
+git add docs/TODO.md
+git commit -m "docs(tasks): update progress on TASK-XXX"
+```
+
+### Pull Request Requirements
+
+**When creating a PR to merge to main/master**:
+
+**PR Title Format**:
+```
+[ TASK-XXX ] Brief description of changes
+```
+
+**PR Body Template**:
+```markdown
+## Summary
+Implements changes for **TASK-XXX: [Task Title]**
+
+## Task Reference
+- **Task ID**: TASK-XXX
+- **Task Title**: [Title from TODO.md]
+- **Complexity**: [X/10]
+- **Status**: Ready for review
+
+## Description
+[Brief description of what was implemented]
+
+## Changes Made
+- [ ] Feature 1 implemented
+- [ ] Feature 2 implemented
+- [ ] Tests added/updated
+- [ ] Documentation updated
+
+## Testing
+- [ ] All existing tests pass (453+ tests)
+- [ ] New tests added for this feature
+- [ ] Test coverage >90% for new code
+- [ ] Manually tested with [specific scenario]
+
+## Task Completion Checklist
+- [ ] All requirements from TASK-XXX completed
+- [ ] Code formatted with JuliaFormatter
+- [ ] Documentation updated (docstrings, examples)
+- [ ] Tests passing
+- [ ] No temporary files committed
+- [ ] Task status updated to 🟢 Completed in TODO.md
+
+## Files Changed
+- List of modified files
+- Approximate lines added/changed
+
+## Breaking Changes
+- [ ] No breaking changes
+- [ ] Breaking changes described below:
+
+## Related Issues
+None
+
+## Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Commented complex code sections
+- [ ] Documentation updated
+- [ ] No merge conflicts
+```
+
+### Task Status Updates
+
+**Keep TODO.md synchronized with development**:
+
+1. **When starting work**:
+   - Change status from 🟡 Planned to 🔵 In Progress
+   - Add start date note
+   - Commit: `docs(tasks): start TASK-XXX - title`
+
+2. **When making progress**:
+   - Add progress notes in task description
+   - Update completed sub-items
+   - Commit: `docs(tasks): update progress on TASK-XXX`
+
+3. **When blocked**:
+   - Change status to 🔴 Blocked
+   - Add blocking issue description
+   - Reference blocking task IDs if applicable
+   - Commit: `docs(tasks): block TASK-XXX - reason`
+
+4. **When completing**:
+   - Change status to 🟢 Completed
+   - Add completion date
+   - Link to commit/PR if applicable
+   - Commit: `docs(tasks): complete TASK-XXX - title`
+
+### Review Process
+
+**Before marking task as completed**:
+
+1. **Verify all requirements met**
+   - Review task description in TODO.md
+   - Check all sub-items completed
+   - Ensure complexity estimate was reasonable
+
+2. **Code quality checks**
+   ```bash
+   # Run full test suite
+   julia --project=test test/runtests.jl
+
+   # Check formatting
+   julia --project=formattools -e 'using JuliaFormatter; format(".")'
+
+   # Pre-commit validation
+   julia scripts/pre_commit_check.jl
+   ```
+
+3. **Documentation verification**
+   - All public functions have docstrings
+   - Examples in docstrings work
+   - AGENTS.md or CLAUDE.md updated if needed
+
+4. **Update task status**
+   - Mark as 🟢 Completed in TODO.md
+   - Add completion notes
+   - Include PR/commit references
+
+### Merging to Main/Master
+
+**Process for merging completed tasks**:
+
+```bash
+# 1. Ensure task is complete
+# - All requirements from TASK-XXX met
+# - All tests passing
+# - Documentation updated
+# - Task status marked as 🟢 Completed
+
+# 2. Update main branch
+git checkout master
+git pull origin master
+
+# 3. Merge feature branch
+git merge task-TASK-XXX-short-description
+# or use pull request with GitHub/GitLab
+
+# 4. Push to remote
+git push origin master
+
+# 5. Clean up (optional)
+git branch -d task-TASK-XXX-short-description
+```
+
+---
+
 ## Common Commands
 
 ### Before Any Code Change
 
+**First, check TODO.md and update/create task**:
 ```bash
-# Run tests (do this continuously during development)
+# 1. Check if task exists
+cat docs/TODO.md | grep -A 20 "TASK-XXX"
+
+# 2. If not, create new task following the format
+# Edit docs/TODO.md and add new task
+
+# 3. Update task status to 🔵 In Progress
+git add docs/TODO.md
+git commit -m "docs(tasks): start TASK-XXX"
+
+# 4. Create feature branch
+git checkout -b task-TASK-XXX-description
+
+# 5. Then proceed with development...
 julia --project=test test/runtests.jl
 ```
 
