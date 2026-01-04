@@ -71,6 +71,58 @@ Next priorities (following the detailed plan):
 
 ## Core Development Rules
 
+### 0. Task Management with Vibe Kanban
+
+**MANDATORY**: All development work must be tracked in Vibe Kanban task board.
+
+**Project ID**: `4c6b2390-193c-402f-be21-f217fff9f604`
+
+**Before Starting ANY Task**:
+1. Check Vibe Kanban board to see available tasks
+2. Verify task status is `todo` (not already in progress)
+3. Select task based on priority and dependencies
+4. Update task status to `inprogress` BEFORE starting work
+
+**Workflow**:
+```bash
+# Step 1: List available tasks
+# (Use Vibe Kanban to view task list)
+
+# Step 2: When starting work on a task, update status to "inprogress"
+# Task ID can be found in the task list
+
+# Step 3: Work on the task following TDD principles
+
+# Step 4: When task is complete and committed, update status to "done"
+```
+
+**Task Status Values**:
+- `todo` - Not started, available to work on
+- `inprogress` - Currently being worked on
+- `inreview` - Ready for code review/testing
+- `done` - Completed and verified
+- `cancelled` - Cancelled, will not be completed
+
+**Key Rules**:
+- ✓ ALWAYS update task status when starting work
+- ✓ ALWAYS update task status when completing work
+- ✓ ALWAYS check task dependencies before starting
+- ✓ NEVER work on untracked tasks
+- ✓ Keep task descriptions updated with progress notes
+
+**Integration with Development Workflow**:
+```
+1. Check Vibe Kanban for next task
+2. Update task status → inprogress
+3. Write tests (TDD)
+4. Implement code
+5. Run tests: julia --project=test test/runtests.jl
+6. Format code: JuliaFormatter.format(".")
+7. Commit changes
+8. Update task status → done
+9. Move to next task
+```
+
 ### 1. Test-Driven Development (TDD)
 
 **MANDATORY**: Write tests BEFORE or alongside implementation code.
@@ -829,6 +881,13 @@ jobs:
 
 ## Quick Reference Card
 
+### Before Starting ANY Task
+1. Check Vibe Kanban board for available tasks (Project ID: `4c6b2390-193c-402f-be21-f217fff9f604`)
+2. Select task based on priority and dependencies
+3. Update task status → `inprogress` in Vibe Kanban
+4. Verify no one else is working on the task
+5. Start implementation following TDD
+
 ### Before ANY Code Change
 1. Write test first (TDD)
 2. Implement minimal code to pass
@@ -842,6 +901,7 @@ jobs:
 3. Clean temp files: `./clean_before_commit.sh`
 4. Review changes: `git diff`
 5. Verify documentation builds
+6. Update Vibe Kanban task status → `done`
 
 ### Before ANY Push
 1. Sync with remote: `git pull --rebase`
@@ -924,10 +984,11 @@ git reset --hard HEAD~1  # DANGER!
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2025-01-04 | Added Vibe Kanban task management workflow |
 | 1.0 | 2025-01-03 | Initial development guidelines established |
 
 ---
 
-**Last Updated**: 2025-01-03
+**Last Updated**: 2025-01-04
 **Maintainer**: OpenDESSEM Development Team
 **Status**: Active
