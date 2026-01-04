@@ -355,5 +355,291 @@ Base.@kwdef struct DCLine <: NetworkEntity
     end
 end
 
+"""
+    NetworkLoad <: NetworkEntity
+
+Electrical load (demand) connected to a bus in the transmission network.
+
+Network loads represent physical demand points at specific buses.
+They can be firm (must be served) or curtailable (can be interrupted).
+
+This is distinct from the MarketEntity Load type, which represents
+economic demand curves. NetworkLoad is for physical transmission modeling.
+
+# Fields
+- `id::String`: Unique load identifier
+- `name::String`: Human-readable load name
+- `bus_id::String`: Bus ID where load is connected
+- `submarket_id::String`: Submarket identifier (e.g., "SE", "NE", "S", "N")
+- `load_profile_mw::Vector{Float64}`: Demand by time period (MW)
+- `is_firm::Bool`: If true, load must be served (cannot be curtailed)
+- `is_interruptible::Bool`: If true, can be interrupted for payment
+- `priority::Int`: Service priority (1-10, 1 = highest priority)
+- `price_elasticity::Union{Float64, Nothing}`: Price elasticity of demand (typically negative)
+- `interruption_cost_rs_per_mwh::Union{Float64, Nothing}`: Cost to curtail (BRL per MWh)
+- `metadata::EntityMetadata`: Additional metadata
+
+# Constraints Applied
+- Load shedding: `served[t] <= load_profile[t]`
+- Curtailment: if not firm, can reduce served load
+- Interruption: if interruptible, can reduce for payment
+- Priority: lower priority loads curtailed first
+
+# Examples
+```julia
+load = NetworkLoad(;
+    id = "LOAD_001",
+    name = "Industrial Load Alpha",
+    bus_id = "B_001",
+    submarket_id = "SE",
+    load_profile_mw = collect(100.0:10.0:330.0),  # 24-hour profile
+    is_firm = true,
+    is_interruptible = false,
+    priority = 1,
+    price_elasticity = -0.1,
+    interruption_cost_rs_per_mwh = 5000.0
+)
+```
+"""
+Base.@kwdef struct NetworkLoad <: NetworkEntity
+    id::String
+    name::String
+    bus_id::String
+    submarket_id::String
+    load_profile_mw::Vector{Float64}
+    is_firm::Bool = true
+    is_interruptible::Bool = false
+    priority::Int = 5
+    price_elasticity::Union{Float64,Nothing} = nothing
+    interruption_cost_rs_per_mwh::Union{Float64,Nothing} = nothing
+    metadata::EntityMetadata = EntityMetadata()
+
+    function NetworkLoad(;
+        id::String,
+        name::String,
+        bus_id::String,
+        submarket_id::String,
+        load_profile_mw::Vector{Float64},
+        is_firm::Bool = true,
+        is_interruptible::Bool = false,
+        priority::Int = 5,
+        price_elasticity::Union{Float64,Nothing} = nothing,
+        interruption_cost_rs_per_mwh::Union{Float64,Nothing} = nothing,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
+
+        # Validate ID and name
+        id = validate_id(id)
+        name = validate_name(name)
+        bus_id = validate_id(bus_id)
+        submarket_id = validate_id(submarket_id; min_length = 1, max_length = 4)
+
+        # Validate load profile
+        if isempty(load_profile_mw)
+            throw(ArgumentError("load_profile_mw cannot be empty"))
+        end
+
+        for (i, demand) in enumerate(load_profile_mw)
+            if demand <= 0
+                throw(
+                    ArgumentError(
+                        "load_profile_mw[$i] must be positive (got $demand). Zero or negative demand is not valid for a load.",
+                    ),
+                )
+            end
+        end
+
+        # Validate firm/interruptible logic
+        if is_firm && is_interruptible
+            throw(
+                ArgumentError(
+                    "Load cannot be both firm (must be served) and interruptible (can be curtailed)",
+                ),
+            )
+        end
+
+        # Validate priority
+        if priority < 1 || priority > 10
+            throw(ArgumentError("priority must be between 1 and 10 (got $priority)"))
+        end
+
+        # Validate price elasticity
+        if price_elasticity !== nothing
+            # Price elasticity should be negative (demand decreases as price increases)
+            if price_elasticity > 0
+                throw(
+                    ArgumentError(
+                        "price_elasticity should be negative (demand decreases as price increases), got $price_elasticity",
+                    ),
+                )
+            end
+            if price_elasticity < -1.0
+                throw(
+                    ArgumentError(
+                        "price_elasticity should be >= -1.0 (elastic but not infinitely elastic), got $price_elasticity",
+                    ),
+                )
+            end
+        end
+
+        # Validate interruption cost
+        if interruption_cost_rs_per_mwh !== nothing
+            if interruption_cost_rs_per_mwh < 0
+                throw(
+                    ArgumentError(
+                        "interruption_cost_rs_per_mwh must be non-negative (got $interruption_cost_rs_per_mwh)",
+                    ),
+                )
+            end
+        end
+
+        new(
+            id,
+            name,
+            bus_id,
+            submarket_id,
+            load_profile_mw,
+            is_firm,
+            is_interruptible,
+            priority,
+            price_elasticity,
+            interruption_cost_rs_per_mwh,
+            metadata,
+        )
+    end
+end
+
+"""
+    NetworkSubmarket <: NetworkEntity
+
+Geographic region/submarket in the Brazilian power system with transmission interconnections.
+
+Brazil has 4 main submarkets interconnected by transmission lines:
+- SE/CO: Sudeste/Centro-Oeste (Southeast/Central-West)
+- S: South
+- NE: Northeast
+- N: North
+
+Network submarkets have transmission interconnection limits and reference buses
+for power flow calculations.
+
+This is distinct from the MarketEntity Submarket type, which represents
+economic bidding zones. NetworkSubmarket is for physical transmission modeling.
+
+# Fields
+- `id::String`: Submarket ID ("SE", "S", "NE", "N")
+- `name::String`: Full submarket name
+- `demand_forecast_mw::Vector{Float64}`: Aggregated demand by time period (MW)
+- `interconnection_capacity_mw::Dict{String, Float64}`: Max transfer to/from other submarkets (MW)
+- `reference_bus_id::String`: Reference/slack bus for marginal price calculation
+- `metadata::EntityMetadata`: Additional metadata
+
+# Constraints Applied
+- Interconnection limits: `import/export <= capacity`
+- Energy balance: `generation + import = demand + export`
+- Marginal price: calculated at reference bus
+
+# Examples
+```julia
+submarket = NetworkSubmarket(;
+    id = "SE",
+    name = "Sudeste/Centro-Oeste",
+    demand_forecast_mw = collect(10000.0:100.0:12300.0),
+    interconnection_capacity_mw = Dict(
+        "S" => 2000.0,
+        "NE" => 1500.0,
+        "N" => 1000.0
+    ),
+    reference_bus_id = "BUS_SE_REF"
+)
+```
+"""
+Base.@kwdef struct NetworkSubmarket <: NetworkEntity
+    id::String
+    name::String
+    demand_forecast_mw::Vector{Float64}
+    interconnection_capacity_mw::Dict{String,Float64}
+    reference_bus_id::String
+    metadata::EntityMetadata = EntityMetadata()
+
+    function NetworkSubmarket(;
+        id::String,
+        name::String,
+        demand_forecast_mw::Vector{Float64},
+        interconnection_capacity_mw::Dict{String,Float64},
+        reference_bus_id::String,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
+
+        # Validate submarket ID (must be one of the 4 Brazilian submarkets)
+        valid_submarkets = ["SE", "S", "NE", "N"]
+        id = validate_one_of(id, valid_submarkets, "id")
+
+        # Validate name
+        name = validate_name(name)
+
+        # Validate demand forecast
+        if isempty(demand_forecast_mw)
+            throw(ArgumentError("demand_forecast_mw cannot be empty"))
+        end
+
+        for (i, demand) in enumerate(demand_forecast_mw)
+            if demand <= 0
+                throw(
+                    ArgumentError(
+                        "demand_forecast_mw[$i] must be positive (got $demand)",
+                    ),
+                )
+            end
+        end
+
+        # Validate interconnections
+        if isempty(interconnection_capacity_mw)
+            throw(ArgumentError("interconnection_capacity_mw cannot be empty"))
+        end
+
+        for (other_id, capacity) in interconnection_capacity_mw
+            # Validate other submarket ID
+            if !(other_id in valid_submarkets)
+                throw(
+                    ArgumentError(
+                        "Invalid interconnection submarket ID '$other_id'. Must be one of $(join(valid_submarkets, ", "))",
+                    ),
+                )
+            end
+
+            # Check for self-interconnection
+            if other_id == id
+                throw(
+                    ArgumentError(
+                        "Submarket '$id' cannot have interconnection to itself",
+                    ),
+                )
+            end
+
+            # Validate capacity
+            if capacity <= 0
+                throw(
+                    ArgumentError(
+                        "Interconnection capacity to '$other_id' must be positive (got $capacity)",
+                    ),
+                )
+            end
+        end
+
+        # Validate reference bus ID
+        reference_bus_id = validate_id(reference_bus_id)
+
+        new(
+            id,
+            name,
+            demand_forecast_mw,
+            interconnection_capacity_mw,
+            reference_bus_id,
+            metadata,
+        )
+    end
+end
+
 # Export network types
-export NetworkEntity, Bus, ACLine, DCLine
+export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
