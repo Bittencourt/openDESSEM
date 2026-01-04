@@ -446,7 +446,6 @@ function main()
         println("  1. Review changes: git diff")
         println("  2. Stage files: git add <files>")
         println("  3. Commit: git commit -m 'type(scope): description'")
-        println("  4. Update Vibe Kanban task status → done")
         return 0
     else
         print_error("SOME CHECKS FAILED - Please fix before committing")
