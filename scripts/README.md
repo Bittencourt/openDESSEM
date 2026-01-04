@@ -43,16 +43,24 @@ julia scripts/pre_commit_check.jl
 ```
 
 **Checks performed**:
-1. ✅ No temporary files in repository
-2. ✅ All tests passing
-3. ✅ Git status check
-4. ✅ Documentation builds
-5. ✅ Code formatting consistent
-6. ✅ Project.toml valid
+1. ✅ **Julia Version** - Verifies Julia ≥ 1.8
+2. ✅ **Temporary Files** - Scans for temp files (*.log, *~, *.swp, etc.)
+3. ✅ **Test Suite** - Runs full test suite via `test/runtests.jl`
+4. ✅ **Git Status** - Checks for uncommitted changes
+5. ✅ **Documentation** - Validates documentation build scripts
+6. ✅ **Code Formatting** - Verifies all Julia files are formatted with JuliaFormatter
+7. ✅ **Project.toml** - Validates project configuration
 
 **Exit codes**:
 - `0`: All checks passed - safe to commit
 - `1`: Some checks failed - fix before committing
+- `6`: Julia version too old
+
+**Features**:
+- Cross-platform compatible (Windows, Linux, macOS)
+- Color-coded terminal output
+- Graceful handling of missing dependencies
+- Clear error messages and next steps
 
 **Integration with git hooks** (optional):
 ```bash
@@ -241,6 +249,7 @@ jobs:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2025-01-04 | Enhanced pre_commit_check.jl with cross-platform support and better error handling |
 | 1.0 | 2025-01-03 | Initial scripts created |
 
 ---
