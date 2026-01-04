@@ -28,9 +28,9 @@ export get_id, has_id, update_metadata, add_tag, set_property, is_empty
 
 # Include entity types
 include("thermal.jl")
+include("hydro.jl")
 
 # More entity types will be added as we implement them:
-# include("hydro.jl")
 # include("renewable.jl")
 # include("network.jl")
 # include("market.jl")

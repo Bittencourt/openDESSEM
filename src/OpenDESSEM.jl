@@ -40,6 +40,7 @@ export AbstractEntity, PhysicalEntity, EntityMetadata
 export validate_id, validate_name, validate_positive, validate_non_negative
 export get_id, has_id, update_metadata, add_tag, set_property, is_empty
 export ThermalPlant, ConventionalThermal, CombinedCyclePlant
+export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
 
 # More modules will be added as we implement them:
