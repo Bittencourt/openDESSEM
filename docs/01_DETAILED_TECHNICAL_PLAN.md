@@ -470,8 +470,10 @@ end
 ### Week 7-8: Integration
 1. Objective composer
 2. Database loader
-3. DESSEM file parser
+3. DESSEM file parser (using **PWF.jl** for .pwf file parsing)
 4. Solution extraction
+
+**Note on PWF.jl**: There is a Julia package called **PWF.jl** specifically designed for parsing .pwf (Power World Format) files. This library can significantly simplify the implementation of the DESSEM file parser, particularly for network topology and power flow data. Consider integrating PWF.jl as a dependency for parsing .pwf files rather than implementing a custom parser from scratch.
 
 ### Week 9-12: Advanced
 1. Combined-cycle modes

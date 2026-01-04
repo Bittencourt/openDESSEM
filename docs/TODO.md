@@ -932,6 +932,13 @@ Expected Output:
 **Description**:
 Implement loaders for ONS text file format (the existing DESSEM input format).
 
+**Important Note**: Use **PWF.jl** library for parsing .pwf (Power World Format) files. PWF.jl is a Julia package specifically designed for parsing .pwf files, which contain network topology and power flow data. This will significantly simplify the implementation of network-related file parsing. Add PWF.jl as a dependency in Project.toml:
+
+```toml
+[deps]
+PWF = "fd6700fa-a6c1-580c-9db4-8a966f3d263a"
+```
+
 **Perfect Prompt for Coding Agent**:
 ```
 Implement file-based data loaders for ONS DESSEM input format.
@@ -939,22 +946,34 @@ Implement file-based data loaders for ONS DESSEM input format.
 Requirements:
 1. Create src/data/loaders/file_loader.jl
 2. Parse ONS .dat files (see docs/Sample/DS_ONS_102025_RV2D11/)
-3. Load thermal, hydro, network data from files
-4. Validate file format and data consistency
-5. Support multiple scenarios
-6. Clear error messages for malformed files
-7. Return populated ElectricitySystem
+3. **Use PWF.jl for parsing .pwf files** (network topology and power flow data)
+4. Load thermal, hydro, network data from files
+5. Validate file format and data consistency
+6. Support multiple scenarios
+7. Clear error messages for malformed files
+8. Return populated ElectricitySystem
+
+PWF.jl Integration:
+- Add PWF.jl to Project.toml dependencies
+- Use PWF.jl functions to parse .pwf files containing:
+  - Bus data (voltage levels, connections)
+  - Line data (impedance, capacity)
+  - Transformer data
+  - Load data
+- Reference: https://github.com/JuliaEnergy/PWF.jl
 
 Testing:
 - Create test/integration/test_file_loader.jl
 - Test loading sample files from docs/Sample/
+- Validate PWF.jl integration with .pwf files
 - Validate loaded data integrity
 - Test error handling for malformed files
 - Ensure all tests pass
 
 Expected Output:
-- src/data/loaders/file_loader.jl (approximately 500 lines)
+- src/data/loaders/file_loader.jl (approximately 500 lines, reduced complexity with PWF.jl)
 - test/integration/test_file_loader.jl (approximately 300 lines)
+- Updated Project.toml with PWF.jl dependency
 - All tests passing
 ```
 
