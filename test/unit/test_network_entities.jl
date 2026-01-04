@@ -615,7 +615,7 @@ using Test
 
     @testset "NetworkLoad - Constructor" begin
         @testset "Valid load with profile" begin
-            profile = collect(100.0:10.0:340.0)  # 24-hour profile
+            profile = collect(100.0:10.0:330.0)  # 24-hour profile
             load = NetworkLoad(;
                 id = "LOAD_001",
                 name = "Industrial Load Alpha",
@@ -787,11 +787,11 @@ using Test
         end
     end
 
-    @testset "Submarket - Constructor" begin
+    @testset "NetworkSubmarket - Constructor" begin
         @testset "Valid SE/CO submarket" begin
             demand = collect(10000.0:100.0:12300.0)
             interconnections = Dict("S" => 2000.0, "NE" => 1500.0, "N" => 1000.0)
-            submarket = Submarket(;
+            submarket = NetworkSubmarket(;
                 id = "SE",
                 name = "Sudeste/Centro-Oeste",
                 demand_forecast_mw = demand,
@@ -814,7 +814,7 @@ using Test
         @testset "Valid South submarket" begin
             demand = collect(5000.0:50.0:6150.0)
             interconnections = Dict("SE" => 2000.0, "N" => 500.0)
-            submarket = Submarket(;
+            submarket = NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -831,7 +831,7 @@ using Test
         @testset "Valid Northeast submarket" begin
             demand = collect(7000.0:70.0:8610.0)
             interconnections = Dict("SE" => 1500.0)
-            submarket = Submarket(;
+            submarket = NetworkSubmarket(;
                 id = "NE",
                 name = "Northeast",
                 demand_forecast_mw = demand,
@@ -846,7 +846,7 @@ using Test
         @testset "Valid North submarket" begin
             demand = collect(3000.0:30.0:3690.0)
             interconnections = Dict("SE" => 1000.0, "S" => 500.0)
-            submarket = Submarket(;
+            submarket = NetworkSubmarket(;
                 id = "N",
                 name = "North",
                 demand_forecast_mw = demand,
@@ -859,11 +859,11 @@ using Test
         end
     end
 
-    @testset "Submarket - Validation" begin
+    @testset "NetworkSubmarket - Validation" begin
         @testset "Invalid submarket ID" begin
             demand = ones(24) * 5000.0
             interconnections = Dict("SE" => 1000.0)
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "XX",  # Invalid
                 name = "Invalid Submarket",
                 demand_forecast_mw = demand,
@@ -871,7 +871,7 @@ using Test
                 reference_bus_id = "BUS_REF",
             )
 
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "SUL",  # Too long
                 name = "Invalid Submarket",
                 demand_forecast_mw = demand,
@@ -882,7 +882,7 @@ using Test
 
         @testset "Empty demand forecast" begin
             interconnections = Dict("SE" => 1000.0)
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = Float64[],
@@ -895,7 +895,7 @@ using Test
             demand = copy(ones(24) * 5000.0)
             demand[5] = -100.0
             interconnections = Dict("SE" => 1000.0)
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -908,7 +908,7 @@ using Test
             demand = copy(ones(24) * 5000.0)
             demand[10] = 0.0
             interconnections = Dict("SE" => 1000.0)
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -919,7 +919,7 @@ using Test
 
         @testset "Empty interconnections" begin
             demand = ones(24) * 5000.0
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -931,7 +931,7 @@ using Test
         @testset "Negative interconnection capacity" begin
             demand = ones(24) * 5000.0
             interconnections = Dict("SE" => -1000.0)
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -943,7 +943,7 @@ using Test
         @testset "Self-interconnection" begin
             demand = ones(24) * 5000.0
             interconnections = Dict("S" => 1000.0)  # Self
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
@@ -955,7 +955,7 @@ using Test
         @testset "Invalid interconnection submarket ID" begin
             demand = ones(24) * 5000.0
             interconnections = Dict("XX" => 1000.0)  # Invalid
-            @test_throws ArgumentError Submarket(;
+            @test_throws ArgumentError NetworkSubmarket(;
                 id = "S",
                 name = "South",
                 demand_forecast_mw = demand,
