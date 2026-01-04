@@ -1,8 +1,14 @@
 # OpenDESSEM Development Task List
 
-**Last Updated**: 2026-01-04
+**Last Updated**: 2026-01-05
 **Status**: Active
-**Current Phase**: Entity System Expansion
+**Current Phase**: Entity System Expansion → Constraint Development (PowerModels.jl Integration)
+
+**Recent Updates**:
+- ✅ TASK-001, TASK-002, TASK-003 completed (Hydro, Renewable, Network entities)
+- ✅ PWF.jl added for Brazilian .pwf file parsing
+- ✅ PowerModels.jl adopted for network constraints (TASK-006 updated)
+- 📧 Comprehensive compatibility analysis completed (see docs/POWERMODELS_COMPATIBILITY_ANALYSIS.md)
 
 This document outlines the remaining development tasks for the OpenDESSEM project, organized by logical dependency order and complexity.
 
@@ -577,49 +583,97 @@ g_thermal = list_variables(model, "T_SE_001")
 
 ---
 
-### TASK-006: Constraint Builder System
+### TASK-006: Constraint Builder System (PowerModels.jl Integration)
 
-**Status**: 🟡 Planned
-**Complexity**: 10/10 (most complex part of the system)
+**Status**: 🟡 Planned (Updated 2026-01-05)
+**Complexity**: 8/10 (reduced from 10/10 thanks to PowerModels.jl)
 **Precedence**: TASK-005 (requires variables to exist first)
 
 **Description**:
-Implement a modular, extensible constraint building system that adds optimization constraints to the JuMP model. This is where the mathematical optimization model is constructed.
+Implement a modular, extensible constraint building system that leverages **PowerModels.jl** for network constraints while adding custom ONS-specific constraints. This is where the mathematical optimization model is constructed.
+
+**🎯 NEW DIRECTIVE**: **ADOPT PowerModels.jl for Network Constraints**
+
+Based on comprehensive compatibility analysis (`docs/POWERMODELS_COMPATIBILITY_ANALYSIS.md`), we will use PowerModels.jl for all network constraint formulations. Key findings:
+
+- ✅ PowerModels v0.21.5 installed and tested successfully
+- ✅ Proven mathematical formulations (422+ citations, peer-reviewed)
+- ✅ Works perfectly with HiGHS solver (tested: 0.01s solve time)
+- ✅ 75% compatible out of the box; 25% needs custom Brazilian extensions
+- ✅ Reduces implementation time from 8 weeks to 4 weeks
+- ✅ Lower risk: community support vs. custom implementation
+
+**Architecture**:
+```
+OpenDESSEM Entity System → Adapter → PowerModels Network Constraints → Custom ONS Constraints → Solver
+```
 
 **Constraint Categories**:
 
-1. **Energy Balance Constraints**
-   - Supply = Demand for each bus/submarket/time
-   - Include generation, imports, exports, load shedding
-   - Handle losses
+1. **Network Constraints (via PowerModels.jl)** ✅ ADOPTED
+   - **DC-OPF**: Linearized power flow (fast, used in DESSEM)
+   - **AC-OPF**: Full nonlinear power flow (optional, for validation)
+   - **Power flow equations**: flow = (θ_from - θ_to) / X_line
+   - **Thermal limits**: -capacity ≤ flow ≤ capacity
+   - **Voltage limits**: V_min ≤ V ≤ V_max
+   - **Angle reference**: θ_slack = 0
 
-2. **Thermal Unit Commitment Constraints**
+2. **ONS-Specific Extensions (Custom Implementation)**
+   - **4-Submarket Energy Balance**: Supply-demand per submarket (SE/CO, NE, S, N)
+   - **Interconnection Limits**: Transfer capacity between submarkets
+   - **Cascading Hydro**: Water travel time delays between reservoirs
+   - **Brazilian UC Rules**: ONS-specific unit commitment logic
+
+3. **Thermal Unit Commitment Constraints** (Custom)
    - Capacity limits: g_min * u ≤ g ≤ g_max * u
    - Ramp limits: g[t] - g[t-1] ≤ ramp_up * 60
    - Minimum up/down time
    - Startup/shutdown logic: u[t] - u[t-1] = z[t] - w[t]
 
-3. **Hydro Constraints**
+4. **Hydro Constraints** (Custom)
    - Water balance: s[t] = s[t-1] + inflow[t] - outflow[t] - spill[t]
    - Generation function: h[t] = f(outflow[t], head[t])
    - Storage bounds: s_min ≤ s[t] ≤ s_max
    - Final storage requirement: s[T] ≥ s_final
-   - Cascade coupling: outflow_upstream[t] = inflow_downstream[t + travel_time]
+   - **Cascade coupling with delays**: outflow_upstream[t] = inflow_downstream[t + travel_time]
 
-4. **Network Constraints**
-   - Power flow: flow[line] = (θ_from - θ_to) / X_line
-   - Thermal limits: -capacity ≤ flow ≤ capacity
-   - Voltage limits: V_min ≤ V ≤ V_max
-   - Angle reference: θ_slack = 0
-
-5. **Renewable Constraints**
+5. **Renewable Constraints** (Custom)
    - Generation ≤ forecast: g ≤ g_forecast
    - Curtailment: g + c = g_forecast
 
-6. **Market Constraints**
+6. **Market Constraints** (Custom)
    - Bilateral contract fulfillment
    - Deficit limits (load shedding)
    - Price calculation (dual variables)
+
+**Implementation Plan**:
+
+**Week 1: PowerModels Integration**
+- Study PowerModels API and formulations ✅ (DONE - see analysis doc)
+- Design entity → PowerModels adapter interface
+- Implement `convert_to_powermodel(system::ElectricitySystem)` adapter
+- Test adapter with sample systems
+- Document adapter usage patterns
+
+**Week 2-3: Network Constraints**
+- Implement `build_network_constraints!()` using PowerModels
+- Support DC-OPF formulation (primary)
+- Add AC-OPF support (optional, for validation)
+- Test with Brazilian sample data
+- Document PowerModels integration
+
+**Week 4: ONS Extensions**
+- Add 4-submarket energy balance constraints
+- Add submarket interchange limits
+- Add cascading hydro with water travel times
+- Add Brazilian-specific data fields
+- Test with full Brazilian system
+
+**Week 5: Integration and Testing**
+- Integrate PowerModels constraints with custom ONS constraints
+- Comprehensive testing with sample systems
+- Validate against official DESSEM results
+- Performance testing
 
 **Architecture**:
 
@@ -676,29 +730,69 @@ end
 
 **Perfect Prompt for Coding Agent**:
 ```
-Implement the constraint builder system for OpenDESSEM - the core optimization engine.
+Implement the constraint builder system for OpenDESSEM with PowerModels.jl integration.
 
 Context:
 - Variables are created by VariableManager (TASK-005)
-- Need to add mathematical constraints to JuMP model
-- This is the most complex part - requires careful optimization modeling
-- Brazilian DESSEM has specific constraint formulations
+- We have decided to ADOPT PowerModels.jl for network constraints (see docs/POWERMODELS_COMPATIBILITY_ANALYSIS.md)
+- PowerModels provides proven DC-OPF/AC-OPF formulations (422+ citations)
+- We need to build an adapter layer and add custom ONS-specific constraints
+- This reduces implementation time from 8 weeks to 4 weeks and lowers risk
 
 Requirements:
 1. Create src/constraints/ directory with modular constraint system
-2. Define AbstractConstraint base type
-3. Implement build!(model, constraint) method for each constraint type
-4. Create constraint modules:
-   - energy_balance.jl - Supply-demand balance
+2. Define AbstractConstraint base type with build!(model, constraint) interface
+3. **Create src/adapters/powermodels_adapter.jl**:
+   - Implement convert_to_powermodel(system::ElectricitySystem)::Dict{String, Any}
+   - Convert OpenDESSEM entities → PowerModels data dict format
+   - Map buses: Bus → Dict("bus_i", "vmax", "vmin", "base_kv", ...)
+   - Map AC lines: ACLine → Dict("fbus", "tbus", "br_r", "br_x", "rate_a", ...)
+   - Map generators: ThermalPlant/HydroPlant → Dict("gen_bus", "pmax", "pmin", ...)
+   - Map loads: Load → Dict("load_bus", "pd", "qd", ...)
+   - Validate all conversions
+4. **Create src/constraints/network_powermodels.jl**:
+   - Implement build_network_constraints!(model, formulation=:DC)
+   - Use PowerModels.instantiate_model() with DCPPowerModel
+   - Use PowerModels.build_opf() to add network constraints
+   - Support DC-OPF (primary) and AC-OPF (optional) formulations
+   - Extract PowerModels variables into OpenDESSEM variable registry
+5. **Create custom constraint modules**:
+   - energy_balance.jl - Bus-level energy balance
    - thermal_commitment.jl - UC constraints (capacity, ramp, min up/down)
-   - hydro_water_balance.jl - Reservoir dynamics, cascade coupling
+   - hydro_water_balance.jl - Reservoir dynamics, cascade with delays
    - hydro_generation.jl - Generation function (outflow → power)
-   - network_power_flow.jl - DC power flow (θ-based)
+   - submarket_balance.jl - 4-submarket energy balance (ONS-specific)
+   - submarket_interconnection.jl - Interchange limits (ONS-specific)
    - renewable_limits.jl - Generation ≤ forecast
-5. Use ConstraintMetadata for documentation and ordering
-6. Support constraint enable/disable flags
-7. Validate constraint consistency (no conflicting bounds)
-8. Comprehensive docstrings with mathematical formulations
+6. Use ConstraintMetadata for documentation and ordering
+7. Support constraint enable/disable flags
+8. Validate constraint consistency (no conflicting bounds)
+9. Comprehensive docstrings with mathematical formulations
+
+PowerModels Integration Example:
+```julia
+using PowerModels as PM
+
+function build_network_constraints!(model::DessemModel; formulation::Symbol=:DC)
+    # Convert entities to PowerModels format
+    pm_data = convert_to_powermodel(model.system)
+
+    # Select PowerModels formulation
+    pm_formulation = formulation == :DC ? PM.DCPPowerModel : PM.ACPPowerModel
+
+    # Instantiate PowerModels model
+    pm = PM.instantiate_model(
+        pm_data,
+        pm_formulation,
+        PM.build_opf,
+        jump_model=model.jump_model
+    )
+
+    # Variables are now in model.jump_model
+    # Constraint references available via pm.model
+    @info "Built network constraints using PowerModels.jl" formulation=pm_formulation
+end
+```
 
 Key Constraint Formulations:
 
@@ -747,13 +841,17 @@ Testing:
 - Target >85% coverage (some constraint paths hard to test)
 
 Expected Output:
+- src/adapters/powermodels_adapter.jl (approximately 250 lines) - NEW
+- src/constraints/constraint_types.jl (base types, approximately 100 lines)
+- src/constraints/network_powermodels.jl (approximately 150 lines) - PowerModels wrapper
 - src/constraints/energy_balance.jl (approximately 150 lines)
 - src/constraints/thermal_commitment.jl (approximately 300 lines)
 - src/constraints/hydro_water_balance.jl (approximately 200 lines)
 - src/constraints/hydro_generation.jl (approximately 150 lines)
-- src/constraints/network_power_flow.jl (approximately 250 lines)
+- src/constraints/submarket_balance.jl (approximately 150 lines) - NEW (ONS-specific)
+- src/constraints/submarket_interconnection.jl (approximately 100 lines) - NEW (ONS-specific)
 - src/constraints/renewable_limits.jl (approximately 100 lines)
-- src/constraints/constraint_types.jl (base types, approximately 100 lines)
+- test/unit/test_powermodels_adapter.jl (approximately 300 lines) - NEW
 - test/unit/test_constraints.jl (approximately 800 lines)
 - test/integration/test_constraint_system.jl (approximately 400 lines)
 - All tests passing
@@ -764,13 +862,21 @@ Example Usage:
 model = DessemModel(system, time_periods=168)
 create_variables!(model)
 
-# Add constraints
-add_constraint!(model, EnergyBalanceConstraint(; include_losses=true))
+# Add network constraints (using PowerModels)
+add_constraint!(model, NetworkPowerModelsConstraint(; formulation=:DC))
+
+# Add ONS-specific constraints
+add_constraint!(model, SubmarketEnergyBalanceConstraint(; include_losses=true))
+add_constraint!(model, SubmarketInterconnectionConstraint())
 add_constraint!(model, ThermalCommitmentConstraint(; include_ramp=true))
 add_constraint!(model, HydroWaterBalanceConstraint(; include_cascade=true))
-add_constraint!(model, NetworkPowerFlowConstraint(; formulation=:DC))
+add_constraint!(model, RenewableLimitsConstraint())
 
+# Build all constraints
 build_all_constraints!(model)
+
+# Solve with HiGHS
+solution = optimize!(model, HiGHS.Optimizer)
 ```
 ```
 
@@ -1076,7 +1182,9 @@ Expected Output:
 | 9-10 (Very Complex) | TASK-006, TASK-012 | 2 |
 
 **Total Tasks**: 11
-**Estimated Total Complexity**: 77/110
+**Estimated Total Complexity**: 77/110 → **70/110** (reduced due to PowerModels adoption)
+
+**Note**: TASK-006 complexity reduced from 10/10 to 8/10 thanks to PowerModels.jl integration
 
 ---
 
