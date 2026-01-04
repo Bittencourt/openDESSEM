@@ -193,5 +193,97 @@ Base.@kwdef struct Load <: MarketEntity
     end
 end
 
+"""
+    BilateralContract <: MarketEntity
+
+Bilateral contract between a seller and buyer for energy trading.
+
+Bilateral contracts are pre-negotiated agreements for energy sales
+outside of the spot market. They represent firm commitments that
+must be honored in the scheduling.
+
+# Fields
+- `id::String`: Unique contract identifier
+- `seller_id::String`: ID of the selling agent (generator or trader)
+- `buyer_id::String`: ID of the buying agent (load or distributor)
+- `energy_mwh::Float64`: Contracted energy amount (MWh)
+- `price_rsj_per_mwh::Float64`: Contract price (R\$/MWh)
+- `start_date::DateTime`: Contract start date
+- `end_date::Union{DateTime, Nothing}`: Contract end date (nothing for indefinite)
+- `metadata::EntityMetadata`: Additional metadata
+
+# Constraints Applied
+- Energy balance: seller's generation must account for contracted energy
+- Buyer's demand: contracted energy reduces spot market purchase
+- Price settlement: difference between contract and spot price
+- Must have seller != buyer (no self-contracting)
+
+# Examples
+```julia
+contract = BilateralContract(;
+    id = "BC_001",
+    seller_id = "THERMAL_001",
+    buyer_id = "DISTRIBUTOR_NE",
+    energy_mwh = 1000.0,
+    price_rsj_per_mwh = 150.0,
+    start_date = DateTime(2024, 1, 1),
+    end_date = DateTime(2024, 12, 31)
+)
+```
+"""
+Base.@kwdef struct BilateralContract <: MarketEntity
+    id::String
+    seller_id::String
+    buyer_id::String
+    energy_mwh::Float64
+    price_rsj_per_mwh::Float64
+    start_date::DateTime
+    end_date::Union{DateTime,Nothing} = nothing
+    metadata::EntityMetadata = EntityMetadata()
+
+    function BilateralContract(;
+        id::String,
+        seller_id::String,
+        buyer_id::String,
+        energy_mwh::Float64,
+        price_rsj_per_mwh::Float64,
+        start_date::DateTime,
+        end_date::Union{DateTime,Nothing} = nothing,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
+
+        # Validate ID
+        id = validate_id(id)
+        seller_id = validate_id(seller_id)
+        buyer_id = validate_id(buyer_id)
+
+        # Seller and buyer must be different
+        if seller_id == buyer_id
+            throw(
+                ArgumentError(
+                    "seller_id and buyer_id must be different (got '$seller_id' for both)",
+                ),
+            )
+        end
+
+        # Validate energy (non-negative)
+        energy_mwh = validate_non_negative(energy_mwh, "energy_mwh")
+
+        # Validate price (non-negative)
+        price_rsj_per_mwh = validate_non_negative(price_rsj_per_mwh, "price_rsj_per_mwh")
+
+        # Validate end_date is after start_date
+        if end_date !== nothing && end_date < start_date
+            throw(
+                ArgumentError(
+                    "end_date ($end_date) must be after or equal to start_date ($start_date)",
+                ),
+            )
+        end
+
+        new(id, seller_id, buyer_id, energy_mwh, price_rsj_per_mwh, start_date, end_date, metadata)
+    end
+end
+
 # Export market types
-export MarketEntity, Submarket, Load
+export MarketEntity, Submarket, Load, BilateralContract

@@ -291,6 +291,139 @@ using Test
         end
     end
 
+    @testset "BilateralContract - Constructor" begin
+        @testset "Valid bilateral contract" begin
+            contract = BilateralContract(;
+                id = "BC_001",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+                end_date = DateTime(2024, 12, 31),
+            )
+
+            @test contract.id == "BC_001"
+            @test contract.seller_id == "SELLER_001"
+            @test contract.buyer_id == "BUYER_001"
+            @test contract.energy_mwh == 1000.0
+            @test contract.price_rsj_per_mwh == 150.0
+            @test contract.start_date == DateTime(2024, 1, 1)
+            @test contract.end_date == DateTime(2024, 12, 31)
+            @test contract isa MarketEntity
+            @test contract isa PhysicalEntity
+        end
+
+        @testset "Contract with default values" begin
+            contract = BilateralContract(;
+                id = "BC_002",
+                seller_id = "SELLER_002",
+                buyer_id = "BUYER_002",
+                energy_mwh = 500.0,
+                price_rsj_per_mwh = 200.0,
+                start_date = DateTime(2024, 6, 1),
+            )
+
+            @test contract.end_date === nothing
+            @test contract.metadata !== nothing
+        end
+
+        @testset "Contract with zero energy (valid)" begin
+            contract = BilateralContract(;
+                id = "BC_003",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = 0.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+
+            @test contract.energy_mwh == 0.0
+        end
+
+        @testset "Contract with large energy" begin
+            contract = BilateralContract(;
+                id = "BC_004",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = 100000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+
+            @test contract.energy_mwh == 100000.0
+        end
+    end
+
+    @testset "BilateralContract - Validation" begin
+        @testset "Seller and buyer must be different" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "AGENT_001",
+                buyer_id = "AGENT_001",  # Same as seller
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+        end
+
+        @testset "Negative energy not allowed" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = -1000.0,  # Negative
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+        end
+
+        @testset "Negative price not allowed" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = -150.0,  # Negative
+                start_date = DateTime(2024, 1, 1),
+            )
+        end
+
+        @testset "Empty seller_id" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "",  # Empty
+                buyer_id = "BUYER_001",
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+        end
+
+        @testset "Empty buyer_id" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "SELLER_001",
+                buyer_id = "",  # Empty
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 1, 1),
+            )
+        end
+
+        @testset "End date before start date" begin
+            @test_throws ArgumentError BilateralContract(;
+                id = "BC_001",
+                seller_id = "SELLER_001",
+                buyer_id = "BUYER_001",
+                energy_mwh = 1000.0,
+                price_rsj_per_mwh = 150.0,
+                start_date = DateTime(2024, 12, 31),
+                end_date = DateTime(2024, 1, 1),  # Before start
+            )
+        end
+    end
+
     @testset "MarketEntity - Edge Cases" begin
         @testset "Single period load profile" begin
             load = Load(;

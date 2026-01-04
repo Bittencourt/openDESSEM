@@ -33,4 +33,23 @@ include("renewable.jl")
 include("network.jl")
 include("market.jl")
 
+# Export entity types
+# Thermal
+export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
+export ThermalPlant, ConventionalThermal, CombinedCyclePlant
+
+# Hydro
+export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
+
+# Renewable
+export RenewableType, WIND, SOLAR
+export ForecastType, DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
+export RenewablePlant, WindPlant, SolarPlant
+
+# Network
+export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
+
+# Market
+export MarketEntity, Submarket, Load
+
 end # module
