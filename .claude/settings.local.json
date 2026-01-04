@@ -29,7 +29,8 @@
       "Bash(fi)",
       "Bash(if:*)",
       "Bash(else:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
