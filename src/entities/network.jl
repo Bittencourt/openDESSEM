@@ -440,10 +440,10 @@ Base.@kwdef struct NetworkLoad <: NetworkEntity
         end
 
         for (i, demand) in enumerate(load_profile_mw)
-            if demand <= 0
+            if demand < 0
                 throw(
                     ArgumentError(
-                        "load_profile_mw[$i] must be positive (got $demand). Zero or negative demand is not valid for a load.",
+                        "load_profile_mw[$i] is negative ($demand). Demand must be non-negative.",
                     ),
                 )
             end
