@@ -33,6 +33,8 @@ module OpenDESSEM
 
 # Include submodules
 include("entities/Entities.jl")
+include("core/electricity_system.jl")
+include("integration/Integration.jl")
 
 # Export main functionality
 using .Entities
@@ -41,11 +43,28 @@ export validate_id, validate_name, validate_positive, validate_non_negative
 export get_id, has_id, update_metadata, add_tag, set_property, is_empty
 export ThermalPlant, ConventionalThermal, CombinedCyclePlant
 export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
-export RenewablePlant, WindFarm, SolarFarm
-export NetworkEntity, Bus, ACLine, DCLine
+export RenewablePlant, WindPlant, SolarPlant
+export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
 export MarketEntity, Submarket, Load
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
+export RenewableType, ForecastType, WIND, SOLAR
+export DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
 export TrackingSystem, FIXED, SINGLE_AXIS, DUAL_AXIS
+
+# Export core system functionality
+export ElectricitySystem
+export get_thermal_plant, get_hydro_plant, get_bus, get_submarket
+export count_generators, total_capacity, validate_system
+
+# Export integration functionality
+using .Integration
+export convert_to_powermodel,
+    convert_bus_to_powermodel,
+    convert_line_to_powermodel,
+    convert_gen_to_powermodel,
+    convert_load_to_powermodel,
+    find_bus_index,
+    validate_powermodel_conversion
 
 # More modules will be added as we implement them:
 # include("core/Model.jl")

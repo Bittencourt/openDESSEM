@@ -18,7 +18,11 @@ using Test
     include("unit/test_network_entities.jl")
     include("unit/test_market_entities.jl")
 
+    # Core tests
+    include("unit/test_electricity_system.jl")
+
     # Integration tests
+    include("unit/test_powermodels_adapter.jl")
     # include("integration/test_simple_system.jl")
 
 end
