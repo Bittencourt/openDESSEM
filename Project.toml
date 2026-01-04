@@ -23,4 +23,3 @@ JuliaFormatter = "98e50ef6-434e-5e9c-8493-9c607cd922f5"
 [targets]
 test = ["Test"]
 docs = ["Documenter"]
-```
