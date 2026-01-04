@@ -669,6 +669,25 @@ julia scripts/validate_before_merge.jl --target=main
 - `8`: Git history quality issues
 - `9`: Julia version too old
 
+**Background Execution**:
+All droids can run continuously as background processes. See `.factory/DROIDS.md` for:
+- Starting/stopping droids (Windows batch scripts provided)
+- Status monitoring
+- Log file locations
+- Configuration options
+
+Quick start:
+```batch
+# Start all droids in background (Windows)
+scripts\start_droids.bat
+
+# Stop all droids
+scripts\stop_droids.bat
+
+# Check droid status
+scripts\droids_status.bat
+```
+
 ---
 
 ## Getting Help
