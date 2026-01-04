@@ -90,9 +90,14 @@ openDESSEM/
 │   │   ├── energy_balance.jl         # EnergyBalanceConstraint
 │   │   ├── thermal_uc.jl             # ThermalUnitCommitmentConstraint
 │   │   ├── hydro_water_balance.jl    # HydroWaterBalanceConstraint
-│   │   ├── network.jl                # DCOPFConstraint, ACOPFConstraint
+│   │   ├── network_powermodels.jl    # PowerModels-based network constraints
+│   │   ├── brazilian_extensions.jl   # ONS-specific constraints
 │   │   ├── reserve.jl                # SpinningReserveConstraint
 │   │   └── ramp_rate.jl              # RampRateConstraint
+│   │
+│   ├── adapters/
+│   │   ├── powermodels_adapter.jl    # Entity → PowerModels conversion
+│   │   └── pwf_adapter.jl            # PWF.jl data integration
 │   │
 │   ├── data/
 │   │   ├── system.jl                 # ElectricitySystem struct
@@ -470,10 +475,10 @@ end
 ### Week 7-8: Integration
 1. Objective composer
 2. Database loader
-3. DESSEM file parser (using **PWF.jl** for .pwf file parsing)
+3. DESSEM file parser (using **PWF.jl** for .pwf file parsing - **NOW INTEGRATED**)
 4. Solution extraction
 
-**Note on PWF.jl**: There is a Julia package called **PWF.jl** specifically designed for parsing .pwf (Power World Format) files. This library can significantly simplify the implementation of the DESSEM file parser, particularly for network topology and power flow data. Consider integrating PWF.jl as a dependency for parsing .pwf files rather than implementing a custom parser from scratch.
+**Note on PWF.jl**: **PWF.jl v0.1.0 is now integrated** for parsing .pwf (Power World Format) files. This library handles network topology and power flow data from Brazilian ANAREDE format. The adapter layer (`src/adapters/pwf_adapter.jl`) converts PWF data to OpenDESSEM entities. See `docs/PWF_INTEGRATION.md` for details.
 
 ### Week 9-12: Advanced
 1. Combined-cycle modes

@@ -17,7 +17,7 @@ OpenDESSEM is a Julia-based implementation of Brazil's official day-ahead hydrot
 - 🔧 **Modular Constraints** - Pluggable constraint system for extensibility
 - 🌊 **Full Hydro Modeling** - Cascade reservoirs with time delays and spillage
 - 🔥 **Thermal Unit Commitment** - Complete UC with ramp rates and min up/down times
-- ⚡ **Network Model** - DC-OPF and AC-OPF support
+- ⚡ **Network Model** - DC-OPF and AC-OPF using PowerModels.jl (proven formulations)
 - 📊 **Renewable Integration** - Wind, solar, and hybrid plants with forecasting
 - 🎯 **Brazilian Market Compatible** - PLD calculation and CCEE output formats
 
@@ -54,7 +54,7 @@ model = DessemModel(system, time_periods=168, discretization=:hourly)
 add_constraint!(model, EnergyBalanceConstraint(...))
 add_constraint!(model, ThermalUnitCommitmentConstraint(...))
 add_constraint!(model, HydroWaterBalanceConstraint(...))
-add_constraint!(model, DCOPFConstraint(...))
+add_constraint!(model, PowerModelsDCOPFConstraint(...))  # Using PowerModels.jl
 
 # Build and solve
 create_variables!(model)
@@ -115,6 +115,8 @@ openDESSEM/
 
 - **Language**: Julia 1.10+
 - **Optimization**: JuMP.jl
+- **Network Constraints**: PowerModels.jl (DC-OPF, AC-OPF formulations)
+- **Data Parsing**: PWF.jl (Brazilian .pwf file support)
 - **Solvers**: HiGHS.jl (open-source), Gurobi.jl (optional)
 - **Database**: PostgreSQL (production), SQLite (development)
 - **Testing**: Test.jl

@@ -147,11 +147,13 @@ Configuration transitions:
 
 ### 2.2 Network Representation
 
-**Power System Network**:
+**Power System Network** (Implemented using PowerModels.jl):
 - DC-OPF (linear, simplified): First iteration
 - AC-OPF with MILP relaxation: Post-MVP
 - Linearized relaxation for speed vs. accuracy tradeoff
 - Iterative network constraint inclusion (starting minimal set)
+
+**Architecture**: OpenDESSEM entities → Adapter layer → PowerModels.jl formulations → ONS-specific constraints → Solver
 
 ### 2.3 Key Model Parameters
 
@@ -222,8 +224,9 @@ Key dependencies:
 ├── JuMP.jl >= 1.0                # Optimization modeling
 ├── HiGHS.jl                      # Open-source MILP solver
 ├── Gurobi.jl (optional)          # Commercial solver option
+├── PowerModels.jl (PRIMARY)      # Network constraint formulations (DC-OPF, AC-OPF)
+├── PWF.jl (v0.1.0)              # Brazilian .pwf file parser
 ├── SDDP.jl (future)              # Stochastic medium-term linking
-├── PowerModels.jl (optional)     # AC-OPF utilities
 ├── DataFrames.jl                 # Tabular data handling
 ├── Plots.jl / Makie.jl           # Visualization
 └── TimeSeries.jl / TSFrames.jl   # Time series data
@@ -322,7 +325,8 @@ end
 - [ ] Thermal unit commitment constraints
 - [ ] Hydro water balance (linear approximation)
 - [ ] Energy balance per submarket
-- [ ] DC-OPF (simplified network model)
+- [ ] DC-OPF (simplified network model) using PowerModels.jl
+- [ ] PWF.jl integration for .pwf file parsing
 - [ ] HiGHS solver integration
 - [ ] Basic I/O (CSV input, solution export)
 - [ ] Unit tests (>80% coverage)
