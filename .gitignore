@@ -56,6 +56,10 @@ lcov.info
 .vscode/
 *.code-workspace
 
+# Claude Code
+.claude/settings.local.json
+.claude/settings.*.json
+
 # JetBrains IDEs
 .idea/
 *.iml
