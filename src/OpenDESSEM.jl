@@ -45,11 +45,10 @@ export ThermalPlant, ConventionalThermal, CombinedCyclePlant
 export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
 export RenewablePlant, WindPlant, SolarPlant
 export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
-export MarketEntity, Submarket, Load
+export MarketEntity, Submarket, Load, BilateralContract
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
 export RenewableType, ForecastType, WIND, SOLAR
 export DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
-export TrackingSystem, FIXED, SINGLE_AXIS, DUAL_AXIS
 
 # Export core system functionality
 export ElectricitySystem
