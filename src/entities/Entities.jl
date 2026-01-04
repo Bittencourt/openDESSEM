@@ -31,8 +31,6 @@ include("thermal.jl")
 include("hydro.jl")
 include("renewable.jl")
 include("network.jl")
-
-# More entity types will be added as we implement them:
-# include("market.jl")
+include("market.jl")
 
 end # module
