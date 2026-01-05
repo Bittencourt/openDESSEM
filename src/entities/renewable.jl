@@ -143,7 +143,7 @@ wind_stochastic = WindPlant(;
 )
 ```
 """
-Base.@kwdef struct WindPlant <: RenewablePlant
+struct WindPlant <: RenewablePlant
     id::String
     name::String
     bus_id::String
@@ -159,9 +159,9 @@ Base.@kwdef struct WindPlant <: RenewablePlant
     forced_outage_rate::Float64
     is_dispatchable::Bool
     commissioning_date::DateTime
-    num_turbines::Int = 1
-    must_run::Bool = true
-    metadata::EntityMetadata = EntityMetadata()
+    num_turbines::Int
+    must_run::Bool
+    metadata::EntityMetadata
 
     function WindPlant(;
         id::String,
@@ -384,7 +384,7 @@ solar_tracking = SolarPlant(;
 )
 ```
 """
-Base.@kwdef struct SolarPlant <: RenewablePlant
+struct SolarPlant <: RenewablePlant
     id::String
     name::String
     bus_id::String
@@ -400,9 +400,9 @@ Base.@kwdef struct SolarPlant <: RenewablePlant
     forced_outage_rate::Float64
     is_dispatchable::Bool
     commissioning_date::DateTime
-    tracking_system::String = "FIXED"
-    must_run::Bool = true
-    metadata::EntityMetadata = EntityMetadata()
+    tracking_system::String
+    must_run::Bool
+    metadata::EntityMetadata
 
     function SolarPlant(;
         id::String,

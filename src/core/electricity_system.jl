@@ -7,6 +7,33 @@ in a power system model.
 
 using Dates
 
+# Import entity types from Entities module (loaded earlier via include)
+using .Entities:
+    AbstractEntity,
+    PhysicalEntity,
+    EntityMetadata,
+    ThermalPlant,
+    ConventionalThermal,
+    CombinedCyclePlant,
+    HydroPlant,
+    ReservoirHydro,
+    RunOfRiverHydro,
+    PumpedStorageHydro,
+    RenewablePlant,
+    WindPlant,
+    SolarPlant,
+    NetworkEntity,
+    Bus,
+    ACLine,
+    DCLine,
+    NetworkLoad,
+    NetworkSubmarket,
+    MarketEntity,
+    Submarket,
+    Load,
+    BilateralContract,
+    validate_unique_ids
+
 """
     ElectricitySystem
 
@@ -133,22 +160,22 @@ system = ElectricitySystem(;
 # Find a specific thermal plant
 plant = get_thermal_plant(system, "T001")
 if plant !== nothing
-    println("Found plant: $(plant.name)")
-    println("Capacity: $(plant.capacity_mw) MW")
+    println("Found plant: \$(plant.name)")
+    println("Capacity: \$(plant.capacity_mw) MW")
 end
 
 # Count generators
 num_gen = count_generators(system)
-println("System has $num_gen generators")
+println("System has \$num_gen generators")
 
 # Calculate total capacity
 total_cap = total_capacity(system)
-println("Total capacity: $total_cap MW")
+println("Total capacity: \$total_cap MW")
 
 # Find a bus
 bus = get_bus(system, "B001")
 if bus !== nothing
-    println("Bus voltage: $(bus.voltage_kv) kV")
+    println("Bus voltage: \$(bus.voltage_kv) kV")
 end
 ```
 
@@ -159,26 +186,26 @@ end
 - [`total_capacity`](@ref)
 - [`validate_system`](@ref)
 """
-Base.@kwdef struct ElectricitySystem
+struct ElectricitySystem
     # Generation entities
-    thermal_plants::Vector{ConventionalThermal} = ConventionalThermal[]
-    hydro_plants::Vector{<:HydroPlant} = HydroPlant[]
-    wind_farms::Vector{WindPlant} = WindPlant[]
-    solar_farms::Vector{SolarPlant} = SolarPlant[]
+    thermal_plants::Vector{ConventionalThermal}
+    hydro_plants::Vector{<:HydroPlant}
+    wind_farms::Vector{WindPlant}
+    solar_farms::Vector{SolarPlant}
 
     # Network entities
-    buses::Vector{Bus} = Bus[]
-    ac_lines::Vector{ACLine} = ACLine[]
-    dc_lines::Vector{DCLine} = DCLine[]
+    buses::Vector{Bus}
+    ac_lines::Vector{ACLine}
+    dc_lines::Vector{DCLine}
 
     # Market entities
-    submarkets::Vector{Submarket} = Submarket[]
-    loads::Vector{Load} = Load[]
+    submarkets::Vector{Submarket}
+    loads::Vector{Load}
 
     # Metadata
     base_date::Date
-    description::String = ""
-    version::String = "1.0"
+    description::String
+    version::String
 
     function ElectricitySystem(;
         thermal_plants::Vector{ConventionalThermal} = ConventionalThermal[],
@@ -452,7 +479,7 @@ Find a thermal plant by ID in the system.
 ```julia
 plant = get_thermal_plant(system, "T001")
 if plant !== nothing
-    println("Found: $(plant.name)")
+    println("Found: \$(plant.name)")
 end
 ```
 """
@@ -485,7 +512,7 @@ Find a hydro plant by ID in the system.
 ```julia
 plant = get_hydro_plant(system, "H001")
 if plant !== nothing
-    println("Found: $(plant.name)")
+    println("Found: \$(plant.name)")
 end
 ```
 """
@@ -518,7 +545,7 @@ Find a bus by ID in the system.
 ```julia
 bus = get_bus(system, "B001")
 if bus !== nothing
-    println("Voltage: $(bus.voltage_kv) kV")
+    println("Voltage: \$(bus.voltage_kv) kV")
 end
 ```
 """
@@ -548,7 +575,7 @@ Find a submarket by ID in the system.
 ```julia
 sm = get_submarket(system, "SM_001")
 if sm !== nothing
-    println("Submarket: $(sm.name)")
+    println("Submarket: \$(sm.name)")
 end
 ```
 """
@@ -577,7 +604,7 @@ Includes all thermal, hydro, wind, and solar plants.
 # Examples
 ```julia
 num_gen = count_generators(system)
-println("System has $num_gen generators")
+println("System has \$num_gen generators")
 ```
 """
 function count_generators(system::ElectricitySystem)::Int

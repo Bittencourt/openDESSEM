@@ -73,7 +73,7 @@ plant = ReservoirHydro(;
 )
 ```
 """
-Base.@kwdef struct ReservoirHydro <: HydroPlant
+struct ReservoirHydro <: HydroPlant
     id::String
     name::String
     bus_id::String
@@ -89,10 +89,10 @@ Base.@kwdef struct ReservoirHydro <: HydroPlant
     water_value_rs_per_hm3::Float64
     subsystem_code::Int
     initial_volume_percent::Float64
-    must_run::Bool = false
-    downstream_plant_id::Union{String,Nothing} = nothing
-    water_travel_time_hours::Union{Float64,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    must_run::Bool
+    downstream_plant_id::Union{String,Nothing}
+    water_travel_time_hours::Union{Float64,Nothing}
+    metadata::EntityMetadata
 
     function ReservoirHydro(;
         id::String,
@@ -279,7 +279,7 @@ plant = RunOfRiverHydro(;
 )
 ```
 """
-Base.@kwdef struct RunOfRiverHydro <: HydroPlant
+struct RunOfRiverHydro <: HydroPlant
     id::String
     name::String
     bus_id::String
@@ -291,10 +291,10 @@ Base.@kwdef struct RunOfRiverHydro <: HydroPlant
     efficiency::Float64
     subsystem_code::Int
     initial_volume_percent::Float64
-    must_run::Bool = false
-    downstream_plant_id::Union{String,Nothing} = nothing
-    water_travel_time_hours::Union{Float64,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    must_run::Bool
+    downstream_plant_id::Union{String,Nothing}
+    water_travel_time_hours::Union{Float64,Nothing}
+    metadata::EntityMetadata
 
     function RunOfRiverHydro(;
         id::String,
@@ -448,7 +448,7 @@ plant = PumpedStorageHydro(;
 )
 ```
 """
-Base.@kwdef struct PumpedStorageHydro <: HydroPlant
+struct PumpedStorageHydro <: HydroPlant
     id::String
     name::String
     bus_id::String
@@ -466,8 +466,8 @@ Base.@kwdef struct PumpedStorageHydro <: HydroPlant
     pumping_efficiency::Float64
     min_generation_mw::Float64
     subsystem_code::Int
-    must_run::Bool = false
-    metadata::EntityMetadata = EntityMetadata()
+    must_run::Bool
+    metadata::EntityMetadata
 
     function PumpedStorageHydro(;
         id::String,

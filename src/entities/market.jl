@@ -49,13 +49,13 @@ submarket = Submarket(;
 )
 ```
 """
-Base.@kwdef struct Submarket <: MarketEntity
+struct Submarket <: MarketEntity
     id::String
     name::String
     code::String
     country::String
-    description::String = ""
-    metadata::EntityMetadata = EntityMetadata()
+    description::String
+    metadata::EntityMetadata
 
     function Submarket(;
         id::String,
@@ -116,16 +116,16 @@ load = Load(;
 )
 ```
 """
-Base.@kwdef struct Load <: MarketEntity
+struct Load <: MarketEntity
     id::String
     name::String
     submarket_id::Union{String,Nothing}
     base_mw::Float64
     load_profile::Vector{Float64}
-    is_elastic::Bool = false
-    elasticity::Float64 = -0.1
-    bus_id::Union{String,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    is_elastic::Bool
+    elasticity::Float64
+    bus_id::Union{String,Nothing}
+    metadata::EntityMetadata
 
     function Load(;
         id::String,
@@ -231,15 +231,15 @@ contract = BilateralContract(;
 )
 ```
 """
-Base.@kwdef struct BilateralContract <: MarketEntity
+struct BilateralContract <: MarketEntity
     id::String
     seller_id::String
     buyer_id::String
     energy_mwh::Float64
     price_rsj_per_mwh::Float64
     start_date::DateTime
-    end_date::Union{DateTime,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    end_date::Union{DateTime,Nothing}
+    metadata::EntityMetadata
 
     function BilateralContract(;
         id::String,

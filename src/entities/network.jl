@@ -60,18 +60,18 @@ bus = Bus(;
 )
 ```
 """
-Base.@kwdef struct Bus <: NetworkEntity
+struct Bus <: NetworkEntity
     id::String
     name::String
     voltage_kv::Float64
     base_kv::Float64
-    dc_bus::Bool = false
-    is_reference::Bool = false
-    area_id::Union{String,Nothing} = nothing
-    zone_id::Union{String,Nothing} = nothing
-    latitude::Union{Float64,Nothing} = nothing
-    longitude::Union{Float64,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    dc_bus::Bool
+    is_reference::Bool
+    area_id::Union{String,Nothing}
+    zone_id::Union{String,Nothing}
+    latitude::Union{Float64,Nothing}
+    longitude::Union{Float64,Nothing}
+    metadata::EntityMetadata
 
     function Bus(;
         id::String,
@@ -174,7 +174,7 @@ line = ACLine(;
 )
 ```
 """
-Base.@kwdef struct ACLine <: NetworkEntity
+struct ACLine <: NetworkEntity
     id::String
     name::String
     from_bus_id::String
@@ -185,8 +185,8 @@ Base.@kwdef struct ACLine <: NetworkEntity
     susceptance_siemen::Float64
     max_flow_mw::Float64
     min_flow_mw::Float64
-    num_circuits::Int = 1
-    metadata::EntityMetadata = EntityMetadata()
+    num_circuits::Int
+    metadata::EntityMetadata
 
     function ACLine(;
         id::String,
@@ -291,7 +291,7 @@ line = DCLine(;
 )
 ```
 """
-Base.@kwdef struct DCLine <: NetworkEntity
+struct DCLine <: NetworkEntity
     id::String
     name::String
     from_bus_id::String
@@ -301,7 +301,7 @@ Base.@kwdef struct DCLine <: NetworkEntity
     min_flow_mw::Float64
     resistance_ohm::Float64
     inductance_henry::Float64
-    metadata::EntityMetadata = EntityMetadata()
+    metadata::EntityMetadata
 
     function DCLine(;
         id::String,
@@ -401,18 +401,18 @@ load = NetworkLoad(;
 )
 ```
 """
-Base.@kwdef struct NetworkLoad <: NetworkEntity
+struct NetworkLoad <: NetworkEntity
     id::String
     name::String
     bus_id::String
     submarket_id::String
     load_profile_mw::Vector{Float64}
-    is_firm::Bool = true
-    is_interruptible::Bool = false
-    priority::Int = 5
-    price_elasticity::Union{Float64,Nothing} = nothing
-    interruption_cost_rs_per_mwh::Union{Float64,Nothing} = nothing
-    metadata::EntityMetadata = EntityMetadata()
+    is_firm::Bool
+    is_interruptible::Bool
+    priority::Int
+    price_elasticity::Union{Float64,Nothing}
+    interruption_cost_rs_per_mwh::Union{Float64,Nothing}
+    metadata::EntityMetadata
 
     function NetworkLoad(;
         id::String,
@@ -554,13 +554,13 @@ submarket = NetworkSubmarket(;
 )
 ```
 """
-Base.@kwdef struct NetworkSubmarket <: NetworkEntity
+struct NetworkSubmarket <: NetworkEntity
     id::String
     name::String
     demand_forecast_mw::Vector{Float64}
     interconnection_capacity_mw::Dict{String,Float64}
     reference_bus_id::String
-    metadata::EntityMetadata = EntityMetadata()
+    metadata::EntityMetadata
 
     function NetworkSubmarket(;
         id::String,

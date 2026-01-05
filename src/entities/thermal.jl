@@ -106,7 +106,7 @@ plant = ConventionalThermal(;
 )
 ```
 """
-Base.@kwdef struct ConventionalThermal <: ThermalPlant
+struct ConventionalThermal <: ThermalPlant
     id::String
     name::String
     bus_id::String
@@ -123,9 +123,9 @@ Base.@kwdef struct ConventionalThermal <: ThermalPlant
     startup_cost_rs::Float64
     shutdown_cost_rs::Float64
     commissioning_date::DateTime
-    num_units::Int = 1
-    must_run::Bool = false
-    metadata::EntityMetadata = EntityMetadata()
+    num_units::Int
+    must_run::Bool
+    metadata::EntityMetadata
 
     function ConventionalThermal(;
         id::String,
@@ -294,7 +294,7 @@ plant = CombinedCyclePlant(;
 )
 ```
 """
-Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
+struct CombinedCyclePlant <: ThermalPlant
     id::String
     name::String
     bus_id::String
@@ -316,9 +316,9 @@ Base.@kwdef struct CombinedCyclePlant <: ThermalPlant
     heat_rate_gas_only::Float64
     heat_rate_combined::Float64
     commissioning_date::DateTime
-    num_units::Int = 1
-    must_run::Bool = false
-    metadata::EntityMetadata = EntityMetadata()
+    num_units::Int
+    must_run::Bool
+    metadata::EntityMetadata
 
     function CombinedCyclePlant(;
         id::String,
