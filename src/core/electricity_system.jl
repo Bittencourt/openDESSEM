@@ -95,13 +95,14 @@ bus2 = Bus(;
 line1 = ACLine(;
     id = "L001",
     name = "Alpha-Beta Line",
-    from_bus = "B001",
-    to_bus = "B002",
+    from_bus_id = "B001",
+    to_bus_id = "B002",
     length_km = 100.0,
-    r_pu = 0.01,
-    x_pu = 0.1,
-    b_pu = 0.0,
-    capacity_mw = 500.0,
+    resistance_ohm = 0.01,
+    reactance_ohm = 0.1,
+    susceptance_siemen = 0.0,
+    max_flow_mw = 500.0,
+    min_flow_mw = 0.0,
     num_circuits = 1
 )
 
@@ -359,7 +360,11 @@ struct ElectricitySystem
         bus_id_list = String[]
         for bus in buses
             if bus.id in bus_id_list
-                throw(ArgumentError("Duplicate bus ID: $(bus.id). All bus IDs must be unique."))
+                throw(
+                    ArgumentError(
+                        "Duplicate bus ID: $(bus.id). All bus IDs must be unique.",
+                    ),
+                )
             end
             push!(bus_id_list, bus.id)
         end
@@ -367,19 +372,19 @@ struct ElectricitySystem
         # Validate AC lines
         for line in ac_lines
             # Validate from_bus reference
-            if !(line.from_bus in bus_ids)
+            if !(line.from_bus_id in bus_ids)
                 throw(
                     ArgumentError(
-                        "AC line '$(line.id)' references non-existent from_bus '$(line.from_bus)'",
+                        "AC line '$(line.id)' references non-existent from_bus '$(line.from_bus_id)'",
                     ),
                 )
             end
 
             # Validate to_bus reference
-            if !(line.to_bus in bus_ids)
+            if !(line.to_bus_id in bus_ids)
                 throw(
                     ArgumentError(
-                        "AC line '$(line.id)' references non-existent to_bus '$(line.to_bus)'",
+                        "AC line '$(line.id)' references non-existent to_bus '$(line.to_bus_id)'",
                     ),
                 )
             end
@@ -388,19 +393,19 @@ struct ElectricitySystem
         # Validate DC lines
         for line in dc_lines
             # Validate from_bus reference
-            if !(line.from_bus in bus_ids)
+            if !(line.from_bus_id in bus_ids)
                 throw(
                     ArgumentError(
-                        "DC line '$(line.id)' references non-existent from_bus '$(line.from_bus)'",
+                        "DC line '$(line.id)' references non-existent from_bus '$(line.from_bus_id)'",
                     ),
                 )
             end
 
             # Validate to_bus reference
-            if !(line.to_bus in bus_ids)
+            if !(line.to_bus_id in bus_ids)
                 throw(
                     ArgumentError(
-                        "DC line '$(line.id)' references non-existent to_bus '$(line.to_bus)'",
+                        "DC line '$(line.id)' references non-existent to_bus '$(line.to_bus_id)'",
                     ),
                 )
             end
@@ -425,7 +430,10 @@ struct ElectricitySystem
             # Check for duplicate IDs
             if load.id in load_ids
                 throw(
-                    ArgumentError("Duplicate load ID: $(load.id). All load IDs must be unique."))
+                    ArgumentError(
+                        "Duplicate load ID: $(load.id). All load IDs must be unique.",
+                    ),
+                )
             end
             push!(load_ids, load.id)
 
@@ -441,7 +449,10 @@ struct ElectricitySystem
             # Validate bus reference (if provided)
             if load.bus_id !== nothing && !(load.bus_id in bus_ids)
                 throw(
-                    ArgumentError("Load '$(load.id)' references non-existent bus '$(load.bus_id)'"))
+                    ArgumentError(
+                        "Load '$(load.id)' references non-existent bus '$(load.bus_id)'",
+                    ),
+                )
             end
         end
 
@@ -516,10 +527,7 @@ if plant !== nothing
 end
 ```
 """
-function get_hydro_plant(
-    system::ElectricitySystem,
-    id::String,
-)::Union{HydroPlant,Nothing}
+function get_hydro_plant(system::ElectricitySystem, id::String)::Union{HydroPlant,Nothing}
     for plant in system.hydro_plants
         if plant.id == id
             return plant
@@ -764,17 +772,17 @@ function validate_system(system::ElectricitySystem)::Bool
 
     # Check all AC lines
     for line in system.ac_lines
-        if !(line.from_bus in bus_ids)
+        if !(line.from_bus_id in bus_ids)
             throw(
                 ArgumentError(
-                    "AC line '$(line.id)' references non-existent from_bus '$(line.from_bus)'",
+                    "AC line '$(line.id)' references non-existent from_bus '$(line.from_bus_id)'",
                 ),
             )
         end
-        if !(line.to_bus in bus_ids)
+        if !(line.to_bus_id in bus_ids)
             throw(
                 ArgumentError(
-                    "AC line '$(line.id)' references non-existent to_bus '$(line.to_bus)'",
+                    "AC line '$(line.id)' references non-existent to_bus '$(line.to_bus_id)'",
                 ),
             )
         end
@@ -782,17 +790,17 @@ function validate_system(system::ElectricitySystem)::Bool
 
     # Check all DC lines
     for line in system.dc_lines
-        if !(line.from_bus in bus_ids)
+        if !(line.from_bus_id in bus_ids)
             throw(
                 ArgumentError(
-                    "DC line '$(line.id)' references non-existent from_bus '$(line.from_bus)'",
+                    "DC line '$(line.id)' references non-existent from_bus '$(line.from_bus_id)'",
                 ),
             )
         end
-        if !(line.to_bus in bus_ids)
+        if !(line.to_bus_id in bus_ids)
             throw(
                 ArgumentError(
-                    "DC line '$(line.id)' references non-existent to_bus '$(line.to_bus)'",
+                    "DC line '$(line.id)' references non-existent to_bus '$(line.to_bus_id)'",
                 ),
             )
         end
@@ -808,7 +816,11 @@ function validate_system(system::ElectricitySystem)::Bool
             )
         end
         if load.bus_id !== nothing && !(load.bus_id in bus_ids)
-            throw(ArgumentError("Load '$(load.id)' references non-existent bus '$(load.bus_id)'"))
+            throw(
+                ArgumentError(
+                    "Load '$(load.id)' references non-existent bus '$(load.bus_id)'",
+                ),
+            )
         end
     end
 

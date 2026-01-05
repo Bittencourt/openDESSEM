@@ -7,7 +7,7 @@ println("Testing PowerModels.jl basic solve_opf...")
 result = solve_opf(
     "C:\\Users\\pedro\\.julia\\packages\\PowerModels\\VCmhH\\test\\data\\matpower\\case3.m",
     DCPPowerModel,
-    HiGHS.Optimizer
+    HiGHS.Optimizer,
 )
 
 println("Status: ", result["termination_status"])

@@ -31,20 +31,20 @@ mutable struct TestResults
     broken::Int
     skipped::Int
     duration::Float64
-    slow_tests::Vector{Tuple{String, Float64}}
+    slow_tests::Vector{Tuple{String,Float64}}
 end
 
 mutable struct CoverageResults
     overall::Float64
-    by_module::Dict{String, Float64}
-    files_below_threshold::Vector{Tuple{String, Float64}}
-    critical_files::Vector{Tuple{String, Float64}}
+    by_module::Dict{String,Float64}
+    files_below_threshold::Vector{Tuple{String,Float64}}
+    critical_files::Vector{Tuple{String,Float64}}
 end
 
 mutable struct LintingResults
     unformatted_files::Vector{String}
     style_violations::Int
-    deprecated_patterns::Vector{Tuple{String, String}}
+    deprecated_patterns::Vector{Tuple{String,String}}
 end
 
 mutable struct BlindSpotAnalysis
@@ -108,7 +108,7 @@ end
 function run_tests()
     print_header("Step 1: Running Test Suite")
 
-    test_results = TestResults(0, 0, 0, 0, 0, 0, 0.0, Tuple{String, Float64}[])
+    test_results = TestResults(0, 0, 0, 0, 0, 0, 0.0, Tuple{String,Float64}[])
 
     print("Running test suite... ")
 
@@ -152,9 +152,9 @@ function calculate_coverage()
 
     coverage_results = CoverageResults(
         0.0,
-        Dict{String, Float64}(),
-        Tuple{String, Float64}[],
-        Tuple{String, Float64}[]
+        Dict{String,Float64}(),
+        Tuple{String,Float64}[],
+        Tuple{String,Float64}[],
     )
 
     print("Calculating code coverage... ")
@@ -181,17 +181,15 @@ function calculate_coverage()
                 "constraints" => 95.0,
                 "data" => 92.0,
                 "solvers" => 98.0,
-                "analysis" => 94.0
+                "analysis" => 94.0,
             )
 
             # Identify files below threshold
-            coverage_results.files_below_threshold = [
-                ("src/data/loaders.jl", 88.0)
-            ]
+            coverage_results.files_below_threshold = [("src/data/loaders.jl", 88.0)]
 
             # Critical files below 70%
             coverage_results.critical_files = [
-                # None if all above 70%
+            # None if all above 70%
             ]
 
         else
@@ -202,7 +200,9 @@ function calculate_coverage()
         print_warning("Coverage calculation failed: $e")
     end
 
-    println("  Overall coverage: $(score_color(coverage_results.overall))$(round(coverage_results.overall, digits=1))%$(NC)")
+    println(
+        "  Overall coverage: $(score_color(coverage_results.overall))$(round(coverage_results.overall, digits=1))%$(NC)",
+    )
 
     return coverage_results
 end
@@ -214,12 +214,7 @@ end
 function analyze_blind_spots()
     print_header("Step 3: Blind Spot Analysis")
 
-    blind_spots = BlindSpotAnalysis(
-        String[],
-        String[],
-        String[],
-        String[]
-    )
+    blind_spots = BlindSpotAnalysis(String[], String[], String[], String[])
 
     print("Analyzing codebase for blind spots... ")
 
@@ -246,7 +241,9 @@ function analyze_blind_spots()
     ]
 
     if !isempty(blind_spots.untested_functions)
-        println("  Found $(length(blind_spots.untested_functions)) potentially untested functions")
+        println(
+            "  Found $(length(blind_spots.untested_functions)) potentially untested functions",
+        )
     else
         print_success("All functions appear to have test coverage")
     end
@@ -284,11 +281,7 @@ end
 function check_linting()
     print_header("Step 4: Linting and Formatting Check")
 
-    linting_results = LintingResults(
-        String[],
-        0,
-        Tuple{String, String}[]
-    )
+    linting_results = LintingResults(String[], 0, Tuple{String,String}[])
 
     print("Checking code formatting... ")
 
@@ -338,7 +331,7 @@ function generate_report(
     test_results::TestResults,
     coverage_results::CoverageResults,
     linting_results::LintingResults,
-    blind_spots::BlindSpotAnalysis
+    blind_spots::BlindSpotAnalysis,
 )
     print_header("Generating Critical Evaluation Report")
 
@@ -348,8 +341,12 @@ function generate_report(
     linting_score = 100.0 - (length(linting_results.unformatted_files) * 5)
     blind_spot_score = 100.0 - (length(blind_spots.untested_functions) * 10)
 
-    overall_score = (test_score * 0.3 + coverage_score * 0.3 +
-                    linting_score * 0.2 + blind_spot_score * 0.2)
+    overall_score = (
+        test_score * 0.3 +
+        coverage_score * 0.3 +
+        linting_score * 0.2 +
+        blind_spot_score * 0.2
+    )
 
     overall_score = max(0.0, min(100.0, overall_score))
 
@@ -358,7 +355,7 @@ function generate_report(
         coverage_results,
         linting_results,
         blind_spots,
-        Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS")
+        Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS"),
     )
 
     # Generate markdown content
@@ -379,8 +376,7 @@ function generate_report(
 end
 
 function build_markdown_report(report::QualityReport, overall_score::Float64)
-    score_color_code = overall_score >= 90 ? "🟢" :
-                     overall_score >= 70 ? "🟡" : "🔴"
+    score_color_code = overall_score >= 90 ? "🟢" : overall_score >= 70 ? "🟡" : "🔴"
 
     return """
 # OpenDESSEM Code Quality Critical Evaluation
@@ -505,7 +501,10 @@ function build_key_findings(report::QualityReport, overall_score::Float64)
     findings = []
 
     if report.test_results.failed > 0 || report.test_results.errors > 0
-        push!(findings, "🔴 $(report.test_results.failed + report.test_results.errors) test(s) failing or errored")
+        push!(
+            findings,
+            "🔴 $(report.test_results.failed + report.test_results.errors) test(s) failing or errored",
+        )
     end
 
     if report.coverage_results.overall < 90
@@ -513,14 +512,21 @@ function build_key_findings(report::QualityReport, overall_score::Float64)
     end
 
     if !isempty(report.blind_spots.untested_functions)
-        push!(findings, "🟡 $(length(report.blind_spots.untested_functions)) critical function(s) without tests")
+        push!(
+            findings,
+            "🟡 $(length(report.blind_spots.untested_functions)) critical function(s) without tests",
+        )
     end
 
     if !isempty(report.linting_results.unformatted_files)
-        push!(findings, "🟡 $(length(report.linting_results.unformatted_files)) file(s) need formatting")
+        push!(
+            findings,
+            "🟡 $(length(report.linting_results.unformatted_files)) file(s) need formatting",
+        )
     end
 
-    if report.test_results.failed == 0 && report.test_results.errors == 0 &&
+    if report.test_results.failed == 0 &&
+       report.test_results.errors == 0 &&
        report.coverage_results.overall >= 90 &&
        isempty(report.linting_results.unformatted_files)
         push!(findings, "🟢 All quality metrics meet or exceed targets")
@@ -665,7 +671,9 @@ end
 function print_summary(report::QualityReport, overall_score::Float64)
     print_header("Quality Summary")
 
-    println("Overall Quality Score: $(score_color(overall_score))$(round(overall_score, digits=1))/100$(NC)")
+    println(
+        "Overall Quality Score: $(score_color(overall_score))$(round(overall_score, digits=1))/100$(NC)",
+    )
     println()
 
     println("Test Results:")
@@ -689,7 +697,9 @@ function print_summary(report::QualityReport, overall_score::Float64)
     println()
 
     println()
-    print_success("Evaluation complete! See docs/CRITICAL_EVALUATION.md for detailed report")
+    print_success(
+        "Evaluation complete! See docs/CRITICAL_EVALUATION.md for detailed report",
+    )
 end
 
 # =====================================================

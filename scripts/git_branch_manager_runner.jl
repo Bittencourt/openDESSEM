@@ -62,11 +62,13 @@ function validate_branch(target::String = "dev")
 
     try
         # Run validation script
-        result = run(pipeline(
-            `julia $(joinpath(@__DIR__, "validate_before_merge.jl")) --target=$target`,
-            stdout = devnull,
-            stderr = devnull
-        ))
+        result = run(
+            pipeline(
+                `julia $(joinpath(@__DIR__, "validate_before_merge.jl")) --target=$target`,
+                stdout = devnull,
+                stderr = devnull,
+            ),
+        )
 
         if result.exitcode == 0
             log_message("✓ Branch validation passed for target: $target", :info)
@@ -137,7 +139,10 @@ function check_branch_protection()
         status = read(`git status --porcelain`, String) |> strip
 
         if !isempty(status)
-            log_message("✗ Protected branch '$current_branch' has uncommitted changes", :warning)
+            log_message(
+                "✗ Protected branch '$current_branch' has uncommitted changes",
+                :warning,
+            )
         else
             log_message("✓ Protected branch '$current_branch' is clean", :info)
         end
@@ -231,7 +236,7 @@ function main()
         try
             interval = parse(Int, ARGS[1])
             if interval > 0
-                global const CHECK_INTERVAL = interval
+                const global CHECK_INTERVAL = interval
                 log_message("Check interval set to $CHECK_INTERVAL seconds", :info)
             end
         catch

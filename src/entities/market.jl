@@ -281,7 +281,16 @@ struct BilateralContract <: MarketEntity
             )
         end
 
-        new(id, seller_id, buyer_id, energy_mwh, price_rsj_per_mwh, start_date, end_date, metadata)
+        new(
+            id,
+            seller_id,
+            buyer_id,
+            energy_mwh,
+            price_rsj_per_mwh,
+            start_date,
+            end_date,
+            metadata,
+        )
     end
 end
 

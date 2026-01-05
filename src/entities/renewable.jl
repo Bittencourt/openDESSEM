@@ -227,8 +227,7 @@ struct WindPlant <: RenewablePlant
         end
 
         # Validate generation limits
-        min_generation_mw =
-            validate_non_negative(min_generation_mw, "min_generation_mw")
+        min_generation_mw = validate_non_negative(min_generation_mw, "min_generation_mw")
         max_generation_mw = validate_positive(max_generation_mw, "max_generation_mw")
         validate_min_leq_max(
             min_generation_mw,
@@ -245,10 +244,8 @@ struct WindPlant <: RenewablePlant
 
         # Validate ramp rates
         ramp_up_mw_per_min = validate_non_negative(ramp_up_mw_per_min, "ramp_up_mw_per_min")
-        ramp_down_mw_per_min = validate_non_negative(
-            ramp_down_mw_per_min,
-            "ramp_down_mw_per_min",
-        )
+        ramp_down_mw_per_min =
+            validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
 
         # Validate forced outage rate (0-1)
         if forced_outage_rate < 0 || forced_outage_rate > 1
@@ -468,8 +465,7 @@ struct SolarPlant <: RenewablePlant
         end
 
         # Validate generation limits
-        min_generation_mw =
-            validate_non_negative(min_generation_mw, "min_generation_mw")
+        min_generation_mw = validate_non_negative(min_generation_mw, "min_generation_mw")
         max_generation_mw = validate_positive(max_generation_mw, "max_generation_mw")
         validate_min_leq_max(
             min_generation_mw,
@@ -486,10 +482,8 @@ struct SolarPlant <: RenewablePlant
 
         # Validate ramp rates (solar has very fast ramping)
         ramp_up_mw_per_min = validate_non_negative(ramp_up_mw_per_min, "ramp_up_mw_per_min")
-        ramp_down_mw_per_min = validate_non_negative(
-            ramp_down_mw_per_min,
-            "ramp_down_mw_per_min",
-        )
+        ramp_down_mw_per_min =
+            validate_non_negative(ramp_down_mw_per_min, "ramp_down_mw_per_min")
 
         # Validate forced outage rate (0-1)
         if forced_outage_rate < 0 || forced_outage_rate > 1
@@ -502,7 +496,8 @@ struct SolarPlant <: RenewablePlant
 
         # Curtailment only allowed if dispatchable
         if curtailment_allowed && !is_dispatchable
-            @warn "curtailment_allowed=true but is_dispatchable=false for plant $id" curtailment_allowed = false
+            @warn "curtailment_allowed=true but is_dispatchable=false for plant $id" curtailment_allowed =
+                false
         end
 
         # Validate tracking system

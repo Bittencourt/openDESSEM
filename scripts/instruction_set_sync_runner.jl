@@ -69,9 +69,18 @@ function check_sync()
         time_threshold = 60  # 1 minute
 
         if time_diff > time_threshold
-            log_message("⚠ Files may be out of sync (diff: $(round(Int, time_diff))s)", :warning)
-            log_message("  AGENTS.md: $(format(DateTime(agents_mtime), "yyyy-mm-dd HH:MM:SS"))", :info)
-            log_message("  claude.md: $(format(DateTime(claude_mtime), "yyyy-mm-dd HH:MM:SS"))", :info)
+            log_message(
+                "⚠ Files may be out of sync (diff: $(round(Int, time_diff))s)",
+                :warning,
+            )
+            log_message(
+                "  AGENTS.md: $(format(DateTime(agents_mtime), "yyyy-mm-dd HH:MM:SS"))",
+                :info,
+            )
+            log_message(
+                "  claude.md: $(format(DateTime(claude_mtime), "yyyy-mm-dd HH:MM:SS"))",
+                :info,
+            )
         else
             log_message("✓ Instruction sets appear synchronized", :info)
         end

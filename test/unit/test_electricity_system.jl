@@ -10,11 +10,25 @@ using Dates
 
 @testset "ElectricitySystem Container" begin
 
+    # Common test fixtures
+    function create_test_bus(; id = "B001")
+        Bus(; id = id, name = "Test Bus", voltage_kv = 230.0, base_kv = 230.0)
+    end
+
+    function create_test_submarket(; code = "SE")
+        Submarket(;
+            id = "SM_$(code)",
+            name = "$(code) Submarket",
+            code = code,
+            country = "Brazil",
+        )
+    end
+
     @testset "Constructor - Empty System" begin
         # Test creating an empty system
         system = ElectricitySystem(;
             base_date = Date(2025, 1, 1),
-            description = "Empty test system"
+            description = "Empty test system",
         )
 
         @test system.base_date == Date(2025, 1, 1)
@@ -48,7 +62,7 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
         plant2 = ConventionalThermal(;
@@ -67,12 +81,14 @@ using Dates
             fuel_cost_rsj_per_mwh = 100.0,
             startup_cost_rs = 25000.0,
             shutdown_cost_rs = 12000.0,
-            commissioning_date = DateTime(2005, 1, 1)
+            commissioning_date = DateTime(2005, 1, 1),
         )
 
         system = ElectricitySystem(;
             thermal_plants = [plant1, plant2],
-            base_date = Date(2025, 1, 1)
+            buses = [create_test_bus()],
+            submarkets = [create_test_submarket()],
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.thermal_plants) == 2
@@ -96,12 +112,14 @@ using Dates
             efficiency = 0.90,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = 1,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
 
         system = ElectricitySystem(;
             hydro_plants = [hydro1],
-            base_date = Date(2025, 1, 1)
+            buses = [create_test_bus()],
+            submarkets = [create_test_submarket()],
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.hydro_plants) == 1
@@ -125,12 +143,14 @@ using Dates
             forced_outage_rate = 0.05,
             is_dispatchable = false,
             commissioning_date = DateTime(2015, 1, 1),
-            num_turbines = 50
+            num_turbines = 50,
         )
 
         system = ElectricitySystem(;
             wind_farms = [wind1],
-            base_date = Date(2025, 1, 1)
+            buses = [create_test_bus()],
+            submarkets = [create_test_submarket(code = "NE")],
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.wind_farms) == 1
@@ -144,7 +164,7 @@ using Dates
             bus_id = "B001",
             submarket_id = "NE",
             installed_capacity_mw = 100.0,
-            capacity_forecast_mw = zeros(24),
+            capacity_forecast_mw = fill(80.0, 24),
             forecast_type = DETERMINISTIC,
             min_generation_mw = 0.0,
             max_generation_mw = 100.0,
@@ -154,12 +174,14 @@ using Dates
             forced_outage_rate = 0.02,
             is_dispatchable = false,
             commissioning_date = DateTime(2018, 1, 1),
-            tracking_mode = FIXED
+            tracking_system = "FIXED",
         )
 
         system = ElectricitySystem(;
             solar_farms = [solar1],
-            base_date = Date(2025, 1, 1)
+            buses = [create_test_bus()],
+            submarkets = [create_test_submarket(code = "NE")],
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.solar_farms) == 1
@@ -173,7 +195,7 @@ using Dates
             voltage_kv = 230.0,
             base_kv = 230.0,
             is_reference = true,
-            area_id = "SE"
+            area_id = "SE",
         )
 
         bus2 = Bus(;
@@ -182,32 +204,33 @@ using Dates
             voltage_kv = 230.0,
             base_kv = 230.0,
             is_reference = false,
-            area_id = "SE"
+            area_id = "SE",
         )
 
         line1 = ACLine(;
             id = "L001",
             name = "Line 1",
-            from_bus = "B001",
-            to_bus = "B002",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
             length_km = 100.0,
-            r_pu = 0.01,
-            x_pu = 0.1,
-            b_pu = 0.0,
-            capacity_mw = 500.0,
-            num_circuits = 1
+            resistance_ohm = 0.01,
+            reactance_ohm = 0.1,
+            susceptance_siemen = 0.0,
+            max_flow_mw = 500.0,
+            min_flow_mw = 0.0,
+            num_circuits = 1,
         )
 
         system = ElectricitySystem(;
             buses = [bus1, bus2],
             ac_lines = [line1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.buses) == 2
         @test length(system.ac_lines) == 1
         @test system.buses[1].id == "B001"
-        @test system.ac_lines[1].from_bus == "B001"
+        @test system.ac_lines[1].from_bus_id == "B001"
     end
 
     @testset "Constructor - With Market Entities" begin
@@ -216,7 +239,7 @@ using Dates
             name = "Southeast",
             code = "SE",
             country = "Brazil",
-            description = "Southeast submarket"
+            description = "Southeast submarket",
         )
 
         load1 = Load(;
@@ -225,13 +248,13 @@ using Dates
             submarket_id = "SE",
             base_mw = 50000.0,
             load_profile = ones(168),
-            is_elastic = false
+            is_elastic = false,
         )
 
         system = ElectricitySystem(;
             submarkets = [submarket1],
             loads = [load1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
 
         @test length(system.submarkets) == 1
@@ -258,7 +281,7 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
         hydro1 = ReservoirHydro(;
@@ -276,7 +299,7 @@ using Dates
             efficiency = 0.90,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = 1,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
 
         wind1 = WindPlant(;
@@ -295,7 +318,7 @@ using Dates
             forced_outage_rate = 0.05,
             is_dispatchable = false,
             commissioning_date = DateTime(2015, 1, 1),
-            num_turbines = 50
+            num_turbines = 50,
         )
 
         bus1 = Bus(;
@@ -304,7 +327,7 @@ using Dates
             voltage_kv = 230.0,
             base_kv = 230.0,
             is_reference = true,
-            area_id = "SE"
+            area_id = "SE",
         )
 
         bus2 = Bus(;
@@ -313,20 +336,21 @@ using Dates
             voltage_kv = 230.0,
             base_kv = 230.0,
             is_reference = false,
-            area_id = "SE"
+            area_id = "SE",
         )
 
         line1 = ACLine(;
             id = "L001",
             name = "Line 1",
-            from_bus = "B001",
-            to_bus = "B002",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
             length_km = 100.0,
-            r_pu = 0.01,
-            x_pu = 0.1,
-            b_pu = 0.0,
-            capacity_mw = 500.0,
-            num_circuits = 1
+            resistance_ohm = 0.01,
+            reactance_ohm = 0.1,
+            susceptance_siemen = 0.0,
+            max_flow_mw = 500.0,
+            min_flow_mw = 0.0,
+            num_circuits = 1,
         )
 
         submarket1 = Submarket(;
@@ -334,7 +358,7 @@ using Dates
             name = "Southeast",
             code = "SE",
             country = "Brazil",
-            description = "Southeast submarket"
+            description = "Southeast submarket",
         )
 
         load1 = Load(;
@@ -343,7 +367,7 @@ using Dates
             submarket_id = "SE",
             base_mw = 50000.0,
             load_profile = ones(168),
-            is_elastic = false
+            is_elastic = false,
         )
 
         system = ElectricitySystem(;
@@ -356,7 +380,7 @@ using Dates
             loads = [load1],
             base_date = Date(2025, 1, 1),
             description = "Complete test system",
-            version = "1.0"
+            version = "1.0",
         )
 
         @test length(system.thermal_plants) == 1
@@ -386,7 +410,7 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
         plant2 = ConventionalThermal(;
@@ -405,33 +429,28 @@ using Dates
             fuel_cost_rsj_per_mwh = 100.0,
             startup_cost_rs = 25000.0,
             shutdown_cost_rs = 12000.0,
-            commissioning_date = DateTime(2005, 1, 1)
+            commissioning_date = DateTime(2005, 1, 1),
         )
 
         @test_throws ArgumentError ElectricitySystem(;
             thermal_plants = [plant1, plant2],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
     end
 
     @testset "Validation - Duplicate Bus IDs" begin
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
         bus2 = Bus(;
             id = "B001",  # Duplicate ID
             name = "Bus 2",
             voltage_kv = 230.0,
-            base_kv = 230.0
+            base_kv = 230.0,
         )
 
         @test_throws ArgumentError ElectricitySystem(;
             buses = [bus1, bus2],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
     end
 
@@ -452,20 +471,15 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
         @test_throws ArgumentError ElectricitySystem(;
             thermal_plants = [plant1],
             buses = [bus1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
     end
 
@@ -486,28 +500,19 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil"
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
         @test_throws ArgumentError ElectricitySystem(;
             thermal_plants = [plant1],
             buses = [bus1],
             submarkets = [submarket1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
     end
 
@@ -515,31 +520,28 @@ using Dates
         line1 = ACLine(;
             id = "L001",
             name = "Line 1",
-            from_bus = "B001",
-            to_bus = "B999",  # Non-existent bus
+            from_bus_id = "B001",
+            to_bus_id = "B999",  # Non-existent bus
             length_km = 100.0,
-            r_pu = 0.01,
-            x_pu = 0.1,
-            b_pu = 0.0,
-            capacity_mw = 500.0,
-            num_circuits = 1
+            resistance_ohm = 0.01,
+            reactance_ohm = 0.1,
+            susceptance_siemen = 0.0,
+            max_flow_mw = 500.0,
+            min_flow_mw = 0.0,
+            num_circuits = 1,
         )
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
         @test_throws ArgumentError ElectricitySystem(;
             ac_lines = [line1],
             buses = [bus1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
     end
 
     @testset "Helper Functions - get_thermal_plant" begin
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
         plant1 = ConventionalThermal(;
             id = "T001",
             name = "Thermal Plant 1",
@@ -556,12 +558,16 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
+        submarket1 =
+            Submarket(; id = "SM_SE", name = "Sudeste", code = "SE", country = "Brazil")
         system = ElectricitySystem(;
             thermal_plants = [plant1],
-            base_date = Date(2025, 1, 1)
+            buses = [bus1],
+            submarkets = [submarket1],
+            base_date = Date(2025, 1, 1),
         )
 
         # Test finding existing plant
@@ -576,6 +582,7 @@ using Dates
     end
 
     @testset "Helper Functions - get_hydro_plant" begin
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
         hydro1 = ReservoirHydro(;
             id = "H001",
             name = "Hydro Plant 1",
@@ -591,12 +598,16 @@ using Dates
             efficiency = 0.90,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = 1,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
 
+        submarket1 =
+            Submarket(; id = "SM_SE", name = "Sudeste", code = "SE", country = "Brazil")
         system = ElectricitySystem(;
             hydro_plants = [hydro1],
-            base_date = Date(2025, 1, 1)
+            buses = [bus1],
+            submarkets = [submarket1],
+            base_date = Date(2025, 1, 1),
         )
 
         # Test finding existing plant
@@ -610,17 +621,9 @@ using Dates
     end
 
     @testset "Helper Functions - get_bus" begin
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        system = ElectricitySystem(;
-            buses = [bus1],
-            base_date = Date(2025, 1, 1)
-        )
+        system = ElectricitySystem(; buses = [bus1], base_date = Date(2025, 1, 1))
 
         # Test finding existing bus
         bus = get_bus(system, "B001")
@@ -633,17 +636,11 @@ using Dates
     end
 
     @testset "Helper Functions - get_submarket" begin
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil"
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
-        system = ElectricitySystem(;
-            submarkets = [submarket1],
-            base_date = Date(2025, 1, 1)
-        )
+        system =
+            ElectricitySystem(; submarkets = [submarket1], base_date = Date(2025, 1, 1))
 
         # Test finding existing submarket
         submarket = get_submarket(system, "SM_001")
@@ -656,6 +653,7 @@ using Dates
     end
 
     @testset "Helper Functions - count_generators" begin
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
         plant1 = ConventionalThermal(;
             id = "T001",
             name = "Thermal Plant 1",
@@ -672,7 +670,7 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
         hydro1 = ReservoirHydro(;
@@ -690,7 +688,7 @@ using Dates
             efficiency = 0.90,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = 1,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
 
         wind1 = WindPlant(;
@@ -709,20 +707,25 @@ using Dates
             forced_outage_rate = 0.05,
             is_dispatchable = false,
             commissioning_date = DateTime(2015, 1, 1),
-            num_turbines = 50
+            num_turbines = 50,
         )
 
+        submarket1 =
+            Submarket(; id = "SM_SE", name = "Sudeste", code = "SE", country = "Brazil")
         system = ElectricitySystem(;
             thermal_plants = [plant1],
             hydro_plants = [hydro1],
             wind_farms = [wind1],
-            base_date = Date(2025, 1, 1)
+            buses = [bus1],
+            submarkets = [submarket1],
+            base_date = Date(2025, 1, 1),
         )
 
         @test count_generators(system) == 3
     end
 
     @testset "Helper Functions - total_capacity" begin
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
         plant1 = ConventionalThermal(;
             id = "T001",
             name = "Thermal Plant 1",
@@ -739,7 +742,7 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
         hydro1 = ReservoirHydro(;
@@ -757,7 +760,7 @@ using Dates
             efficiency = 0.90,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = 1,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
 
         wind1 = WindPlant(;
@@ -776,7 +779,7 @@ using Dates
             forced_outage_rate = 0.05,
             is_dispatchable = false,
             commissioning_date = DateTime(2015, 1, 1),
-            num_turbines = 50
+            num_turbines = 50,
         )
 
         solar1 = SolarPlant(;
@@ -785,7 +788,7 @@ using Dates
             bus_id = "B001",
             submarket_id = "SE",
             installed_capacity_mw = 100.0,
-            capacity_forecast_mw = zeros(24),
+            capacity_forecast_mw = fill(80.0, 24),
             forecast_type = DETERMINISTIC,
             min_generation_mw = 0.0,
             max_generation_mw = 100.0,
@@ -795,15 +798,19 @@ using Dates
             forced_outage_rate = 0.02,
             is_dispatchable = false,
             commissioning_date = DateTime(2018, 1, 1),
-            tracking_mode = FIXED
+            tracking_system = "FIXED",
         )
 
+        submarket1 =
+            Submarket(; id = "SM_SE", name = "Sudeste", code = "SE", country = "Brazil")
         system = ElectricitySystem(;
             thermal_plants = [plant1],
             hydro_plants = [hydro1],
             wind_farms = [wind1],
             solar_farms = [solar1],
-            base_date = Date(2025, 1, 1)
+            buses = [bus1],
+            submarkets = [submarket1],
+            base_date = Date(2025, 1, 1),
         )
 
         # Total capacity = 500 + 1000 + 200 + 100 = 1800 MW
@@ -812,12 +819,7 @@ using Dates
 
     @testset "Helper Functions - validate_system" begin
         # Create a valid system
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
         plant1 = ConventionalThermal(;
             id = "T001",
@@ -835,21 +837,17 @@ using Dates
             fuel_cost_rsj_per_mwh = 150.0,
             startup_cost_rs = 15000.0,
             shutdown_cost_rs = 8000.0,
-            commissioning_date = DateTime(2010, 1, 1)
+            commissioning_date = DateTime(2010, 1, 1),
         )
 
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil"
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
         valid_system = ElectricitySystem(;
             buses = [bus1],
             thermal_plants = [plant1],
             submarkets = [submarket1],
-            base_date = Date(2025, 1, 1)
+            base_date = Date(2025, 1, 1),
         )
 
         @test validate_system(valid_system) == true
@@ -867,17 +865,9 @@ using Dates
     end
 
     @testset "Edge Cases - System with Only Buses" begin
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        system = ElectricitySystem(;
-            buses = [bus1],
-            base_date = Date(2025, 1, 1)
-        )
+        system = ElectricitySystem(; buses = [bus1], base_date = Date(2025, 1, 1))
 
         @test count_generators(system) == 0
         @test total_capacity(system) ≈ 0.0

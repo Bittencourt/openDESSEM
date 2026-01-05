@@ -47,11 +47,13 @@ function run_quality_check()
     log_message("Running code quality evaluation...", :info)
 
     try
-        result = run(pipeline(
-            `julia $(joinpath(@__DIR__, "code_quality_evaluator.jl"))`,
-            stdout = get_log_file(),
-            stderr = get_log_file()
-        ))
+        result = run(
+            pipeline(
+                `julia $(joinpath(@__DIR__, "code_quality_evaluator.jl"))`,
+                stdout = get_log_file(),
+                stderr = get_log_file(),
+            ),
+        )
 
         if result.exitcode == 0
             log_message("✓ Code quality evaluation completed", :info)

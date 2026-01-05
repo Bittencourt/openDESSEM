@@ -22,7 +22,7 @@ using Test
         pwf_file = "docs/Sample/DS_ONS_102025_RV2D11/sab10h.pwf"
 
         if isfile(pwf_file)
-            @info "Parsing PWF file" file=pwf_file
+            @info "Parsing PWF file" file = pwf_file
 
             # Parse the file using PWF.jl
             data = PWF.parse_file(pwf_file)
@@ -35,7 +35,7 @@ using Test
             # PWF.jl typically returns data with buses, branches, generators, etc.
             @test !isempty(data)
 
-            @info "PWF file parsed successfully" n_fields=length(data)
+            @info "PWF file parsed successfully" n_fields = length(data)
 
             # Print available fields for documentation
             println("\nAvailable PWF data fields:")
@@ -63,18 +63,20 @@ using Test
                     @test data !== nothing
                     @test isa(data, Dict)
                     parsed_count += 1
-                    @info "Successfully parsed" file=pwf_file
+                    @info "Successfully parsed" file = pwf_file
                 catch e
-                    @warn "Failed to parse PWF file" file=pwf_file error=e
+                    @warn "Failed to parse PWF file" file = pwf_file error = e
                 end
             end
         end
 
         @test parsed_count > 0
-        @info "PWF parsing summary" parsed=parsed_count total=length(pwf_files)
+        @info "PWF parsing summary" parsed = parsed_count total = length(pwf_files)
 
         if parsed_count > 0
-            println("\n✓ Successfully parsed $parsed_count out of $(length(pwf_files)) sample files")
+            println(
+                "\n✓ Successfully parsed $parsed_count out of $(length(pwf_files)) sample files",
+            )
         end
     end
 end

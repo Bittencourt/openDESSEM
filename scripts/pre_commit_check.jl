@@ -53,7 +53,7 @@ const COLORS = Dict(
     :green => "\033[32m",
     :yellow => "\033[33m",
     :blue => "\033[34m",
-    :bold => "\033[1m"
+    :bold => "\033[1m",
 )
 
 # Track overall status
@@ -95,10 +95,14 @@ function check_julia_version()::Bool
     current_version = VERSION
 
     if current_version >= REQUIRED_JULIA_VERSION
-        print_success("Julia version $current_version meets requirement (≥ $REQUIRED_JULIA_VERSION)")
+        print_success(
+            "Julia version $current_version meets requirement (≥ $REQUIRED_JULIA_VERSION)",
+        )
         return true
     else
-        print_error("Julia version $current_version does not meet requirement (≥ $REQUIRED_JULIA_VERSION)")
+        print_error(
+            "Julia version $current_version does not meet requirement (≥ $REQUIRED_JULIA_VERSION)",
+        )
         return false
     end
 end
@@ -341,7 +345,9 @@ function check_formatting()::Bool
                 println("  - $file")
             end
             println()
-            println("  Run: julia --project=formattools -e 'using JuliaFormatter; format(\".\")'")
+            println(
+                "  Run: julia --project=formattools -e 'using JuliaFormatter; format(\".\")'",
+            )
             return false
         end
     catch e
@@ -418,7 +424,7 @@ function main()
         ("Project.toml", check_project_toml),
     ]
 
-    results = Dict{String, Bool}()
+    results = Dict{String,Bool}()
 
     for (name, check_func) in checks
         try

@@ -5,16 +5,16 @@
 **Current Phase**: Entity System Expansion → Constraint Development (PowerModels.jl Integration)
 
 **Recent Updates**:
-- ✅ TASK-001, TASK-002, TASK-003, TASK-003.5 completed (Hydro, Renewable, Network entities, PowerModels adapter)
+- ✅ TASK-001, TASK-002, TASK-003, TASK-003.5, TASK-004, TASK-004.5 completed (All entity types + PowerModels adapter + ElectricitySystem)
 - ✅ PWF.jl added for Brazilian .pwf file parsing
 - ✅ PowerModels.jl adopted for network constraints (TASK-006 updated)
 - ✅ PowerModels.jl adapter layer implemented (see docs/POWERMODELS_ADAPTER.md)
 - 📧 Comprehensive compatibility analysis completed (see docs/POWERMODELS_COMPATIBILITY_ANALYSIS.md)
 - 🎉 **DISCOVERED**: DESSEM2Julia - complete DESSEM parser (32/32 files, 7,680+ tests)
-- 📋 **NEW TASKS**: TASK-003.5 (PowerModels Integration), TASK-004.5 (ElectricitySystem Container)
 - 📝 **UPDATED TASK**: TASK-010 now uses DESSEM2Julia (complexity 7/10 → 3/10)
 - 🔗 **COMPLETE DEPENDENCY MAPPING**: All task dependencies documented with updated execution order
 - 📊 **COMPLEXITY UPDATED**: Total complexity 84/140 across 13 tasks (down from original estimates)
+- 🎯 **PHASE 1 & 2 COMPLETE**: All entity types implemented, ready for optimization layer
 
 This document outlines the remaining development tasks for the OpenDESSEM project, organized by logical dependency order and complexity.
 
@@ -542,9 +542,15 @@ result = PM.optimize_model!(pm, optimizer=HiGHS.Optimizer)
 
 ### TASK-004: Market Entity Types
 
-**Status**: 🟡 Planned
+**Status**: � Completed (2026-01-04)
 **Complexity**: 4/10
 **Precedence**: TASK-003 (depends on network entities)
+
+**Completion Notes**:
+- Implemented BilateralContract entity with seller/buyer relationships
+- Added contract price, energy amount, and date validation
+- Comprehensive test coverage in test/unit/test_market_entities.jl
+- Submarket and Load entities were already implemented
 
 **Description**:
 Implement market-related entities for modeling energy trading, contracts, and market mechanisms in the Brazilian electricity market.
@@ -1729,26 +1735,27 @@ Expected Output:
 
 ## Next Steps
 
-**✅ Completed** (First Wave):
+**✅ Completed** (First & Second Wave - Entity System Complete):
 - TASK-001: Hydroelectric entities ✅
 - TASK-002: Renewable entities ✅
 - TASK-003: Network entities ✅
 - TASK-003.5: PowerModels.jl Integration Layer ✅
+- TASK-004: Market entities ✅
+- TASK-004.5: ElectricitySystem Container ✅
 
-**Current Priority** (Complete First Wave):
-1. **TASK-004**: Market entities (quick win, 4/10 complexity)
-   - Submarkets, loads, bilateral contracts
-   - Depends on TASK-003 (completed)
+**Current Priority** (Third Wave - Optimization Core):
+1. **TASK-005**: Variable Manager (9/10 complexity)
+   - Create JuMP variables from ElectricitySystem entities
+   - Depends on TASK-004.5 (completed)
    - No blockers - ready to start
 
-2. **TASK-004.5**: ElectricitySystem Container (5/10 complexity)
-   - Unified struct holding all system entities
-   - Depends on TASK-001, TASK-002, TASK-003, TASK-004
-   - Required by TASK-005 (Variable Manager)
+2. **TASK-006**: Constraint Builder System (8/10 complexity)
+   - Build constraints using PowerModels + custom ONS constraints
+   - Depends on TASK-005 and TASK-003.5 (both ready)
 
-**Parallel Work**: TASK-004 and TASK-004.5 can be worked on simultaneously
+**Parallel Work**: TASK-009 (PostgreSQL loaders) and TASK-010 (DESSEM2Julia) can be worked on in parallel with TASK-005/006
 
-**Next Wave Preparation**: Complete First Wave before starting TASK-005 (Variable Manager)
+**Next Wave Preparation**: Complete TASK-005 and TASK-006 before starting TASK-007 (Objective Function)
 
 ---
 

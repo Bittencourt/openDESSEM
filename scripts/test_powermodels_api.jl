@@ -11,18 +11,13 @@ This script explores PowerModels.jl to evaluate:
 using PowerModels
 using JuMP
 
-println("=" ^ 60)
+println("="^60)
 println("PowerModels.jl API Exploration")
-println("=" ^ 60)
+println("="^60)
 
 # Test 1: Check available power model types
 println("\n### Available Power Model Types ###")
-model_types = [
-    "DCPPowerModel",
-    "ACPPowerModel",
-    "DCPLLPowerModel",
-    "BFAPowerModel"
-]
+model_types = ["DCPPowerModel", "ACPPowerModel", "DCPLLPowerModel", "BFAPowerModel"]
 
 for mt in model_types
     try
@@ -41,7 +36,7 @@ key_functions = [
     "solve_mc_opf",
     "build_mc_opf",
     "parse_file",
-    "make_basic_network"
+    "make_basic_network",
 ]
 
 for func_name in key_functions
@@ -56,13 +51,9 @@ end
 println("\n### Creating Test Network ###")
 
 # Simple 3-bus system based on Matpower format
-test_data = Dict{String, Any}(
+test_data = Dict{String,Any}(
     "name" => "test",
-    "dm" => Dict{String, Any}(
-        "bus" => 3,
-        "branch" => 2,
-        "gen" => 2
-    ),
+    "dm" => Dict{String,Any}("bus" => 3, "branch" => 2, "gen" => 2),
     "bus" => [
         Dict(
             "bus_i" => 1,
@@ -72,7 +63,7 @@ test_data = Dict{String, Any}(
             "area" => 1,
             "vm" => 1.0,
             "va" => 0.0,
-            "base_kv" => 230.0
+            "base_kv" => 230.0,
         ),
         Dict(
             "bus_i" => 2,
@@ -82,7 +73,7 @@ test_data = Dict{String, Any}(
             "area" => 1,
             "vm" => 1.0,
             "va" => 0.0,
-            "base_kv" => 230.0
+            "base_kv" => 230.0,
         ),
         Dict(
             "bus_i" => 3,
@@ -92,8 +83,8 @@ test_data = Dict{String, Any}(
             "area" => 1,
             "vm" => 1.0,
             "va" => 0.0,
-            "base_kv" => 230.0
-        )
+            "base_kv" => 230.0,
+        ),
     ],
     "branch" => [
         Dict(
@@ -106,7 +97,7 @@ test_data = Dict{String, Any}(
             "rate_c" => 400.0,
             "tap" => 1.0,
             "shift" => 0.0,
-            "br_status" => 1
+            "br_status" => 1,
         ),
         Dict(
             "fbus" => 1,
@@ -118,8 +109,8 @@ test_data = Dict{String, Any}(
             "rate_c" => 400.0,
             "tap" => 1.0,
             "shift" => 0.0,
-            "br_status" => 1
-        )
+            "br_status" => 1,
+        ),
     ],
     "gen" => [
         Dict(
@@ -132,7 +123,7 @@ test_data = Dict{String, Any}(
             "mbase" => 100.0,
             "gen_status" => 1,
             "pmax" => 200.0,
-            "pmin" => 0.0
+            "pmin" => 0.0,
         ),
         Dict(
             "gen_bus" => 2,
@@ -144,27 +135,17 @@ test_data = Dict{String, Any}(
             "mbase" => 100.0,
             "gen_status" => 1,
             "pmax" => 150.0,
-            "pmin" => 0.0
-        )
+            "pmin" => 0.0,
+        ),
     ],
     "dcline" => [],
     "load" => [
-        Dict(
-            "load_bus" => 2,
-            "pd" => 100.0,
-            "qd" => 0.0,
-            "status" => 1
-        ),
-        Dict(
-            "load_bus" => 3,
-            "pd" => 80.0,
-            "qd" => 0.0,
-            "status" => 1
-        )
+        Dict("load_bus" => 2, "pd" => 100.0, "qd" => 0.0, "status" => 1),
+        Dict("load_bus" => 3, "pd" => 80.0, "qd" => 0.0, "status" => 1),
     ],
     "shunt" => [],
     "storage" => [],
-    "switch" => []
+    "switch" => [],
 )
 
 println("  Created test network with:")
@@ -184,7 +165,7 @@ try
         test_data,
         DCPPowerModel,
         build_dc_opf,
-        jump_model=Model(HiGHS.Optimizer)
+        jump_model = Model(HiGHS.Optimizer),
     )
 
     println("  ✓ DC-OPF model instantiated successfully")
@@ -203,7 +184,7 @@ try
 
     # Solve the model
     println("\n  Solving DC-OPF...")
-    result = solve_model(pm; optimizer=HiGHS.Optimizer)
+    result = solve_model(pm; optimizer = HiGHS.Optimizer)
     println("  ✓ Model solved")
     println("    Status: ", result["termination_status"])
 
@@ -237,6 +218,6 @@ catch e
     println("    This may indicate compatibility issues")
 end
 
-println("\n" * "=" ^ 60)
+println("\n" * "="^60)
 println("PowerModels API Exploration Complete")
-println("=" ^ 60)
+println("="^60)

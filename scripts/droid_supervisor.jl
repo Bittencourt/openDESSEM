@@ -41,18 +41,18 @@ const DROIDS = Dict(
     "code-quality-evaluator" => Dict(
         "script" => joinpath(@__DIR__, "code_quality_evaluator.jl"),
         "interval" => 300,  # 5 minutes
-        "description" => "Monitors code quality, tests, coverage, and linting"
+        "description" => "Monitors code quality, tests, coverage, and linting",
     ),
     "git-branch-manager" => Dict(
         "script" => joinpath(@__DIR__, "git_branch_manager_runner.jl"),
         "interval" => 60,  # 1 minute
-        "description" => "Manages git workflow, PR validation, and merges"
+        "description" => "Manages git workflow, PR validation, and merges",
     ),
     "instruction-set-synchronizer" => Dict(
         "script" => joinpath(@__DIR__, "instruction_set_sync_runner.jl"),
         "interval" => 30,  # 30 seconds
-        "description" => "Keeps AGENTS.md and .claude/claude.md synchronized"
-    )
+        "description" => "Keeps AGENTS.md and .claude/claude.md synchronized",
+    ),
 )
 
 # ANSI color codes
@@ -62,7 +62,7 @@ const COLORS = Dict(
     :green => "\033[32m",
     :yellow => "\033[33m",
     :blue => "\033[34m",
-    :bold => "\033[1m"
+    :bold => "\033[1m",
 )
 
 function print_color(color::Symbol, message::String)
@@ -146,11 +146,10 @@ function start_droid(droid_name::String)
     try
         if Sys.iswindows()
             # Windows: use start /B
-            pid = run(pipeline(
-                `start /B julia $script`,
-                stdout = log_file,
-                stderr = log_file
-            ); wait = false)
+            pid = run(
+                pipeline(`start /B julia $script`, stdout = log_file, stderr = log_file);
+                wait = false,
+            )
 
             # Get PID from the started process
             # On Windows, we need a different approach
@@ -158,11 +157,10 @@ function start_droid(droid_name::String)
             pid = nothing
         else
             # Unix: use nohup and get PID
-            process = run(pipeline(
-                `nohup julia $script`,
-                stdout = log_file,
-                stderr = log_file
-            ); wait = false)
+            process = run(
+                pipeline(`nohup julia $script`, stdout = log_file, stderr = log_file);
+                wait = false,
+            )
             pid = process.pid
         end
 

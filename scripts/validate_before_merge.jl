@@ -55,7 +55,8 @@ const REQUIRED_JULIA_VERSION = v"1.8"
 
 # Parse command line arguments
 const TARGET_BRANCH = get(ARGS, 1, "dev")
-const COVERAGE_THRESHOLD = TARGET_BRANCH == "main" ? COVERAGE_THRESHOLD_MAIN : COVERAGE_THRESHOLD_DEV
+const COVERAGE_THRESHOLD =
+    TARGET_BRANCH == "main" ? COVERAGE_THRESHOLD_MAIN : COVERAGE_THRESHOLD_DEV
 
 # ANSI color codes for terminal output
 const COLORS = Dict(
@@ -64,7 +65,7 @@ const COLORS = Dict(
     :green => "\033[32m",
     :yellow => "\033[33m",
     :blue => "\033[34m",
-    :bold => "\033[1m"
+    :bold => "\033[1m",
 )
 
 # Track overall status
@@ -110,10 +111,14 @@ function check_julia_version()::Bool
     current_version = VERSION
 
     if current_version >= REQUIRED_JULIA_VERSION
-        print_success("Julia version $current_version meets requirement (≥ $REQUIRED_JULIA_VERSION)")
+        print_success(
+            "Julia version $current_version meets requirement (≥ $REQUIRED_JULIA_VERSION)",
+        )
         return true
     else
-        print_error("Julia version $current_version does not meet requirement (≥ $REQUIRED_JULIA_VERSION)")
+        print_error(
+            "Julia version $current_version does not meet requirement (≥ $REQUIRED_JULIA_VERSION)",
+        )
         return false
     end
 end
@@ -169,10 +174,16 @@ function check_remote_sync()::Bool
         current_branch = read(`git rev-parse --abbrev-ref HEAD`, String) |> strip
 
         # Check if remote branch exists
-        remote_branch_result = read(pipeline(`git rev-parse origin/$current_branch`, stderr=devnull), String) |> strip
+        remote_branch_result =
+            read(
+                pipeline(`git rev-parse origin/$current_branch`, stderr = devnull),
+                String,
+            ) |> strip
 
         if isempty(remote_branch_result)
-            print_warning("No remote branch 'origin/$current_branch' found - skipping sync check")
+            print_warning(
+                "No remote branch 'origin/$current_branch' found - skipping sync check",
+            )
             print_info("  To set up tracking: git push -u origin $current_branch")
             return true
         end
@@ -187,8 +198,14 @@ function check_remote_sync()::Bool
         end
 
         # Check number of commits ahead/behind
-        ahead_result = read(`git rev-list --count origin/$current_branch..HEAD`, String) |> strip |> tryparse(Int)
-        behind_result = read(`git rev-list --count HEAD..origin/$current_branch`, String) |> strip |> tryparse(Int)
+        ahead_result =
+            read(`git rev-list --count origin/$current_branch..HEAD`, String) |>
+            strip |>
+            tryparse(Int)
+        behind_result =
+            read(`git rev-list --count HEAD..origin/$current_branch`, String) |>
+            strip |>
+            tryparse(Int)
 
         if isnothing(ahead_result) || isnothing(behind_result)
             print_warning("Could not determine ahead/behind status")
@@ -321,7 +338,9 @@ function check_formatting()::Bool
 
     if !HAS_JULIAFORMATTER
         print_warning("JuliaFormatter not available - skipping formatting check")
-        print_info("  Install: julia --project=formattools -e 'using Pkg; Pkg.add(\"JuliaFormatter\")'")
+        print_info(
+            "  Install: julia --project=formattools -e 'using Pkg; Pkg.add(\"JuliaFormatter\")'",
+        )
         return true
     end
 
@@ -368,7 +387,9 @@ function check_formatting()::Bool
             print_info("  ... and $(length(unformatted_files) - 10) more")
         end
         println()
-        println("  Run: julia --project=formattools -e 'using JuliaFormatter; format(\".\")'")
+        println(
+            "  Run: julia --project=formattools -e 'using JuliaFormatter; format(\".\")'",
+        )
         return false
     end
 end
@@ -446,14 +467,7 @@ function scan_for_secrets()::Bool
         end
 
         # Check for sensitive file types
-        sensitive_files = [
-            ".env",
-            "*.pem",
-            "*.key",
-            "*.crt",
-            "secrets.*",
-            "credentials.*",
-        ]
+        sensitive_files = [".env", "*.pem", "*.key", "*.crt", "secrets.*", "credentials.*"]
 
         git_files = read(`git ls-files`, String)
 
@@ -573,7 +587,7 @@ function main()
         (8, "Git History Quality", check_git_history_quality),
     ]
 
-    results = Dict{String, Bool}()
+    results = Dict{String,Bool}()
 
     for (step, name, check_func) in checks
         try

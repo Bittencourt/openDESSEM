@@ -25,4 +25,10 @@ using Test
     include("unit/test_powermodels_adapter.jl")
     # include("integration/test_simple_system.jl")
 
+    # Variable manager tests
+    include("unit/test_variable_manager.jl")
+
+    # DESSEM loader tests
+    include("unit/test_dessem_loader.jl")
+
 end

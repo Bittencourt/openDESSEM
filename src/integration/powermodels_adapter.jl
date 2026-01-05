@@ -407,14 +407,14 @@ pm_data = convert_to_powermodel(;
 - `ArgumentError` if bus lookup fails during entity conversion
 """
 function convert_to_powermodel(;
-        buses::Vector{Bus},
-        lines::Vector{ACLine},
-        thermals::Vector{<:ThermalPlant}=ThermalPlant[],
-        hydros::Vector{<:HydroPlant}=HydroPlant[],
-        renewables::Vector{<:RenewablePlant}=RenewablePlant[],
-        loads::Vector{NetworkLoad}=NetworkLoad[],
-        base_mva::Float64=100.0
-    )
+    buses::Vector{Bus},
+    lines::Vector{ACLine},
+    thermals::Vector{<:ThermalPlant} = ThermalPlant[],
+    hydros::Vector{<:HydroPlant} = HydroPlant[],
+    renewables::Vector{<:RenewablePlant} = RenewablePlant[],
+    loads::Vector{NetworkLoad} = NetworkLoad[],
+    base_mva::Float64 = 100.0,
+)
     # Create bus lookup: id -> index
     bus_lookup = Dict(bus.id => i for (i, bus) in enumerate(buses))
 
@@ -423,22 +423,22 @@ function convert_to_powermodel(;
 
     # Convert buses
     bus_data = Dict{String,Any}(
-        string(i) => convert_bus_to_powermodel(bus, i, base_kv)
-        for (i, bus) in enumerate(buses)
+        string(i) => convert_bus_to_powermodel(bus, i, base_kv) for
+        (i, bus) in enumerate(buses)
     )
 
     # Convert lines (branches)
     branch_data = Dict{String,Any}(
-        string(i) => convert_line_to_powermodel(line, bus_lookup, base_kv)
-        for (i, line) in enumerate(lines)
+        string(i) => convert_line_to_powermodel(line, bus_lookup, base_kv) for
+        (i, line) in enumerate(lines)
     )
 
     # Convert generators
     all_gens = vcat(thermals, hydros, renewables)
     gen_data = if !isempty(all_gens)
         Dict{String,Any}(
-            string(i) => convert_gen_to_powermodel(gen, bus_lookup, base_kv)
-            for (i, gen) in enumerate(all_gens)
+            string(i) => convert_gen_to_powermodel(gen, bus_lookup, base_kv) for
+            (i, gen) in enumerate(all_gens)
         )
     else
         Dict{String,Any}()
@@ -447,8 +447,8 @@ function convert_to_powermodel(;
     # Convert loads
     load_data = if !isempty(loads)
         Dict{String,Any}(
-            string(i) => convert_load_to_powermodel(load, bus_lookup)
-            for (i, load) in enumerate(loads)
+            string(i) => convert_load_to_powermodel(load, bus_lookup) for
+            (i, load) in enumerate(loads)
         )
     else
         Dict{String,Any}()
@@ -461,7 +461,7 @@ function convert_to_powermodel(;
         "gen" => gen_data,
         "load" => load_data,
         "baseMVA" => base_mva,
-        "per_unit" => true
+        "per_unit" => true,
     )
 end
 
@@ -510,7 +510,7 @@ function convert_bus_to_powermodel(bus::Bus, index::Int, base_kv::Float64)::Dict
         "va" => 0.0,
         "base_kv" => base_kv,
         "area" => abs(area),
-        "zone" => abs(zone)
+        "zone" => abs(zone),
     )
 end
 
@@ -551,7 +551,11 @@ bus_lookup = Dict("B1" => 1, "B2" => 2)
 pm_branch = convert_line_to_powermodel(line, bus_lookup, 230.0)
 ```
 """
-function convert_line_to_powermodel(line::ACLine, bus_lookup::Dict, base_kv::Float64)::Dict{String,Any}
+function convert_line_to_powermodel(
+    line::ACLine,
+    bus_lookup::Dict,
+    base_kv::Float64,
+)::Dict{String,Any}
     # Find bus indices
     from_idx = get(bus_lookup, line.from_bus_id, nothing)
     to_idx = get(bus_lookup, line.to_bus_id, nothing)
@@ -581,7 +585,7 @@ function convert_line_to_powermodel(line::ACLine, bus_lookup::Dict, base_kv::Flo
         "tap" => 1.0,
         "angmin" => -30.0,
         "angmax" => 30.0,
-        "transformer" => false
+        "transformer" => false,
     )
 end
 
@@ -624,14 +628,18 @@ pm_gen = convert_gen_to_powermodel(thermal, bus_lookup, 230.0)
 ```
 """
 function convert_gen_to_powermodel(
-        plant::Union{ThermalPlant, HydroPlant, RenewablePlant},
-        bus_lookup::Dict,
-        base_kv::Float64
-    )::Dict{String,Any}
+    plant::Union{ThermalPlant,HydroPlant,RenewablePlant},
+    bus_lookup::Dict,
+    base_kv::Float64,
+)::Dict{String,Any}
     # Find bus index
     bus_idx = get(bus_lookup, plant.bus_id, nothing)
     if bus_idx === nothing
-        throw(ArgumentError("Bus '$(plant.bus_id)' for generator '$(plant.id)' not found in bus lookup"))
+        throw(
+            ArgumentError(
+                "Bus '$(plant.bus_id)' for generator '$(plant.id)' not found in bus lookup",
+            ),
+        )
     end
 
     # Determine generator type
@@ -659,7 +667,7 @@ function convert_gen_to_powermodel(
         "qmax" => qmax,
         "gen_status" => 1,
         "gen_type" => gen_type,
-        "cost" => cost
+        "cost" => cost,
     )
 end
 
@@ -699,7 +707,11 @@ function convert_load_to_powermodel(load::NetworkLoad, bus_lookup::Dict)::Dict{S
     # Find bus index
     bus_idx = get(bus_lookup, load.bus_id, nothing)
     if bus_idx === nothing
-        throw(ArgumentError("Bus '$(load.bus_id)' for load '$(load.id)' not found in bus lookup"))
+        throw(
+            ArgumentError(
+                "Bus '$(load.bus_id)' for load '$(load.id)' not found in bus lookup",
+            ),
+        )
     end
 
     # Use first period of load profile
@@ -715,7 +727,7 @@ function convert_load_to_powermodel(load::NetworkLoad, bus_lookup::Dict)::Dict{S
         "load_bus" => bus_idx,
         "pd" => pd,
         "qd" => qd,
-        "status" => status
+        "status" => status,
     )
 end
 
@@ -777,7 +789,7 @@ else
 end
 ```
 """
-function validate_powermodel_conversion(pm_data::Dict{String, Any})::Bool
+function validate_powermodel_conversion(pm_data::Dict{String,Any})::Bool
     # Check required keys
     required_keys = ["bus", "branch", "load", "baseMVA"]
     for key in required_keys

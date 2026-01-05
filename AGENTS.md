@@ -20,13 +20,13 @@ This file provides project-specific guidelines, conventions, and workflows for A
 
 ## Current Implementation Status
 
-**Last Updated**: 2025-01-04
+**Last Updated**: 2026-01-04
 
-### ✅ Completed (Phase 1: Entity System Foundation)
+### ✅ Completed (Phase 1 & 2: Entity System + Integration Layer)
 
 **Validation Utilities** (`src/entities/validation.jl`):
 - `validate_id()`, `validate_name()` - ID and name validation
-- `validate_positive()`, `validate_non_negative()` - Numeric validation
+- `validate_positive()`, `validate_non_negative()`, `validate_strictly_positive()` - Numeric validation
 - `validate_percentage()` - 0-100 range validation
 - `validate_in_range()` - Flexible range validation with auto-swap
 - `validate_min_leq_max()` - Order validation
@@ -44,26 +44,57 @@ This file provides project-specific guidelines, conventions, and workflows for A
 - `ConventionalThermal` - Standard thermal plants with full UC support
 - `CombinedCyclePlant` - CCGT plants with multiple operating modes
 
+**Hydroelectric Plant Entities** (`src/entities/hydro.jl`) - TASK-001:
+- `HydroPlantType` enum: `RESERVOIR`, `RUN_OF_RIVER`, `PUMPED_STORAGE`
+- `ReservoirHydro` - Large reservoir plants with storage
+- `RunOfRiverHydro` - Run-of-river plants
+- `PumpedStorageHydro` - Pumped storage plants with pumping capability
+
+**Renewable Energy Entities** (`src/entities/renewable.jl`) - TASK-002:
+- `RenewableType` enum: `WIND`, `SOLAR`
+- `ForecastType` enum: `DETERMINISTIC`, `STOCHASTIC`, `SCENARIO_BASED`
+- `WindPlant` - Wind power plants with time-varying capacity
+- `SolarPlant` - Solar power plants with irradiance profiles
+
+**Network Entities** (`src/entities/network.jl`) - TASK-003:
+- `BusType` enum: `PQ`, `PV`, `SLACK`, `ISOLATED`
+- `Bus` - Electrical buses with voltage constraints
+- `ACLine` - AC transmission lines with R/X/B parameters
+- `DCLine` - HVDC transmission links
+- `NetworkLoad` - Network-level loads
+- `NetworkSubmarket` - Submarket with interconnection limits
+
+**Market Entities** (`src/entities/market.jl`) - TASK-004:
+- `Submarket` - Geographic/bidding zones
+- `Load` - Time-varying demand profiles
+- `BilateralContract` - Energy trading contracts
+
+**ElectricitySystem Container** (`src/core/electricity_system.jl`) - TASK-004.5:
+- `ElectricitySystem` - Unified container for all entities
+- Helper functions: `get_thermal_plant()`, `get_hydro_plant()`, `get_bus()`, etc.
+- Validation: `validate_system()`, `count_generators()`, `total_capacity()`
+
+**PowerModels.jl Integration** (`src/integration/powermodels_adapter.jl`) - TASK-003.5:
+- `convert_to_powermodel()` - Convert system to PowerModels format
+- `convert_bus_to_powermodel()`, `convert_line_to_powermodel()` - Entity converters
+- `convert_gen_to_powermodel()`, `convert_load_to_powermodel()` - Generator/load converters
+- `find_bus_index()`, `validate_powermodel_conversion()` - Helpers
+
 **Test Coverage**:
-- **166 tests, 100% passing** (97 validation/base tests + 69 thermal plant tests)
+- **~500+ tests passing** across all entity types
+- Comprehensive validation and error testing
 - All entities validated on construction
-- Comprehensive error testing
 
-### 🚧 In Progress
+### 📋 Not Started (Phase 3+)
 
-Next priorities (following detailed plan):
-- Hydro plant entities (reservoir, run-of-river, pumped storage)
-- Renewable entities (wind, solar)
-- Network entities (buses, transmission lines)
-- Market entities (submarkets, loads)
-
-### 📋 Not Started
-
-- Constraint builder system
-- Database loaders (PostgreSQL/SQLite)
-- Variable manager
-- Objective function
-- Solvers interface
+- TASK-005: Variable Manager
+- TASK-006: Constraint Builder System
+- TASK-007: Objective Function Builder
+- TASK-008: Solver Interface
+- TASK-009: Database Loaders (PostgreSQL)
+- TASK-010: DESSEM2Julia Integration
+- TASK-011: Solution Export and Analysis
+- TASK-012: Validation Against Official DESSEM
 
 ---
 

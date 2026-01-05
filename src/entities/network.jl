@@ -586,9 +586,7 @@ struct NetworkSubmarket <: NetworkEntity
         for (i, demand) in enumerate(demand_forecast_mw)
             if demand <= 0
                 throw(
-                    ArgumentError(
-                        "demand_forecast_mw[$i] must be positive (got $demand)",
-                    ),
+                    ArgumentError("demand_forecast_mw[$i] must be positive (got $demand)"),
                 )
             end
         end
@@ -611,9 +609,7 @@ struct NetworkSubmarket <: NetworkEntity
             # Check for self-interconnection
             if other_id == id
                 throw(
-                    ArgumentError(
-                        "Submarket '$id' cannot have interconnection to itself",
-                    ),
+                    ArgumentError("Submarket '$id' cannot have interconnection to itself"),
                 )
             end
 

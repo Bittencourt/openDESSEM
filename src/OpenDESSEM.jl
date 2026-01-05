@@ -35,6 +35,7 @@ module OpenDESSEM
 include("entities/Entities.jl")
 include("core/electricity_system.jl")
 include("integration/Integration.jl")
+include("variables/variable_manager.jl")
 
 # Export main functionality
 using .Entities
@@ -64,6 +65,29 @@ export convert_to_powermodel,
     convert_load_to_powermodel,
     find_bus_index,
     validate_powermodel_conversion
+
+# Export variable manager functionality
+using .Variables
+export create_thermal_variables!,
+    create_hydro_variables!,
+    create_renewable_variables!,
+    create_all_variables!,
+    get_powermodels_variable,
+    list_supported_powermodels_variables,
+    get_thermal_plant_indices,
+    get_hydro_plant_indices,
+    get_renewable_plant_indices,
+    get_plant_by_index
+
+# Include DESSEM loader for ONS data integration
+include("data/loaders/dessem_loader.jl")
+using .DessemLoader
+export load_dessem_case,
+    DessemCaseData,
+    convert_dessem_thermal,
+    convert_dessem_hydro,
+    convert_dessem_bus,
+    convert_dessem_renewable
 
 # More modules will be added as we implement them:
 # include("core/Model.jl")
