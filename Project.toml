@@ -9,6 +9,7 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+LibPQ = "194296ae-ab2e-11e8-0e9f-1f6fb64decff"
 PWF = "0f4c3beb-4231-4c4d-93e1-709cb40a89e6"
 PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
 
@@ -17,6 +18,7 @@ DESSEM2Julia = "0.1.0"
 DataFrames = "1.0"
 HiGHS = "1.0"
 JuMP = "1.0"
+LibPQ = "1.0"
 julia = "1.10"
 
 [extras]
