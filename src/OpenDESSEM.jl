@@ -36,6 +36,7 @@ include("entities/Entities.jl")
 include("core/electricity_system.jl")
 include("integration/Integration.jl")
 include("variables/variable_manager.jl")
+include("constraints/Constraints.jl")
 
 # Export main functionality
 using .Entities
@@ -79,6 +80,28 @@ export create_thermal_variables!,
     get_renewable_plant_indices,
     get_plant_by_index
 
+# Export constraints functionality
+using .Constraints
+export AbstractConstraint,
+    ConstraintMetadata,
+    ConstraintBuildResult,
+    ThermalCommitmentConstraint,
+    HydroWaterBalanceConstraint,
+    HydroGenerationConstraint,
+    SubmarketBalanceConstraint,
+    SubmarketInterconnectionConstraint,
+    RenewableLimitConstraint,
+    NetworkPowerModelsConstraint,
+    build!,
+    is_enabled,
+    enable!,
+    disable!,
+    get_priority,
+    set_priority!,
+    add_tag!,
+    has_tag,
+    validate_constraint_system
+
 # Include DESSEM loader for ONS data integration
 include("data/loaders/dessem_loader.jl")
 using .DessemLoader
@@ -89,9 +112,20 @@ export load_dessem_case,
     convert_dessem_bus,
     convert_dessem_renewable
 
+# Include database loader for PostgreSQL data loading
+include("data/loaders/database_loader.jl")
+using .DatabaseLoader
+export DatabaseLoader,
+    load_from_database,
+    load_thermal_plants,
+    load_hydro_plants,
+    load_renewable_plants,
+    load_network,
+    load_market,
+    validate_loaded_data
+
 # More modules will be added as we implement them:
 # include("core/Model.jl")
-# include("constraints/Constraints.jl")
 # include("data/Data.jl")
 
 end # module

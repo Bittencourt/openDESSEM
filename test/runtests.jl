@@ -31,4 +31,13 @@ using Test
     # DESSEM loader tests
     include("unit/test_dessem_loader.jl")
 
+    # Database loader tests
+    include("integration/test_database_loader.jl")
+
+    # Constraint tests
+    include("unit/test_constraints.jl")
+
+    # Integration tests for constraints
+    include("integration/test_constraint_system.jl")
+
 end
