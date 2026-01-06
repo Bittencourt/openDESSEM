@@ -250,47 +250,54 @@ end
 
 ## Task Management Workflow
 
-**CRITICAL**: All development work must be tracked and managed through the TODO list system.
+**CRITICAL**: All development work must be tracked and managed through GitHub Issues.
 
 ### Task Workflow Overview
 
 ```
-1. Check TODO.md for existing tasks
-2. Create task if none exists
+1. Check GitHub Issues for existing tasks
+2. Create issue if none exists
 3. Create feature branch for the task
 4. Implement following TDD
-5. Update task status in TODO.md
+5. Update issue status with comments
 6. Create pull request with task information
 7. Merge to main/master
-8. Mark task as completed
+8. Close associated issue
 ```
 
 ### Before Starting ANY Task
 
 **MANDATORY STEPS**:
 
-1. **Check TODO.md** (`docs/TODO.md`) for existing tasks
+1. **Check GitHub Issues** for existing tasks
    ```bash
-   # Read the TODO list
-   cat docs/TODO.md
-   # or open in your editor
+   # List all issues
+   gh issue list
+
+   # Search for specific task
+   gh issue list --search "TASK-XXX"
+
+   # View specific issue
+   gh issue view XXX
    ```
 
 2. **Verify task exists** for your planned work
    - Look for relevant task ID (e.g., TASK-001, TASK-002)
-   - Check task status: 🟡 Planned | 🔵 In Progress | 🟢 Completed | 🔴 Blocked
-   - Review task dependencies (precedence)
+   - Check issue status: Open | Closed
+   - Review issue labels and dependencies
 
-3. **Create new task if needed** (if no existing task matches):
-   - Add new task to `docs/TODO.md`
-   - Use consistent format with existing tasks
-   - Include: ID, title, description, complexity, precedence
-   - Set status to 🟡 Planned
+3. **Create new issue if needed** (if no existing task matches):
+   ```bash
+   # Create new GitHub issue
+   gh issue create --title "[TASK-XXX] Task Title" \
+                   --body "Task description..." \
+                   --label "enhancement"
+   ```
 
-4. **Update task status** to 🔵 In Progress
-   - Edit the task status in TODO.md
-   - Add notes about who is working on it (optional)
-   - Commit the TODO.md update
+4. **Assign issue to yourself** and update status
+   ```bash
+   gh issue edit XXX --assignee @yourusername
+   ```
 
 ### Branch Naming Convention
 
@@ -315,10 +322,9 @@ git checkout -b task-TASK-003-network-entities
 For each task, follow this workflow:
 
 ```bash
-# 1. Create/update task in TODO.md
-# Edit docs/TODO.md, set status to 🔵 In Progress
-git add docs/TODO.md
-git commit -m "docs(tasks): start TASK-XXX - task title"
+# 1. Assign/update GitHub issue
+gh issue edit XXX --assignee @yourusername
+gh issue comment XXX --body "Starting work on this task"
 
 # 2. Create feature branch
 git checkout -b task-TASK-XXX-short-description
@@ -331,13 +337,10 @@ git commit -m "feat(scope): implement feature for TASK-XXX
 
 - Implement X, Y, Z
 - Addresses requirements in TASK-XXX
-- See docs/TODO.md for full task description
+- Closes #XXX"
 
-Refs: TASK-XXX"
-
-# 5. Update TODO.md with progress
-git add docs/TODO.md
-git commit -m "docs(tasks): update progress on TASK-XXX"
+# 5. Update issue with progress
+gh issue comment XXX --body "Progress: Implemented X, Y. Working on Z."
 ```
 
 ### Pull Request Requirements
@@ -356,8 +359,8 @@ Implements changes for **TASK-XXX: [Task Title]**
 
 ## Task Reference
 - **Task ID**: TASK-XXX
-- **Task Title**: [Title from TODO.md]
-- **Complexity**: [X/10]
+- **Task Title**: [Title from GitHub issue]
+- **Issue**: #XXX
 - **Status**: Ready for review
 
 ## Description
@@ -370,18 +373,18 @@ Implements changes for **TASK-XXX: [Task Title]**
 - [ ] Documentation updated
 
 ## Testing
-- [ ] All existing tests pass (453+ tests)
+- [ ] All existing tests pass (733+ tests)
 - [ ] New tests added for this feature
 - [ ] Test coverage >90% for new code
 - [ ] Manually tested with [specific scenario]
 
 ## Task Completion Checklist
-- [ ] All requirements from TASK-XXX completed
+- [ ] All requirements from issue #XXX completed
 - [ ] Code formatted with JuliaFormatter
 - [ ] Documentation updated (docstrings, examples)
 - [ ] Tests passing
 - [ ] No temporary files committed
-- [ ] Task status updated to 🟢 Completed in TODO.md
+- [ ] Ready to close issue #XXX
 
 ## Files Changed
 - List of modified files
@@ -391,8 +394,8 @@ Implements changes for **TASK-XXX: [Task Title]**
 - [ ] No breaking changes
 - [ ] Breaking changes described below:
 
-## Related Issues
-None
+## Closes
+- Closes #XXX
 
 ## Checklist
 - [ ] Code follows project style guidelines
@@ -404,36 +407,37 @@ None
 
 ### Task Status Updates
 
-**Keep TODO.md synchronized with development**:
+**Keep GitHub issues synchronized with development**:
 
 1. **When starting work**:
-   - Change status from 🟡 Planned to 🔵 In Progress
-   - Add start date note
-   - Commit: `docs(tasks): start TASK-XXX - title`
+   ```bash
+   gh issue edit XXX --assignee @yourusername
+   gh issue comment XXX --body "🔵 In Progress - Started work"
+   ```
 
 2. **When making progress**:
-   - Add progress notes in task description
-   - Update completed sub-items
-   - Commit: `docs(tasks): update progress on TASK-XXX`
+   ```bash
+   gh issue comment XXX --body "✅ Implemented feature X\n⏳ Working on feature Y"
+   ```
 
 3. **When blocked**:
-   - Change status to 🔴 Blocked
-   - Add blocking issue description
-   - Reference blocking task IDs if applicable
-   - Commit: `docs(tasks): block TASK-XXX - reason`
+   ```bash
+   gh issue comment XXX --body "🔴 Blocked by: [describe issue]\nBlocked on: #YYY"
+   gh issue edit XXX --add-label "blocked"
+   ```
 
 4. **When completing**:
-   - Change status to 🟢 Completed
-   - Add completion date
-   - Link to commit/PR if applicable
-   - Commit: `docs(tasks): complete TASK-XXX - title`
+   ```bash
+   gh issue comment XXX --body "✅ Completed - Ready for review\nPR: #ZZZ"
+   gh issue edit XXX --remove-label "blocked" --add-label "ready for review"
+   ```
 
 ### Review Process
 
-**Before marking task as completed**:
+**Before closing issue as completed**:
 
 1. **Verify all requirements met**
-   - Review task description in TODO.md
+   - Review GitHub issue description
    - Check all sub-items completed
    - Ensure complexity estimate was reasonable
 
@@ -454,10 +458,10 @@ None
    - Examples in docstrings work
    - AGENTS.md or CLAUDE.md updated if needed
 
-4. **Update task status**
-   - Mark as 🟢 Completed in TODO.md
-   - Add completion notes
-   - Include PR/commit references
+4. **Close GitHub issue**
+   - Close issue with completion note
+   - Link to merged PR
+   - Add summary of changes
 
 ### Merging to Main/Master
 
@@ -491,17 +495,19 @@ git branch -d task-TASK-XXX-short-description
 
 ### Before Any Code Change
 
-**First, check TODO.md and update/create task**:
+**First, check GitHub issues and assign/create task**:
 ```bash
 # 1. Check if task exists
-cat docs/TODO.md | grep -A 20 "TASK-XXX"
+gh issue list --search "TASK-XXX"
 
-# 2. If not, create new task following the format
-# Edit docs/TODO.md and add new task
+# 2. If not, create new issue
+gh issue create --title "[TASK-XXX] Title" \
+                 --body "Description..." \
+                 --label "enhancement"
 
-# 3. Update task status to 🔵 In Progress
-git add docs/TODO.md
-git commit -m "docs(tasks): start TASK-XXX"
+# 3. Assign issue to yourself
+gh issue edit XXX --assignee @yourusername
+gh issue comment XXX --body "🔵 Starting work"
 
 # 4. Create feature branch
 git checkout -b task-TASK-XXX-description

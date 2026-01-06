@@ -22,50 +22,155 @@
 
 ## Current Implementation Status
 
-**Last Updated**: 2025-01-04
+**Last Updated**: 2025-01-05
 
 ### ✅ Completed (Phase 1: Entity System Foundation)
 
 **Validation Utilities** (`src/entities/validation.jl`):
 - `validate_id()`, `validate_name()` - ID and name validation
-- `validate_positive()`, `validate_non_negative()` - Numeric validation
+- `validate_positive()`, `validate_non_negative()`, `validate_strictly_positive()` - Numeric validation
 - `validate_percentage()` - 0-100 range validation
 - `validate_in_range()` - Flexible range validation with auto-swap
 - `validate_min_leq_max()` - Order validation
 - `validate_one_of()` - Enum/value set validation
 - `validate_unique_ids()` - Duplicate detection
+- **97 tests**
 
 **Base Entity Types** (`src/entities/base.jl`):
 - `AbstractEntity` - Root type for all entities
 - `PhysicalEntity` - Base for physical infrastructure
 - `EntityMetadata` - Timestamps, versioning, tags, properties
 - Helper functions: `get_id()`, `has_id()`, `is_empty()`, `update_metadata()`, `add_tag()`, `set_property()`
+- **54 tests**
 
 **Thermal Plant Entities** (`src/entities/thermal.jl`):
 - `FuelType` enum: `NATURAL_GAS`, `COAL`, `FUEL_OIL`, `DIESEL`, `NUCLEAR`, `BIOMASS`, `BIOGAS`, `OTHER`
 - `ConventionalThermal` - Standard thermal plants with full UC support
 - `CombinedCyclePlant` - CCGT plants with multiple operating modes
+- **111 tests**
 
-**Test Coverage**:
-- **166 tests, 100% passing** (97 validation/base tests + 69 thermal plant tests)
-- All entities validated on construction
-- Comprehensive error testing
+**Hydro Plant Entities** (`src/entities/hydro.jl`):
+- `ReservoirHydro` - Reservoir plants with cascade support and water balance
+- `RunOfRiverHydro` - Run-of-river plants with minimal storage
+- `PumpedStorageHydro` - Pumped storage with generation/pumping modes
+- Full cascade modeling with downstream dependencies and travel time
+- **102 tests**
 
-### 🚧 In Progress
+**Renewable Entities** (`src/entities/renewable.jl`):
+- `RenewableType` enum: `WIND`, `SOLAR`
+- `ForecastType` enum: `DETERMINISTIC`, `STOCHASTIC`, `SCENARIO_BASED`
+- `WindPlant` - Wind farms with time-varying capacity forecasts
+- `SolarPlant` - Solar farms with diurnal generation patterns
+- Support for curtailment, ramp rates, and dispatchability
+- **130 tests**
 
-Next priorities (following the detailed plan):
-- Hydro plant entities (reservoir, run-of-river, pumped storage)
-- Renewable entities (wind, solar)
-- Network entities (buses, transmission lines)
-- Market entities (submarkets, loads)
+**Network Entities** (`src/entities/network.jl`):
+- `Bus` - Electrical buses with voltage levels and geographic coordinates
+- `ACLine` - AC transmission lines with per-unit parameters (r, x, b)
+- `DCLine` - HVDC links with converter limits
+- `NetworkLoad` - Network-connected loads
+- **216 tests**
 
-### 📋 Not Started
+**Market Entities** (`src/entities/market.jl`):
+- `Submarket` - Market regions/bidding zones with country codes
+- `Load` - Time-varying demand with elasticity support
+- Load profiles and price-responsive demand
+- **125 tests**
 
-- Constraint builder system
-- Database loaders (PostgreSQL/SQLite)
-- Variable manager
-- Objective function
-- Solvers interface
+### ✅ Completed (Phase 2: Core System & Integration)
+
+**Core System** (`src/core/electricity_system.jl`):
+- `ElectricitySystem` - Unified entity container for all system components
+- Full referential integrity validation on construction
+- Foreign key validation:
+  - Plant `bus_id` → buses
+  - Plant `submarket_id` → submarkets
+  - AC/DC line `from_bus`/`to_bus` → buses
+  - Load `bus_id`/`submarket_id` → buses/submarkets
+- Helper functions for system queries
+- **90 tests**
+
+**Variable Manager** (`src/variables/variable_manager.jl`):
+- Creates JuMP optimization variables for all entity types
+- Thermal UC variables: `u` (commitment), `v` (startup), `w` (shutdown), `g` (generation)
+- Hydro variables: `s` (storage), `q` (outflow), `gh` (generation), `pump` (pumping)
+- Renewable variables: `gr` (generation), `curtail` (curtailment)
+- Sparse variable creation for large systems
+- Integration point for PowerModels network variables
+- **152 tests**
+
+**Data Loaders** (`src/data/loaders/dessem_loader.jl`):
+- `DessemLoader` - Loads official ONS DESSEM files
+- Converts DESSEM2Julia data structures to OpenDESSEM entities
+- Supported formats:
+  - `dessem.arq` - Master index file
+  - `entdados.dat` - General operational data
+  - `termdat.dat` - Thermal plant registry
+  - `hidr.dat` - Hydro plant registry (binary)
+  - `renovaveis.dat` - Renewable energy data
+  - `desselet.dat` - Network case mapping
+- Conversion functions for all entity types
+- **54 tests**
+
+**Integration Layer** (`src/integration/powermodels_adapter.jl`):
+- `PowerModelsAdapter` - Converts OpenDESSEM entities to PowerModels.jl format
+- Per-unit system conversions for network data
+- Entity conversion functions:
+  - `convert_bus_to_powermodel()` - Bus data with voltage limits
+  - `convert_line_to_powermodel()` - Branch data with per-unit r, x, b
+  - `convert_gen_to_powermodel()` - Generator data with pmin/pmax
+  - `convert_load_to_powermodel()` - Load data with pd/qd
+  - `convert_to_powermodel()` - Full system conversion
+- Enables network-constrained optimization via PowerModels.jl
+- **135 tests**
+
+**Integration Tests** (`test/integration/test_pwf_loader.jl`):
+- PWF (PowerFlow) file loading integration
+- Tests PowerFlow network data conversion
+- **13 tests**
+
+### 📊 Overall Test Coverage
+
+- **Total: 733+ test assertions** across 12 test files
+- **100% passing**
+- Test modules:
+  - `test_entities_base.jl` - 151 @test occurrences
+  - `test_thermal_entities.jl` - 111 @test occurrences
+  - `test_hydro_entities.jl` - 102 @test occurrences
+  - `test_renewable_entities.jl` - 130 @test occurrences
+  - `test_network_entities.jl` - 216 @test occurrences
+  - `test_market_entities.jl` - 125 @test occurrences
+  - `test_electricity_system.jl` - 90 @test occurrences
+  - `test_variable_manager.jl` - 152 @test occurrences
+  - `test_dessem_loader.jl` - 54 @test occurrences
+  - `test_powermodels_adapter.jl` - 135 @test occurrences
+  - `test_pwf_loader.jl` - 13 @test occurrences (integration)
+
+### 🚧 Next Priorities (Phase 3: Optimization)
+
+**Constraint Builder System**:
+- Thermal unit commitment constraints (ramp rates, min up/down time, startup/shutdown)
+- Hydro water balance constraints (cascade delays, storage limits)
+- Network constraints (power flow, transmission limits)
+- Energy balance constraints (supply = demand + losses)
+- Reserve requirements (spinning, non-spinning)
+
+**Objective Function**:
+- Cost minimization (fuel + startup + shutdown)
+- Water value optimization for hydro
+- Penalty costs for constraint violations
+
+**Solver Interface**:
+- JuMP model construction
+- Optimizer integration (HiGHS, Gurobi, CPLEX)
+- Solution extraction and post-processing
+- Dual variable extraction for marginal prices
+
+**Post-Processing**:
+- Solution extraction and formatting
+- Marginal price calculation
+- Constraint violation reporting
+- Export to standard formats (CSV, JSON)
 
 ---
 
@@ -925,9 +1030,10 @@ git reset --hard HEAD~1  # DANGER!
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2025-01-03 | Initial development guidelines established |
+| 1.1 | 2025-01-05 | Major status update: Added Phase 2 completion (Core System & Integration), corrected test count from 166 to 733+, updated entity implementation status |
 
 ---
 
-**Last Updated**: 2025-01-04
+**Last Updated**: 2025-01-05
 **Maintainer**: OpenDESSEM Development Team
 **Status**: Active
