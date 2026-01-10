@@ -1,0 +1,581 @@
+"""
+    Solution Extraction
+
+Functions for extracting solution values and dual values from solved models.
+"""
+
+"""
+    extract_solution_values!(
+        result::SolverResult,
+        model::Model,
+        system::ElectricitySystem,
+        time_periods::UnitRange{Int}
+    )
+
+Extract variable values from solved model into the result.
+
+Uses lazy extraction - only computes values when first requested.
+
+# Arguments
+- `result::SolverResult`: Result object to populate
+- `model::Model`: Solved JuMP model
+- `system::ElectricitySystem`: Electricity system
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Modifies
+- `result.variables`: Populated with variable values
+- `result.has_values`: Set to true
+
+# Variables Extracted
+- `:thermal_generation`: Dict[(plant_id, t) => value_mw]
+- `:thermal_commitment`: Dict[(plant_id, t) => value_0_1]
+- `:thermal_startup`: Dict[(plant_id, t) => value_0_1]
+- `:thermal_shutdown`: Dict[(plant_id, t) => value_0_1]
+- `:hydro_generation`: Dict[(plant_id, t) => value_mw]
+- `:hydro_storage`: Dict[(plant_id, t) => value_hm3]
+- `:hydro_outflow`: Dict[(plant_id, t) => value_m3_per_s]
+- `:renewable_generation`: Dict[(plant_id, t) => value_mw]
+- `:renewable_curtailment`: Dict[(plant_id, t) => value_mw]
+"""
+function extract_solution_values!(
+    result::SolverResult,
+    model::Model,
+    system::ElectricitySystem,
+    time_periods::UnitRange{Int},
+)
+    # Get plant indices from model or calculate from system
+    obj_dict = object_dictionary(model)
+    thermal_indices = get(obj_dict, :thermal_indices, get_thermal_plant_indices(system))
+    hydro_indices = get(obj_dict, :hydro_indices, get_hydro_plant_indices(system))
+    renewable_indices = get(obj_dict, :renewable_indices, get_renewable_plant_indices(system))
+
+    # Extract thermal generation
+    if haskey(model, :g)
+        g = model[:g]
+        thermal_gen = Dict{Tuple{String,Int},Float64}()
+        for plant in system.thermal_plants
+            if haskey(thermal_indices, plant.id)
+                idx = thermal_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(g[idx, t])
+                        thermal_gen[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for g[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:thermal_generation] = thermal_gen
+    end
+
+    # Extract thermal commitment
+    if haskey(model, :u)
+        u = model[:u]
+        thermal_commit = Dict{Tuple{String,Int},Float64}()
+        for plant in system.thermal_plants
+            if haskey(thermal_indices, plant.id)
+                idx = thermal_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(u[idx, t])
+                        thermal_commit[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for u[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:thermal_commitment] = thermal_commit
+    end
+
+    # Extract thermal startup
+    if haskey(model, :v)
+        v = model[:v]
+        thermal_startup = Dict{Tuple{String,Int},Float64}()
+        for plant in system.thermal_plants
+            if haskey(thermal_indices, plant.id)
+                idx = thermal_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(v[idx, t])
+                        thermal_startup[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for v[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:thermal_startup] = thermal_startup
+    end
+
+    # Extract thermal shutdown
+    if haskey(model, :w)
+        w = model[:w]
+        thermal_shutdown = Dict{Tuple{String,Int},Float64}()
+        for plant in system.thermal_plants
+            if haskey(thermal_indices, plant.id)
+                idx = thermal_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(w[idx, t])
+                        thermal_shutdown[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for w[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:thermal_shutdown] = thermal_shutdown
+    end
+
+    # Extract hydro generation
+    if haskey(model, :gh)
+        gh = model[:gh]
+        hydro_gen = Dict{Tuple{String,Int},Float64}()
+        for plant in system.hydro_plants
+            if haskey(hydro_indices, plant.id)
+                idx = hydro_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(gh[idx, t])
+                        hydro_gen[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for gh[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:hydro_generation] = hydro_gen
+    end
+
+    # Extract hydro storage
+    if haskey(model, :s)
+        s = model[:s]
+        hydro_storage = Dict{Tuple{String,Int},Float64}()
+        for plant in system.hydro_plants
+            if haskey(hydro_indices, plant.id)
+                idx = hydro_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(s[idx, t])
+                        hydro_storage[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for s[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:hydro_storage] = hydro_storage
+    end
+
+    # Extract hydro outflow
+    if haskey(model, :q)
+        q = model[:q]
+        hydro_outflow = Dict{Tuple{String,Int},Float64}()
+        for plant in system.hydro_plants
+            if haskey(hydro_indices, plant.id)
+                idx = hydro_indices[plant.id]
+                for t in time_periods
+                    try
+                        val = value(q[idx, t])
+                        hydro_outflow[(plant.id, t)] = val
+                    catch
+                        @warn "Could not extract value for q[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:hydro_outflow] = hydro_outflow
+    end
+
+    # Extract renewable generation
+    if haskey(model, :gr)
+        gr = model[:gr]
+        renewable_gen = Dict{Tuple{String,Int},Float64}()
+        for farm in system.wind_farms
+            if haskey(renewable_indices, farm.id)
+                idx = renewable_indices[farm.id]
+                for t in time_periods
+                    try
+                        val = value(gr[idx, t])
+                        renewable_gen[(farm.id, t)] = val
+                    catch
+                        @warn "Could not extract value for gr[$idx, $t]"
+                    end
+                end
+            end
+        end
+        for farm in system.solar_farms
+            if haskey(renewable_indices, farm.id)
+                idx = renewable_indices[farm.id]
+                for t in time_periods
+                    try
+                        val = value(gr[idx, t])
+                        renewable_gen[(farm.id, t)] = val
+                    catch
+                        @warn "Could not extract value for gr[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:renewable_generation] = renewable_gen
+    end
+
+    # Extract renewable curtailment
+    if haskey(model, :curtail)
+        curtail = model[:curtail]
+        renewable_curtail = Dict{Tuple{String,Int},Float64}()
+        for farm in system.wind_farms
+            if haskey(renewable_indices, farm.id)
+                idx = renewable_indices[farm.id]
+                for t in time_periods
+                    try
+                        val = value(curtail[idx, t])
+                        renewable_curtail[(farm.id, t)] = val
+                    catch
+                        @warn "Could not extract value for curtail[$idx, $t]"
+                    end
+                end
+            end
+        end
+        for farm in system.solar_farms
+            if haskey(renewable_indices, farm.id)
+                idx = renewable_indices[farm.id]
+                for t in time_periods
+                    try
+                        val = value(curtail[idx, t])
+                        renewable_curtail[(farm.id, t)] = val
+                    catch
+                        @warn "Could not extract value for curtail[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:renewable_curtailment] = renewable_curtail
+    end
+
+    result.has_values = true
+    return nothing
+end
+
+"""
+    extract_dual_values!(
+        result::SolverResult,
+        model::Model,
+        system::ElectricitySystem,
+        time_periods::UnitRange{Int}
+    )
+
+Extract dual values (shadow prices) from solved LP model.
+
+Only works for LP problems (not MIP). Used for LMP calculation.
+
+# Arguments
+- `result::SolverResult`: Result object to populate
+- `model::Model`: Solved JuMP model
+- `system::ElectricitySystem`: Electricity system
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Modifies
+- `result.dual_values`: Populated with dual values
+- `result.has_duals`: Set to true
+
+# Dual Values Extracted
+- `"submarket_balance"`: Dict[(submarket_id, t) => marginal_cost]
+- Other constraint types can be added as needed
+"""
+function extract_dual_values!(
+    result::SolverResult,
+    model::Model,
+    system::ElectricitySystem,
+    time_periods::UnitRange{Int},
+)
+    # Check if duals are available (LP only)
+    # Note: has_duals() can return false even for LP models, so we try anyway
+    duals_available = has_duals(model)
+    if !duals_available
+        @debug "has_duals() returned false, attempting extraction anyway"
+    end
+
+    # Extract submarket balance duals (LMPs)
+    if haskey(model, :submarket_balance)
+        submarket_balance = model[:submarket_balance]
+        submarket_duals = Dict{Tuple{String,Int},Float64}()
+
+        for submarket in system.submarkets
+            for t in time_periods
+                try
+                    key = (submarket.code, t)
+                    if haskey(submarket_balance, key)
+                        dval = dual(submarket_balance[key])
+                        submarket_duals[key] = dval
+                    end
+                catch e
+                    @warn "Could not extract dual for submarket_balance[$key]: $e"
+                end
+            end
+        end
+
+        result.dual_values["submarket_balance"] = submarket_duals
+    else
+        @warn "Model does not have :submarket_balance key in object dictionary"
+    end
+
+    # Additional constraint duals can be extracted here as needed
+
+    result.has_duals = true
+    return nothing
+end
+
+"""
+    get_submarket_lmps(result::SolverResult, submarket_id::String, time_periods::UnitRange{Int}) -> Vector{Float64}
+
+Extract locational marginal prices (LMPs) for a submarket.
+
+LMPs are the dual values of the submarket energy balance constraints.
+
+# Arguments
+- `result::SolverResult`: Solver result with dual values
+- `submarket_id::String`: Submarket identifier
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Returns
+- `Vector{Float64}`: LMPs in R\$/MWh for each time period
+
+# Example
+```julia
+lmps_se = get_submarket_lmps(result, \"SE\", 1:24)
+println(\"Peak LMP: R\$ \", maximum(lmps_se), \"/MWh\")
+```
+"""
+function get_submarket_lmps(
+    result::SolverResult,
+    submarket_id::String,
+    time_periods::UnitRange{Int},
+)::Vector{Float64}
+    if !result.has_duals
+        @warn "Result does not have dual values. Was this an LP solve?"
+        return zeros(Float64, length(time_periods))
+    end
+
+    if !haskey(result.dual_values, "submarket_balance")
+        @warn "Submarket balance duals not found in result"
+        return zeros(Float64, length(time_periods))
+    end
+
+    sb_dict = result.dual_values["submarket_balance"]
+
+    lmps = Float64[]
+    for t in time_periods
+        key = (submarket_id, t)
+        if haskey(sb_dict, key)
+            push!(lmps, sb_dict[key])
+        else
+            push!(lmps, 0.0)
+        end
+    end
+
+    return lmps
+end
+
+"""
+    get_thermal_generation(result::SolverResult, plant_id::String, time_periods::UnitRange{Int}) -> Vector{Float64}
+
+Get thermal generation schedule for a plant from the result.
+
+# Arguments
+- `result::SolverResult`: Solver result with variable values
+- `plant_id::String`: Thermal plant identifier
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Returns
+- `Vector{Float64}`: Generation in MW for each time period
+
+# Example
+```julia
+gen = get_thermal_generation(result, \"T_SE_001\", 1:24)
+println(\"Average generation: \", mean(gen), \" MW\")
+```
+"""
+function get_thermal_generation(
+    result::SolverResult,
+    plant_id::String,
+    time_periods::UnitRange{Int},
+)::Vector{Float64}
+    if !result.has_values
+        @warn "Result does not have variable values"
+        return zeros(Float64, length(time_periods))
+    end
+
+    if !haskey(result.variables, :thermal_generation)
+        @warn "Thermal generation not found in result"
+        return zeros(Float64, length(time_periods))
+    end
+
+    gen = Float64[]
+    for t in time_periods
+        key = (plant_id, t)
+        if haskey(result.variables[:thermal_generation], key)
+            push!(gen, result.variables[:thermal_generation][key])
+        else
+            @warn "Generation not found for ($plant_id, $t)"
+            push!(gen, 0.0)
+        end
+    end
+
+    return gen
+end
+
+"""
+    get_hydro_generation(result::SolverResult, plant_id::String, time_periods::UnitRange{Int}) -> Vector{Float64}
+
+Get hydro generation schedule for a plant from the result.
+
+# Arguments
+- `result::SolverResult`: Solver result with variable values
+- `plant_id::String`: Hydro plant identifier
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Returns
+- `Vector{Float64}`: Generation in MW for each time period
+
+# Example
+```julia
+gen = get_hydro_generation(result, "H_SE_001", 1:24)
+println("Total hydro generation: ", sum(gen), " MWh")
+```
+"""
+function get_hydro_generation(
+    result::SolverResult,
+    plant_id::String,
+    time_periods::UnitRange{Int},
+)::Vector{Float64}
+    if !result.has_values
+        @warn "Result does not have variable values"
+        return zeros(Float64, length(time_periods))
+    end
+
+    if !haskey(result.variables, :hydro_generation)
+        @warn "Hydro generation not found in result"
+        return zeros(Float64, length(time_periods))
+    end
+
+    gen = Float64[]
+    for t in time_periods
+        key = (plant_id, t)
+        if haskey(result.variables[:hydro_generation], key)
+            push!(gen, result.variables[:hydro_generation][key])
+        else
+            @warn "Generation not found for ($plant_id, $t)"
+            push!(gen, 0.0)
+        end
+    end
+
+    return gen
+end
+
+"""
+    get_hydro_storage(result::SolverResult, plant_id::String, time_periods::UnitRange{Int}) -> Vector{Float64}
+
+Get hydro storage trajectory for a plant from the result.
+
+# Arguments
+- `result::SolverResult`: Solver result with variable values
+- `plant_id::String`: Hydro plant identifier
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Returns
+- `Vector{Float64}`: Storage in hm³ for each time period
+
+# Example
+```julia
+storage = get_hydro_storage(result, \"H_SE_001\", 1:24)
+println(\"Final storage: \", storage[end], \" hm³\")
+```
+"""
+function get_hydro_storage(
+    result::SolverResult,
+    plant_id::String,
+    time_periods::UnitRange{Int},
+)::Vector{Float64}
+    if !result.has_values
+        @warn "Result does not have variable values"
+        return zeros(Float64, length(time_periods))
+    end
+
+    if !haskey(result.variables, :hydro_storage)
+        @warn "Hydro storage not found in result"
+        return zeros(Float64, length(time_periods))
+    end
+
+    storage = Float64[]
+    for t in time_periods
+        key = (plant_id, t)
+        if haskey(result.variables[:hydro_storage], key)
+            push!(storage, result.variables[:hydro_storage][key])
+        else
+            @warn "Storage not found for ($plant_id, $t)"
+            push!(storage, 0.0)
+        end
+    end
+
+    return storage
+end
+
+"""
+    get_renewable_generation(result::SolverResult, plant_id::String, time_periods::UnitRange{Int}) -> Vector{Float64}
+
+Get renewable generation schedule for a plant from the result.
+
+# Arguments
+- `result::SolverResult`: Solver result with variable values
+- `plant_id::String`: Renewable plant identifier (wind or solar)
+- `time_periods::UnitRange{Int}`: Time periods
+
+# Returns
+- `Vector{Float64}`: Generation in MW for each time period
+
+# Example
+```julia
+gen = get_renewable_generation(result, \"W_SE_001\", 1:24)
+println(\"Total wind generation: \", sum(gen), \" MWh\")
+```
+"""
+function get_renewable_generation(
+    result::SolverResult,
+    plant_id::String,
+    time_periods::UnitRange{Int},
+)::Vector{Float64}
+    if !result.has_values
+        @warn "Result does not have variable values"
+        return zeros(Float64, length(time_periods))
+    end
+
+    if !haskey(result.variables, :renewable_generation)
+        @warn "Renewable generation not found in result"
+        return zeros(Float64, length(time_periods))
+    end
+
+    gen = Float64[]
+    for t in time_periods
+        key = (plant_id, t)
+        if haskey(result.variables[:renewable_generation], key)
+            push!(gen, result.variables[:renewable_generation][key])
+        else
+            @warn "Generation not found for ($plant_id, $t)"
+            push!(gen, 0.0)
+        end
+    end
+
+    return gen
+end
+
+# Export public functions
+export extract_solution_values!,
+    extract_dual_values!,
+    get_submarket_lmps,
+    get_thermal_generation,
+    get_hydro_generation,
+    get_hydro_storage,
+    get_renewable_generation
