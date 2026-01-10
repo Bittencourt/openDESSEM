@@ -129,7 +129,7 @@ validate_positive(-1.0)  # Throws ArgumentError
 ```
 """
 function validate_positive(value::Real, field_name::String = "value")
-    if value <= 0
+    if value < 0
         throw(ArgumentError("$field_name must be positive (got $value)"))
     end
     return value
