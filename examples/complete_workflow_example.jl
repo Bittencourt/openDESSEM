@@ -250,7 +250,7 @@ interconnections = Interconnection[
         to_bus_id = "BUS_2",
         from_submarket_id = "N",
         to_submarket_id = "C",
-        capacity_mw = 500.0,
+        capacity_mw = 100.0,
         loss_percent = 1.0
     ),
     Interconnection(;
@@ -259,6 +259,16 @@ interconnections = Interconnection[
         from_bus_id = "BUS_2",
         to_bus_id = "BUS_3",
         from_submarket_id = "C",
+        to_submarket_id = "S",
+        capacity_mw = 100.0,
+        loss_percent = 1.0
+    ),
+        Interconnection(;
+        id = "IC_N_S",
+        name = "North to South",
+        from_bus_id = "BUS_1",
+        to_bus_id = "BUS_3",
+        from_submarket_id = "N",
         to_submarket_id = "S",
         capacity_mw = 500.0,
         loss_percent = 1.0
