@@ -329,5 +329,5 @@ julia --project=test test/runtests.jl
 
 ---
 
-**Last Updated**: 2025-01-03
-**Version**: 1.0
+**Last Updated**: 2026-01-07
+**Version**: 1.2

@@ -7,26 +7,8 @@ that leverage PowerModels.jl for network constraints and custom ONS-specific
 constraints for the Brazilian system.
 """
 
-using JuMP
-using Dates
-
-# Import entity types from parent modules
-using ..OpenDESSEM.Entities:
-    ElectricitySystem,
-    ThermalPlant,
-    ConventionalThermal,
-    CombinedCyclePlant,
-    HydroPlant,
-    ReservoirHydro,
-    RunOfRiverHydro,
-    PumpedStorageHydro,
-    RenewablePlant,
-    WindPlant,
-    SolarPlant,
-    Bus,
-    ACLine,
-    Submarket,
-    Load
+# Note: JuMP, Dates, and entity types are imported in parent Constraints.jl module
+# All types (ElectricitySystem, ThermalPlant, etc.) are available in scope
 
 """
     AbstractConstraint

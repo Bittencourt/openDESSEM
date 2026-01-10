@@ -153,7 +153,7 @@ struct ConventionalThermal <: ThermalPlant
         id = validate_id(id)
         name = validate_name(name)
         bus_id = validate_id(bus_id)
-        submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
+        #submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
 
         # Validate capacity
         capacity_mw = validate_strictly_positive(capacity_mw, "capacity_mw")

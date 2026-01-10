@@ -129,12 +129,14 @@ export load_dessem_case,
 """
 Mapping from DESSEM subsystem numeric codes to OpenDESSEM codes.
 Based on ONS subsystem numbering convention.
+
+Note: Codes must be at least 2 characters for entity validation.
 """
 const SUBSYSTEM_CODE_MAP = Dict{Int,String}(
     1 => "SE",  # Sudeste (Southeast)
-    2 => "S",   # Sul (South)
+    2 => "SU",  # Sul (South) - changed from "S" to meet 2-char min_length
     3 => "NE",  # Nordeste (Northeast)
-    4 => "N",   # Norte (North)
+    4 => "NO",  # Norte (North) - changed from "N" to meet 2-char min_length
     5 => "FC",  # Fictício (Fictitious, for contracts)
 )
 
@@ -409,7 +411,7 @@ function convert_dessem_thermal(
     # Create ConventionalThermal entity
     return ConventionalThermal(;
         id = plant_id,
-        name = strip(cadusit.plant_name),
+        name = String(strip(cadusit.plant_name)),
         bus_id = bus_id,
         submarket_id = subsystem_code,
         fuel_type = fuel_type_enum,
@@ -457,10 +459,26 @@ function convert_dessem_hydro(
     uh_record::Union{UHRecord,Nothing},
     subsystem_code::String;
     bus_id::String = "B_DEFAULT",
+    used_ids::Set{String} = Set{String}(),
+    zero_counter::Dict{String,Int} = Dict{String,Int}(),
 )
     # Extract key parameters from binary record
     plant_num = hidr.posto
-    plant_name = strip(hidr.nome)
+    plant_name = String(strip(hidr.nome))
+    # Handle empty names
+    if isempty(plant_name)
+        plant_name = "Hydro Plant $plant_num"
+    end
+
+    # Generate unique ID - ensure uniqueness even when posto is 0
+    if plant_num > 0
+        plant_id = "H_$(subsystem_code)_$(lpad(plant_num, 3, '0'))"
+    else
+        # For posto=0, use an incrementing counter per subsystem
+        count = get!(zero_counter, subsystem_code, 1)
+        plant_id = "H_$(subsystem_code)_Z_$(lpad(count, 3, '0'))"
+        zero_counter[subsystem_code] = count + 1
+    end
 
     # Volume limits
     max_vol = hidr.volume_maximo
@@ -486,21 +504,44 @@ function convert_dessem_hydro(
     # Calculate efficiency (simplified)
     efficiency = 0.90  # Default efficiency, could be computed from productivity
 
-    # Subsystem numeric code
-    subsystem_num = get(Dict("SE" => 1, "S" => 2, "NE" => 3, "N" => 4), subsystem_code, 1)
+    # Subsystem numeric code (reverse mapping from SUBSYSTEM_CODE_MAP)
+    subsystem_num = get(Dict("SE" => 1, "SU" => 2, "NE" => 3, "NO" => 4, "FC" => 5), subsystem_code, 1)
 
     # Water value (default, could be from FCF data)
     water_value = 50.0  # R$/hm³
 
-    # Downstream plant
+    # Downstream plant - both downstream_plant_id and water_travel_time_hours
+    # must be set or both be nothing (validation requirement)
     downstream_id = if hidr.jusante > 0
         "H_$(subsystem_code)_$(lpad(hidr.jusante, 3, '0'))"
     else
         nothing
     end
+    travel_time = if downstream_id !== nothing
+        1.0  # Default 1 hour travel time if downstream plant exists
+    else
+        nothing
+    end
 
-    # Generate unique ID
-    plant_id = "H_$(subsystem_code)_$(lpad(plant_num, 3, '0'))"
+    # Generate unique ID - ensure uniqueness even with duplicate posto values
+    if plant_num > 0
+        base_id = "H_$(subsystem_code)_$(lpad(plant_num, 3, '0'))"
+        # Check for duplicates and add suffix if needed
+        if base_id in used_ids
+            suffix = 1
+            while "$(base_id)_$(suffix)" in used_ids
+                suffix += 1
+            end
+            plant_id = "$(base_id)_$(suffix)"
+        else
+            plant_id = base_id
+        end
+    else
+        # For posto=0, use an incrementing counter per subsystem
+        count = get!(zero_counter, subsystem_code, 1)
+        plant_id = "H_$(subsystem_code)_Z_$(lpad(count, 3, '0'))"
+        zero_counter[subsystem_code] = count + 1
+    end
 
     return ReservoirHydro(;
         id = plant_id,
@@ -512,7 +553,7 @@ function convert_dessem_hydro(
         initial_volume_hm3 = max(initial_vol, min_vol),
         max_outflow_m3_per_s = max(Float64(max_flow), 1.0),
         min_outflow_m3_per_s = 0.0,
-        max_generation_mw = max(installed_capacity, 0.0),
+        max_generation_mw = max(installed_capacity, 0.1),  # Minimum 0.1 MW for validation
         min_generation_mw = 0.0,
         efficiency = efficiency,
         water_value_rs_per_hm3 = water_value,
@@ -520,7 +561,7 @@ function convert_dessem_hydro(
         initial_volume_percent = initial_vol_pct,
         must_run = false,
         downstream_plant_id = downstream_id,
-        water_travel_time_hours = nothing,
+        water_travel_time_hours = travel_time,
     )
 end
 
@@ -560,7 +601,7 @@ function convert_dessem_bus(
 
     return Bus(;
         id = bus_id,
-        name = strip(name),
+        name = String(strip(name)),
         voltage_kv = voltage_kv,
         base_kv = voltage_kv,
         dc_bus = false,
@@ -620,7 +661,7 @@ function convert_dessem_renewable(
     if is_solar
         return SolarPlant(;
             id = plant_id,
-            name = strip(plant_name),
+            name = String(strip(plant_name)),
             bus_id = bus_id,
             submarket_id = subsystem_code,
             installed_capacity_mw = capacity,
@@ -634,13 +675,13 @@ function convert_dessem_renewable(
             forced_outage_rate = 0.02,
             is_dispatchable = true,
             commissioning_date = DateTime(2020, 1, 1),
-            num_panels = 1000,
+            tracking_system = "FIXED",
             must_run = false,
         )
     else
         return WindPlant(;
             id = plant_id,
-            name = strip(plant_name),
+            name = String(strip(plant_name)),
             bus_id = bus_id,
             submarket_id = subsystem_code,
             installed_capacity_mw = capacity,
@@ -670,8 +711,9 @@ end
 Convert a DESSEM subsystem record to OpenDESSEM Submarket.
 """
 function convert_dessem_submarket(sist::SISTRecord)
-    code = strip(sist.subsystem_code)
-    name = isempty(strip(sist.subsystem_name)) ? code : strip(sist.subsystem_name)
+    code = String(strip(sist.subsystem_code))
+    name_str = String(strip(sist.subsystem_name))
+    name = isempty(name_str) ? code : name_str
 
     submarket_id = "SM_$(code)"
 
@@ -744,7 +786,7 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
     end
 
     # Ensure we have at least the standard Brazilian submarkets
-    standard_codes = ["SE", "S", "NE", "N"]
+    standard_codes = ["SE", "SU", "NE", "NO"]
     existing_codes = Set(sm.code for sm in submarkets)
     for code in standard_codes
         if !(code in existing_codes)
@@ -818,15 +860,26 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
             end
         end
 
+        # Track used IDs to avoid duplicates
+        used_hydro_ids = Set{String}()
+        zero_posto_counter = Dict{String,Int}()  # Per-subsystem counter for posto=0
+
         for hidr in case_data.hidr_data.records
             try
                 subsystem_code = get(SUBSYSTEM_CODE_MAP, hidr.subsistema, "SE")
                 uh_record = get(uh_lookup, hidr.posto, nothing)
                 bus_id = "B_$(subsystem_code)_0001"
 
-                plant =
-                    convert_dessem_hydro(hidr, uh_record, subsystem_code; bus_id = bus_id)
+                plant = convert_dessem_hydro(
+                    hidr,
+                    uh_record,
+                    subsystem_code;
+                    bus_id = bus_id,
+                    used_ids = used_hydro_ids,
+                    zero_counter = zero_posto_counter,
+                )
                 push!(hydro_plants, plant)
+                push!(used_hydro_ids, plant.id)
             catch e
                 @warn "Failed to convert hydro plant $(hidr.posto): $e"
             end
@@ -879,8 +932,9 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
 
         for (subsys_num, total_demand) in demand_by_subsystem
             subsystem_code = get(SUBSYSTEM_CODE_MAP, subsys_num, "SE")
+            # Use subsystem number in ID to ensure uniqueness (e.g., for FC which has multiple entries)
             load = Load(;
-                id = "L_$(subsystem_code)_001",
+                id = "L_$(subsystem_code)_$(subsys_num)",
                 name = "$(subsystem_code) System Load",
                 submarket_id = subsystem_code,
                 bus_id = "B_$(subsystem_code)_0001",

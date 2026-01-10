@@ -11,19 +11,7 @@ Integrates PowerModels.jl for network-constrained optimization including:
 This module bridges OpenDESSEM with PowerModels.jl for detailed network modeling.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities: ElectricitySystem, Bus, ACLine
-using ..OpenDESSEM.Integration:
-    convert_to_powermodel, validate_powermodel_conversion
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint/integration types are imported in parent Constraints.jl module
 
 """
     NetworkPowerModelsConstraint <: AbstractConstraint

@@ -132,8 +132,8 @@ module Constraints
 using JuMP
 using Dates
 
-# Import entity types
-using ..OpenDESSEM.Entities:
+# Import entity types from parent module (not Entities submodule)
+using ..OpenDESSEM:
     ElectricitySystem,
     ThermalPlant,
     ConventionalThermal,
@@ -151,7 +151,7 @@ using ..OpenDESSEM.Entities:
     Load
 
 # Import integration layer
-using ..OpenDESSEM.Integration: convert_to_powermodel
+using ..OpenDESSEM.Integration: convert_to_powermodel, validate_powermodel_conversion
 
 # Import variable manager
 using ..OpenDESSEM.Variables:

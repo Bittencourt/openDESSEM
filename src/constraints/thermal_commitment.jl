@@ -11,19 +11,7 @@ These constraints are essential for modeling the operational characteristics
 of thermal power plants in the Brazilian system.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities:
-    ElectricitySystem, ConventionalThermal, CombinedCyclePlant, ThermalPlant
-using ..OpenDESSEM.Variables: get_thermal_plant_indices
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     ThermalCommitmentConstraint <: AbstractConstraint
@@ -91,6 +79,7 @@ Base.@kwdef struct ThermalCommitmentConstraint <: AbstractConstraint
     include_min_up_down::Bool = true
     plant_ids::Vector{String} = String[]
     use_time_periods::Union{Nothing,UnitRange{Int},Vector{Int}} = nothing
+    initial_commitment::Dict{String,Bool} = Dict{String,Bool}()  # Plant ID => initially online (true/false)
 end
 
 """
@@ -184,6 +173,20 @@ function build!(
 
     @info "Building thermal commitment constraints" num_plants=length(plants) num_periods=n_periods
 
+    # Set initial conditions (first period commitment)
+    if !isempty(constraint.initial_commitment)
+        for plant in plants
+            plant_idx = plant_indices[plant.id]
+            if haskey(constraint.initial_commitment, plant.id)
+                initial_online = constraint.initial_commitment[plant.id]
+                t_first = first(time_periods)
+                # Fix the commitment status in the first period
+                @constraint(model, u[plant_idx, t_first] == initial_online)
+                num_constraints += 1
+            end
+        end
+    end
+
     # Build constraints for each plant
     for (idx, plant) in enumerate(plants)
         plant_idx = plant_indices[plant.id]
@@ -217,7 +220,7 @@ function build!(
             end
 
             # Startup/shutdown logic
-            if v !== nothing && w !== nothing
+            if v !== nothing && w !== nothing && t > 1
                 @constraint(
                     model,
                     u[plant_idx, t] - u[plant_idx, t - 1] == v[plant_idx, t] - w[plant_idx, t]

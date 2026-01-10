@@ -32,6 +32,7 @@ using .Entities:
     Submarket,
     Load,
     BilateralContract,
+    Interconnection,
     validate_unique_ids
 
 """
@@ -53,6 +54,7 @@ validation to ensure referential integrity and helper functions for querying.
 - `dc_lines::Vector{DCLine}`: All DC transmission lines (HVDC links)
 - `submarkets::Vector{Submarket}`: All market submarkets/bidding zones
 - `loads::Vector{Load}`: All load (demand) entities
+- `interconnections::Vector{Interconnection}`: All submarket interconnections
 - `base_date::Date`: Base date for the system (typically first day of optimization horizon)
 - `description::String`: Human-readable system description
 - `version::String`: System version identifier
@@ -202,6 +204,7 @@ struct ElectricitySystem
     # Market entities
     submarkets::Vector{Submarket}
     loads::Vector{Load}
+    interconnections::Vector{Interconnection}
 
     # Metadata
     base_date::Date
@@ -218,6 +221,7 @@ struct ElectricitySystem
         dc_lines::Vector{DCLine} = DCLine[],
         submarkets::Vector{Submarket} = Submarket[],
         loads::Vector{Load} = Load[],
+        interconnections::Vector{Interconnection} = Interconnection[],
         base_date::Date,
         description::String = "",
         version::String = "1.0",
@@ -456,7 +460,58 @@ struct ElectricitySystem
             end
         end
 
-        new(
+        # Validate interconnections
+        interconnection_ids = String[]
+        for ic in interconnections
+            # Check for duplicate IDs
+            if ic.id in interconnection_ids
+                throw(
+                    ArgumentError(
+                        "Duplicate interconnection ID: $(ic.id). All interconnection IDs must be unique.",
+                    ),
+                )
+            end
+            push!(interconnection_ids, ic.id)
+
+            # Validate from_bus reference
+            if !(ic.from_bus_id in bus_ids)
+                throw(
+                    ArgumentError(
+                        "Interconnection '$(ic.id)' references non-existent from_bus '$(ic.from_bus_id)'",
+                    ),
+                )
+            end
+
+            # Validate to_bus reference
+            if !(ic.to_bus_id in bus_ids)
+                throw(
+                    ArgumentError(
+                        "Interconnection '$(ic.id)' references non-existent to_bus '$(ic.to_bus_id)'",
+                    ),
+                )
+            end
+
+            # Validate from_submarket reference
+            if !(ic.from_submarket_id in submarket_codes)
+                throw(
+                    ArgumentError(
+                        "Interconnection '$(ic.id)' references non-existent from_submarket '$(ic.from_submarket_id)'",
+                    ),
+                )
+            end
+
+            # Validate to_submarket reference
+            if !(ic.to_submarket_id in submarket_codes)
+                throw(
+                    ArgumentError(
+                        "Interconnection '$(ic.id)' references non-existent to_submarket '$(ic.to_submarket_id)'",
+                    ),
+                )
+            end
+        end
+
+        # Create the system
+        system = new(
             thermal_plants,
             hydro_plants,
             wind_farms,
@@ -466,10 +521,16 @@ struct ElectricitySystem
             dc_lines,
             submarkets,
             loads,
+            interconnections,
             base_date,
             description,
             version,
         )
+
+        # Perform bus-submarket consistency validation (warning-level)
+        validate_bus_submarket_consistency(system)
+
+        return system
     end
 end
 
@@ -664,6 +725,129 @@ function total_capacity(system::ElectricitySystem)::Float64
 end
 
 """
+    validate_bus_submarket_consistency(system::ElectricitySystem)
+
+Validate consistency between bus area_id and plant submarket_id.
+
+For each plant (thermal, hydro, wind, solar), checks that the plant's
+submarket_id matches the area_id of the bus it's connected to.
+
+This validation ensures physical consistency: a plant connected to a bus
+in the Southeast (SE) area should be assigned to the SE submarket.
+
+# Arguments
+- `system::ElectricitySystem`: The electricity system to validate
+
+# Warnings
+Emits `@warn` messages for each inconsistency found (does not throw)
+
+# Notes
+- This is a warning-level validation (does not prevent system construction)
+- Bus `area_id` may be `nothing` - in this case, consistency cannot be checked
+- Plant `submarket_id` is always required (validated in entity constructors)
+
+# Examples
+```julia
+# System with inconsistencies will emit warnings
+system = ElectricitySystem(;
+    thermal_plants = [plant_with_mismatch],
+    buses = [bus_se],
+    submarkets = [submarket_se, submarket_s],
+    base_date = Date(2025, 1, 1),
+)
+# Warning: Thermal plant 'T001' has submarket_id='S' but is connected to bus 'B001' with area_id='SE'
+```
+"""
+function validate_bus_submarket_consistency(system::ElectricitySystem)
+    # Create bus lookup
+    bus_area_map = Dict(bus.id => bus.area_id for bus in system.buses)
+
+    # Count inconsistencies
+    inconsistency_count = 0
+
+    # Validate thermal plants
+    for plant in system.thermal_plants
+        bus_area_id = get(bus_area_map, plant.bus_id, nothing)
+
+        # Skip validation if bus area_id is nothing
+        if bus_area_id === nothing
+            continue
+        end
+
+        # Check if plant submarket_id matches bus area_id
+        if plant.submarket_id != bus_area_id
+            @warn """
+            Bus-Submarket consistency warning:
+              Thermal plant '$(plant.id)' has submarket_id='$(plant.submarket_id)'
+              but is connected to bus '$(plant.bus_id)' with area_id='$(bus_area_id)'
+              """ maxlog = 5
+            inconsistency_count += 1
+        end
+    end
+
+    # Validate hydro plants
+    for plant in system.hydro_plants
+        bus_area_id = get(bus_area_map, plant.bus_id, nothing)
+
+        if bus_area_id === nothing
+            continue
+        end
+
+        if plant.submarket_id != bus_area_id
+            @warn """
+            Bus-Submarket consistency warning:
+              Hydro plant '$(plant.id)' has submarket_id='$(plant.submarket_id)'
+              but is connected to bus '$(plant.bus_id)' with area_id='$(bus_area_id)'
+              """ maxlog = 5
+            inconsistency_count += 1
+        end
+    end
+
+    # Validate wind farms
+    for farm in system.wind_farms
+        bus_area_id = get(bus_area_map, farm.bus_id, nothing)
+
+        if bus_area_id === nothing
+            continue
+        end
+
+        if farm.submarket_id != bus_area_id
+            @warn """
+            Bus-Submarket consistency warning:
+              Wind farm '$(farm.id)' has submarket_id='$(farm.submarket_id)'
+              but is connected to bus '$(farm.bus_id)' with area_id='$(bus_area_id)'
+              """ maxlog = 5
+            inconsistency_count += 1
+        end
+    end
+
+    # Validate solar farms
+    for farm in system.solar_farms
+        bus_area_id = get(bus_area_map, farm.bus_id, nothing)
+
+        if bus_area_id === nothing
+            continue
+        end
+
+        if farm.submarket_id != bus_area_id
+            @warn """
+            Bus-Submarket consistency warning:
+              Solar farm '$(farm.id)' has submarket_id='$(farm.submarket_id)'
+              but is connected to bus '$(farm.bus_id)' with area_id='$(bus_area_id)'
+              """ maxlog = 5
+            inconsistency_count += 1
+        end
+    end
+
+    # Log summary if inconsistencies found
+    if inconsistency_count > 0
+        @warn "Found $inconsistency_count bus-submarket inconsistency(es) in system"
+    end
+
+    return nothing
+end
+
+"""
     validate_system(system::ElectricitySystem)::Bool
 
 Validate the integrity of an electricity system.
@@ -824,10 +1008,42 @@ function validate_system(system::ElectricitySystem)::Bool
         end
     end
 
+    # Check all interconnections
+    for ic in system.interconnections
+        if !(ic.from_bus_id in bus_ids)
+            throw(
+                ArgumentError(
+                    "Interconnection '$(ic.id)' references non-existent from_bus '$(ic.from_bus_id)'",
+                ),
+            )
+        end
+        if !(ic.to_bus_id in bus_ids)
+            throw(
+                ArgumentError(
+                    "Interconnection '$(ic.id)' references non-existent to_bus '$(ic.to_bus_id)'",
+                ),
+            )
+        end
+        if !(ic.from_submarket_id in submarket_codes)
+            throw(
+                ArgumentError(
+                    "Interconnection '$(ic.id)' references non-existent from_submarket '$(ic.from_submarket_id)'",
+                ),
+            )
+        end
+        if !(ic.to_submarket_id in submarket_codes)
+            throw(
+                ArgumentError(
+                    "Interconnection '$(ic.id)' references non-existent to_submarket '$(ic.to_submarket_id)'",
+                ),
+            )
+        end
+    end
+
     return true
 end
 
 # Export the ElectricitySystem type and helper functions
 export ElectricitySystem
 export get_thermal_plant, get_hydro_plant, get_bus, get_submarket
-export count_generators, total_capacity, validate_system
+export count_generators, total_capacity, validate_system, validate_bus_submarket_consistency

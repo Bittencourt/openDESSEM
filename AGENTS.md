@@ -20,9 +20,9 @@ This file provides project-specific guidelines, conventions, and workflows for A
 
 ## Current Implementation Status
 
-**Last Updated**: 2026-01-04
+**Last Updated**: 2026-01-07
 
-### ✅ Completed (Phase 1 & 2: Entity System + Integration Layer)
+### ✅ Completed (Phase 1 & 2: Entity System + Core Model + Constraint System)
 
 **Validation Utilities** (`src/entities/validation.jl`):
 - `validate_id()`, `validate_name()` - ID and name validation
@@ -81,18 +81,46 @@ This file provides project-specific guidelines, conventions, and workflows for A
 - `find_bus_index()`, `validate_powermodel_conversion()` - Helpers
 
 **Test Coverage**:
-- **~500+ tests passing** across all entity types
+- **980+ tests passing** across all modules
 - Comprehensive validation and error testing
 - All entities validated on construction
 
-### 📋 Not Started (Phase 3+)
+**Variable Manager** (`src/variables/variable_manager.jl`) - TASK-005:
+- Optimization variable creation for all entity types
+- Thermal UC variables: u (commitment), v (startup), w (shutdown), g (generation)
+- Hydro variables: s (storage), q (outflow), gh (generation), pump (pumping)
+- Renewable variables: gr (generation), curtail (curtailment)
+- Sparse variable creation for large systems
+- **152 tests**
 
-- TASK-005: Variable Manager
-- TASK-006: Constraint Builder System
+**Constraint Builder System** (`src/constraints/`) - TASK-006:
+- **7 constraint types** with modular, extensible architecture
+- `ThermalCommitmentConstraint` - Unit commitment (ramp, min up/down, startup/shutdown)
+- `HydroWaterBalanceConstraint` - Reservoir balance with cascade delays
+- `HydroGenerationConstraint` - Generation function (gh = productivity * q)
+- `SubmarketBalanceConstraint` - 4-submarket energy balance
+- `SubmarketInterconnectionConstraint` - Transfer limits between submarkets
+- `RenewableLimitConstraint` - Wind/solar capacity and curtailment
+- `NetworkPowerModelsConstraint` - PowerModels.jl integration (DC-OPF)
+- **~250 new tests** (980 total)
+- ~4,000 lines of code (implementation + tests + docs)
+
+**Data Loaders** (`src/data/loaders/`) - TASK-009 & TASK-010:
+- `DatabaseLoader` - PostgreSQL database loader with connection management
+- `DessemLoader` - Official DESSEM file loader (.dat, .arq files)
+- Support for multiple data sources
+- **54 tests**
+
+**PowerModels Integration** (`src/integration/powermodels_adapter.jl`) - TASK-003.5:
+- Entity-to-PowerModels conversion
+- Per-unit system conversions
+- Bus, line, generator, load data conversion
+- **135 tests**
+
+### 📋 Not Started (Phase 3+: Optimization & Solvers)
+
 - TASK-007: Objective Function Builder
-- TASK-008: Solver Interface
-- TASK-009: Database Loaders (PostgreSQL)
-- TASK-010: DESSEM2Julia Integration
+- TASK-008: Solver Interface (HiGHS, Gurobi)
 - TASK-011: Solution Export and Analysis
 - TASK-012: Validation Against Official DESSEM
 
@@ -1076,6 +1104,6 @@ end
 
 ---
 
-**Last Updated**: 2026-01-04
+**Last Updated**: 2026-01-07
 **Maintainer**: OpenDESSEM Development Team
 **Status**: Active

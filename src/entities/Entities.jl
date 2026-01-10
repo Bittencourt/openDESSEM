@@ -50,6 +50,6 @@ export RenewablePlant, WindPlant, SolarPlant
 export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
 
 # Market
-export MarketEntity, Submarket, Load
+export MarketEntity, Submarket, Load, BilateralContract, Interconnection
 
 end # module

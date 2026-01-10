@@ -42,6 +42,7 @@ using Dates
         @test isempty(system.dc_lines)
         @test isempty(system.submarkets)
         @test isempty(system.loads)
+        @test isempty(system.interconnections)
         @test system.version == "1.0"
     end
 
@@ -390,7 +391,65 @@ using Dates
         @test length(system.ac_lines) == 1
         @test length(system.submarkets) == 1
         @test length(system.loads) == 1
+        @test length(system.interconnections) == 0
         @test system.description == "Complete test system"
+    end
+
+    @testset "Constructor - With Interconnections" begin
+        # Create submarkets with different codes
+        submarket1 = Submarket(;
+            id = "SM_001",
+            name = "Southeast",
+            code = "SE",
+            country = "Brazil",
+        )
+
+        submarket2 = Submarket(;
+            id = "SM_002",
+            name = "South",
+            code = "S",
+            country = "Brazil",
+        )
+
+        # Create buses
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        bus2 = Bus(;
+            id = "B002",
+            name = "Bus 2",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        # Create interconnection
+        ic1 = Interconnection(;
+            id = "IC_001",
+            name = "SE to S",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
+            from_submarket_id = "SE",
+            to_submarket_id = "S",
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        system = ElectricitySystem(;
+            submarkets = [submarket1, submarket2],
+            buses = [bus1, bus2],
+            interconnections = [ic1],
+            base_date = Date(2025, 1, 1),
+        )
+
+        @test length(system.submarkets) == 2
+        @test length(system.buses) == 2
+        @test length(system.interconnections) == 1
+        @test system.interconnections[1].id == "IC_001"
+        @test system.interconnections[1].capacity_mw == 200.0
     end
 
     @testset "Validation - Duplicate Thermal Plant IDs" begin
@@ -872,6 +931,147 @@ using Dates
         @test count_generators(system) == 0
         @test total_capacity(system) ≈ 0.0
         @test validate_system(system) == true
+    end
+
+    @testset "Validation - Interconnection with Non-existent Bus" begin
+        submarket1 = Submarket(;
+            id = "SM_001",
+            name = "Southeast",
+            code = "SE",
+            country = "Brazil",
+        )
+
+        submarket2 = Submarket(;
+            id = "SM_002",
+            name = "South",
+            code = "S",
+            country = "Brazil",
+        )
+
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        ic1 = Interconnection(;
+            id = "IC_001",
+            name = "SE to S",
+            from_bus_id = "B001",
+            to_bus_id = "B999",  # Non-existent
+            from_submarket_id = "SE",
+            to_submarket_id = "S",
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        @test_throws ArgumentError ElectricitySystem(;
+            submarkets = [submarket1, submarket2],
+            buses = [bus1],
+            interconnections = [ic1],
+            base_date = Date(2025, 1, 1),
+        )
+    end
+
+    @testset "Validation - Interconnection with Non-existent Submarket" begin
+        submarket1 = Submarket(;
+            id = "SM_001",
+            name = "Southeast",
+            code = "SE",
+            country = "Brazil",
+        )
+
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        bus2 = Bus(;
+            id = "B002",
+            name = "Bus 2",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        ic1 = Interconnection(;
+            id = "IC_001",
+            name = "SE to S",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
+            from_submarket_id = "SE",
+            to_submarket_id = "XX",  # Non-existent
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        @test_throws ArgumentError ElectricitySystem(;
+            submarkets = [submarket1],
+            buses = [bus1, bus2],
+            interconnections = [ic1],
+            base_date = Date(2025, 1, 1),
+        )
+    end
+
+    @testset "Validation - Duplicate Interconnection IDs" begin
+        submarket1 = Submarket(;
+            id = "SM_001",
+            name = "Southeast",
+            code = "SE",
+            country = "Brazil",
+        )
+
+        submarket2 = Submarket(;
+            id = "SM_002",
+            name = "South",
+            code = "S",
+            country = "Brazil",
+        )
+
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        bus2 = Bus(;
+            id = "B002",
+            name = "Bus 2",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+        )
+
+        ic1 = Interconnection(;
+            id = "IC_001",
+            name = "SE to S",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
+            from_submarket_id = "SE",
+            to_submarket_id = "S",
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        ic2 = Interconnection(;
+            id = "IC_001",  # Duplicate
+            name = "S to SE",
+            from_bus_id = "B002",
+            to_bus_id = "B001",
+            from_submarket_id = "S",
+            to_submarket_id = "SE",
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        @test_throws ArgumentError ElectricitySystem(;
+            submarkets = [submarket1, submarket2],
+            buses = [bus1, bus2],
+            interconnections = [ic1, ic2],
+            base_date = Date(2025, 1, 1),
+        )
     end
 
 end

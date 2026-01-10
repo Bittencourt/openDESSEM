@@ -9,22 +9,7 @@ Implements the relationship between water outflow and power generation for hydro
 These constraints model the physics of hydroelectric generation.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities:
-    ElectricitySystem,
-    HydroPlant,
-    ReservoirHydro,
-    RunOfRiverHydro
-using ..OpenDESSEM.Variables: get_hydro_plant_indices
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     HydroGenerationConstraint <: AbstractConstraint
@@ -146,7 +131,9 @@ function build!(
     # Get variables
     gh = model[:gh]
     q = model[:q]
-    u = get(object_dictionary(model), :u, nothing)
+    # Note: Hydro plants do NOT use thermal commitment variable (u)
+    # Hydro has separate commitment logic or is treated as must-run
+    u = nothing  # Explicitly disable thermal u for hydro
 
     # Filter hydro plants
     all_hydro = system.hydro_plants

@@ -4,17 +4,7 @@
 Implements transfer limits between Brazilian submarkets via transmission lines.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities: ElectricitySystem, ACLine, Submarket
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     SubmarketInterconnectionConstraint <: AbstractConstraint
@@ -87,7 +77,8 @@ function build!(
         )
     end
 
-    time_periods = constraint.use_time_periods === nothing ? 1:24 : constraint.use_time_periods
+    time_periods =
+        constraint.use_time_periods === nothing ? (1:24) : constraint.use_time_periods
 
     # Create flow variables if needed
     if !haskey(object_dictionary(model), :flow)

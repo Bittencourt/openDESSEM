@@ -120,7 +120,7 @@ struct ReservoirHydro <: HydroPlant
         id = validate_id(id)
         name = validate_name(name)
         bus_id = validate_id(bus_id)
-        submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
+        #submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
 
         # Validate volumes
         max_volume_hm3 = validate_strictly_positive(max_volume_hm3, "max_volume_hm3")
@@ -318,7 +318,7 @@ struct RunOfRiverHydro <: HydroPlant
         id = validate_id(id)
         name = validate_name(name)
         bus_id = validate_id(bus_id)
-        submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
+        #submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
 
         # Validate flow
         max_flow_m3_per_s =

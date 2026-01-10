@@ -7,22 +7,7 @@ Implements constraints for wind and solar generation including:
 - Ramp limits (for wind)
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities:
-    ElectricitySystem,
-    RenewablePlant,
-    WindPlant,
-    SolarPlant
-using ..OpenDESSEM.Variables: get_renewable_plant_indices
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     RenewableLimitConstraint <: AbstractConstraint
@@ -104,7 +89,11 @@ function build!(
 
     plant_indices = get_renewable_plant_indices(system)
 
-    time_periods = constraint.use_time_periods === nothing ? 1:size(model[:gr], 2) : constraint.use_time_periods
+    time_periods = if constraint.use_time_periods === nothing
+        1:size(model[:gr], 2)
+    else
+        constraint.use_time_periods
+    end
 
     gr = model[:gr]
     curtail = get(object_dictionary(model), :curtail, nothing)

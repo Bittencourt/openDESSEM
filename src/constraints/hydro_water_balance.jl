@@ -10,23 +10,7 @@ Implements water balance constraints for hydroelectric plants including:
 These constraints are critical for modeling Brazilian hydro system operations.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities:
-    ElectricitySystem,
-    HydroPlant,
-    ReservoirHydro,
-    RunOfRiverHydro,
-    PumpedStorageHydro
-using ..OpenDESSEM.Variables: get_hydro_plant_indices
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     HydroWaterBalanceConstraint <: AbstractConstraint

@@ -10,18 +10,7 @@ Implements energy balance for the 4 Brazilian submarkets:
 Each submarket must balance generation, load, and interconnections.
 """
 
-using JuMP
-using Dates
-
-# Import types
-using ..OpenDESSEM.Entities: ElectricitySystem, Submarket, Load
-using ..OpenDESSEM.Variables: get_thermal_plant_indices, get_hydro_plant_indices, get_renewable_plant_indices
-using ..OpenDESSEM.Constraints:
-    AbstractConstraint,
-    ConstraintMetadata,
-    ConstraintBuildResult,
-    build!,
-    validate_constraint_system
+# Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
 """
     SubmarketBalanceConstraint <: AbstractConstraint
@@ -136,6 +125,11 @@ function build!(
 
     @info "Building submarket balance constraints" num_submarkets=length(submarkets) num_periods=length(time_periods)
 
+    # Initialize constraint storage for LMP extraction
+    if !haskey(model, :submarket_balance)
+        model[:submarket_balance] = Dict{Tuple{String, Int}, ConstraintRef}()
+    end
+
     # Build balance for each submarket
     for submarket in submarkets
         sm_code = submarket.code
@@ -180,7 +174,7 @@ function build!(
             total_load = sum(l.load_profile[t] * l.base_mw for l in loads; init=0.0)
 
             # Energy balance (simplified - net exchange would be added separately)
-            @constraint(model, total_gen - total_load == 0)
+            model[:submarket_balance][(sm_code, t)] = @constraint(model, total_gen - total_load == 0)
             num_constraints += 1
         end
     end
