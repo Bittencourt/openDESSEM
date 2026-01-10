@@ -25,7 +25,10 @@ export_database(result, db_conn; scenario_id="SCENARIO_001")
 
 module SolutionExporter
 
-using ..Solvers: SolverResult
+# Import SolverResult from parent Analysis module
+# Analysis imports this from OpenDESSEM.Solvers
+import ..SolverResult
+
 using Dates
 using CSV
 using DataFrames
@@ -64,14 +67,6 @@ Base.@kwdef struct ExportResult
 end
 
 """
-    export_csv(
-        result::SolverResult,
-        path::String;
-        time_periods::UnitRange{Int}=1:24,
-        scenario_id::String="",
-        base_date::Date=Date(0)
-    )::Vector{String}
-
 Export solver results to CSV files.
 
 Creates multiple CSV files in the specified directory:
@@ -94,18 +89,6 @@ Creates multiple CSV files in the specified directory:
 
 # Returns
 - `Vector{String}`: List of created file paths
-
-# Example
-```julia
-files = export_csv(
-    result,
-    "results/scenario_01/";
-    time_periods=1:168,
-    scenario_id="SCENARIO_01",
-    base_date=Date("2025-01-06")
-)
-println("Created $(length(files)) CSV files")
-```
 
 # Throws
 - `Error` if path cannot be created
@@ -202,14 +185,7 @@ function export_csv(
 end
 
 """
-    export_json(
-        result::SolverResult,
-        filepath::String;
-        time_periods::UnitRange{Int}=1:24,
-        scenario_id::String="",
-        base_date::Date=Date(0),
-        pretty::Bool=true
-    )::String
+    export_json(result, filepath; time_periods=1:24, scenario_id="", base_date=Date(0), pretty=true)
 
 Export solver results to JSON format.
 
@@ -332,15 +308,7 @@ function export_json(
 end
 
 """
-    export_database(
-        result::SolverResult,
-        conn;
-        time_periods::UnitRange{Int}=1:24,
-        scenario_id::String="",
-        base_date::Date=Date(0),
-        schema::String="public",
-        overwrite::Bool=false
-    )::Dict{String,Int}
+    export_database(result, conn; time_periods=1:24, scenario_id="", base_date=Date(0), schema="public", overwrite=false)
 
 Export solver results to PostgreSQL database.
 

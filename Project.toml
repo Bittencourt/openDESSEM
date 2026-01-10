@@ -4,22 +4,28 @@ authors = ["OpenDESSEM Development Team"]
 version = "0.1.0"
 
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DESSEM2Julia = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
-LibPQ = "194296ae-ab2e-11e8-0e9f-1f6fb64decff"
+LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
+MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 PWF = "0f4c3beb-4231-4c4d-93e1-709cb40a89e6"
 PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
 
 [compat]
+CSV = "0.10"
 DESSEM2Julia = "0.1.0"
 DataFrames = "1.0"
 HiGHS = "1.0"
+JSON3 = "1.0"
 JuMP = "1.0"
-LibPQ = "1.0"
-julia = "1.10"
+LibPQ = "1.18.0"
+MathOptInterface = "1.0"
+julia = "1.8"
 
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

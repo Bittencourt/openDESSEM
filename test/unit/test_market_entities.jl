@@ -58,7 +58,7 @@ using Test
             @test_throws ArgumentError Submarket(;
                 id = "SM_001",
                 name = "Invalid Code",
-                code = "X",  # Too short (min 2)
+                code = "",  # Empty string (min 1)
                 country = "Brazil",
             )
 
@@ -249,8 +249,8 @@ using Test
         @testset "Invalid submarket_id format" begin
             @test_throws ArgumentError Load(;
                 id = "LOAD_001",
-                name = "Short Submarket",
-                submarket_id = "X",  # Too short (min 2)
+                name = "Empty Submarket",
+                submarket_id = "",  # Empty string (min 1)
                 base_mw = 10000.0,
                 load_profile = ones(24),
             )
@@ -513,6 +513,173 @@ using Test
 
             @test load.base_mw == 100000.0
         end
+    end
+
+    @testset "Interconnection - Constructor" begin
+        @testset "Valid interconnection" begin
+            ic = Interconnection(;
+                id = "IC_001",
+                name = "North to Center",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = 200.0,
+                loss_percent = 2.0,
+            )
+
+            @test ic.id == "IC_001"
+            @test ic.name == "North to Center"
+            @test ic.from_bus_id == "B_001"
+            @test ic.to_bus_id == "B_002"
+            @test ic.from_submarket_id == "N"
+            @test ic.to_submarket_id == "C"
+            @test ic.capacity_mw == 200.0
+            @test ic.loss_percent == 2.0
+            @test ic isa MarketEntity
+            @test ic isa PhysicalEntity
+        end
+
+        @testset "Zero loss (valid)" begin
+            ic = Interconnection(;
+                id = "IC_002",
+                name = "No Loss Link",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "S",
+                to_submarket_id = "SE",
+                capacity_mw = 500.0,
+                loss_percent = 0.0,
+            )
+
+            @test ic.loss_percent == 0.0
+        end
+
+        @testset "High loss (valid)" begin
+            ic = Interconnection(;
+                id = "IC_003",
+                name = "Lossy Link",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "NE",
+                to_submarket_id = "N",
+                capacity_mw = 100.0,
+                loss_percent = 10.0,
+            )
+
+            @test ic.loss_percent == 10.0
+        end
+
+        @testset "Default values" begin
+            ic = Interconnection(;
+                id = "IC_004",
+                name = "Default Interconnection",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "S",
+                to_submarket_id = "SE",
+                capacity_mw = 300.0,
+                loss_percent = 3.0,
+            )
+
+            @test ic.metadata !== nothing
+            @test ic.metadata.version == 1
+        end
+    end
+
+    @testset "Interconnection - Validation" begin
+        @testset "Same bus IDs" begin
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Same Bus",
+                from_bus_id = "B_001",
+                to_bus_id = "B_001",  # Same as from
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = 200.0,
+                loss_percent = 2.0,
+            )
+        end
+
+        @testset "Same submarket IDs" begin
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Same Submarket",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "SE",  # Same as to
+                to_submarket_id = "SE",
+                capacity_mw = 200.0,
+                loss_percent = 2.0,
+            )
+        end
+
+        @testset "Invalid capacity" begin
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Zero Capacity",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = 0.0,
+                loss_percent = 2.0,
+            )
+
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Negative Capacity",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = -100.0,
+                loss_percent = 2.0,
+            )
+        end
+
+        @testset "Invalid loss percent" begin
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Negative Loss",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = 200.0,
+                loss_percent = -1.0,
+            )
+
+            @test_throws ArgumentError Interconnection(;
+                id = "IC_001",
+                name = "Over 100% Loss",
+                from_bus_id = "B_001",
+                to_bus_id = "B_002",
+                from_submarket_id = "N",
+                to_submarket_id = "C",
+                capacity_mw = 200.0,
+                loss_percent = 100.1,
+            )
+        end
+    end
+
+    @testset "Interconnection - Type Hierarchy" begin
+        ic = Interconnection(;
+            id = "IC_001",
+            name = "Test Interconnection",
+            from_bus_id = "B_001",
+            to_bus_id = "B_002",
+            from_submarket_id = "N",
+            to_submarket_id = "C",
+            capacity_mw = 200.0,
+            loss_percent = 2.0,
+        )
+
+        @test ic isa MarketEntity
+        @test ic isa PhysicalEntity
+        @test ic isa AbstractEntity
+        @test MarketEntity <: PhysicalEntity
+        @test PhysicalEntity <: AbstractEntity
     end
 
 end

@@ -65,18 +65,17 @@ struct Submarket <: MarketEntity
         description::String = "",
         metadata::EntityMetadata = EntityMetadata(),
     )
-
         # Validate ID and name
         id = validate_id(id)
         name = validate_name(name)
 
-        # Validate code (2-4 characters)
-        code = validate_id(code; min_length = 2, max_length = 4)
+        # Validate code (1-4 characters for Brazilian submarkets: S, N, NE, SE)
+        code = validate_id(code; min_length = 1, max_length = 4)
 
-        # Validate country
-        country = validate_id(country; min_length = 2, max_length = 50)
+        # Validate country (minimum 2 characters)
+        country = validate_name(country; min_length = 2, max_length = 50)
 
-        new(id, name, code, country, description, metadata)
+        return new(id, name, code, country, description, metadata)
     end
 end
 
@@ -149,15 +148,15 @@ struct Load <: MarketEntity
         end
 
         if submarket_id !== nothing
-            submarket_id = validate_id(submarket_id; min_length = 2, max_length = 4)
+            submarket_id = validate_id(submarket_id; min_length = 1, max_length = 4)
         end
 
         if bus_id !== nothing
             bus_id = validate_id(bus_id)
         end
 
-        # Validate base demand
-        base_mw = validate_strictly_positive(base_mw, "base_mw")
+        # Validate base demand (must be positive)
+        base_mw = validate_positive(base_mw, "base_mw")
 
         # Validate load profile
         if isempty(load_profile)
@@ -294,5 +293,114 @@ struct BilateralContract <: MarketEntity
     end
 end
 
+"""
+    Interconnection <: MarketEntity
+
+Transmission interconnection between two submarkets.
+
+Interconnections represent transmission links between submarkets/bidding zones
+with capacity limits and transmission losses. Unlike ACLine/DCLine which are
+physical network entities, Interconnection is a market-level representation
+for economic modeling and energy balance constraints.
+
+# Fields
+- `id::String`: Unique interconnection identifier
+- `name::String`: Human-readable interconnection name
+- `from_bus_id::String`: Origin bus ID
+- `to_bus_id::String`: Destination bus ID
+- `from_submarket_id::String`: Origin submarket code
+- `to_submarket_id::String`: Destination submarket code
+- `capacity_mw::Float64`: Maximum transfer capacity (MW)
+- `loss_percent::Float64`: Transmission loss as percentage (0-100)
+- `metadata::EntityMetadata`: Additional metadata
+
+# Constraints Applied
+- Capacity limit: `flow[t] <= capacity_mw`
+- Transmission loss: `received = sent * (1 - loss_percent/100)`
+- Energy balance: flow affects both submarkets' balances
+
+# Examples
+```julia
+interconnection = Interconnection(;
+    id = "IC_N_C",
+    name = "North to Center",
+    from_bus_id = "BUS_1",
+    to_bus_id = "BUS_2",
+    from_submarket_id = "N",
+    to_submarket_id = "C",
+    capacity_mw = 200.0,
+    loss_percent = 2.0
+)
+```
+"""
+struct Interconnection <: MarketEntity
+    id::String
+    name::String
+    from_bus_id::String
+    to_bus_id::String
+    from_submarket_id::String
+    to_submarket_id::String
+    capacity_mw::Float64
+    loss_percent::Float64
+    metadata::EntityMetadata
+
+    function Interconnection(;
+        id::String,
+        name::String,
+        from_bus_id::String,
+        to_bus_id::String,
+        from_submarket_id::String,
+        to_submarket_id::String,
+        capacity_mw::Float64,
+        loss_percent::Float64,
+        metadata::EntityMetadata = EntityMetadata(),
+    )
+
+        # Validate ID and name
+        id = validate_id(id)
+        name = validate_name(name)
+
+        # Validate bus IDs
+        from_bus_id = validate_id(from_bus_id)
+        to_bus_id = validate_id(to_bus_id)
+
+        if from_bus_id == to_bus_id
+            throw(ArgumentError("from_bus_id and to_bus_id must be different"))
+        end
+
+        # Validate submarket IDs (2-4 characters)
+        from_submarket_id = validate_id(from_submarket_id; min_length = 1, max_length = 4)
+        to_submarket_id = validate_id(to_submarket_id; min_length = 1, max_length = 4)
+
+        if from_submarket_id == to_submarket_id
+            throw(ArgumentError("from_submarket_id and to_submarket_id must be different"))
+        end
+
+        # Validate capacity
+        capacity_mw = validate_strictly_positive(capacity_mw, "capacity_mw")
+
+        # Validate loss percentage (0-100)
+        if loss_percent < 0 || loss_percent > 100
+            throw(
+                ArgumentError(
+                    "loss_percent must be between 0 and 100 (got $loss_percent)",
+                ),
+            )
+        end
+
+        new(
+            id,
+            name,
+            from_bus_id,
+            to_bus_id,
+            from_submarket_id,
+            to_submarket_id,
+            capacity_mw,
+            loss_percent,
+            metadata,
+        )
+    end
+end
+
 # Export market types
-export MarketEntity, Submarket, Load, BilateralContract
+export MarketEntity, Submarket, Load, BilateralContract, Interconnection

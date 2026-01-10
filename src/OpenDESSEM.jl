@@ -47,7 +47,7 @@ export ThermalPlant, ConventionalThermal, CombinedCyclePlant
 export HydroPlant, ReservoirHydro, RunOfRiverHydro, PumpedStorageHydro
 export RenewablePlant, WindPlant, SolarPlant
 export NetworkEntity, Bus, ACLine, DCLine, NetworkLoad, NetworkSubmarket
-export MarketEntity, Submarket, Load, BilateralContract
+export MarketEntity, Submarket, Load, BilateralContract, Interconnection
 export FuelType, NATURAL_GAS, COAL, FUEL_OIL, DIESEL, NUCLEAR, BIOMASS, BIOGAS, OTHER
 export RenewableType, ForecastType, WIND, SOLAR
 export DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
@@ -55,7 +55,7 @@ export DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
 # Export core system functionality
 export ElectricitySystem
 export get_thermal_plant, get_hydro_plant, get_bus, get_submarket
-export count_generators, total_capacity, validate_system
+export count_generators, total_capacity, validate_system, validate_bus_submarket_consistency
 
 # Export integration functionality
 using .Integration
@@ -102,6 +102,40 @@ export AbstractConstraint,
     has_tag,
     validate_constraint_system
 
+# Include objective function builder
+include("objective/Objective.jl")
+using .Objective
+export AbstractObjective,
+    ObjectiveMetadata,
+    ObjectiveBuildResult,
+    ProductionCostObjective,
+    calculate_cost_breakdown,
+    get_fuel_cost,
+    validate_objective_system
+
+# Include solver interface
+include("solvers/Solvers.jl")
+using .Solvers
+export SolverType,
+    HIGHS,
+    GUROBI,
+    CPLEX,
+    GLPK,
+    SolverOptions,
+    SolverResult,
+    optimize!,
+    solve_lp_relaxation,
+    get_solver_optimizer,
+    apply_solver_options!,
+    extract_solution_values!,
+    extract_dual_values!,
+    get_submarket_lmps,
+    get_thermal_generation,
+    get_hydro_storage,
+    get_renewable_generation,
+    is_optimal,
+    is_infeasible
+
 # Include DESSEM loader for ONS data integration
 include("data/loaders/dessem_loader.jl")
 using .DessemLoader
@@ -114,7 +148,7 @@ export load_dessem_case,
 
 # Include database loader for PostgreSQL data loading
 include("data/loaders/database_loader.jl")
-using .DatabaseLoader
+using .DatabaseLoaders
 export DatabaseLoader,
     load_from_database,
     load_thermal_plants,
@@ -123,6 +157,11 @@ export DatabaseLoader,
     load_network,
     load_market,
     validate_loaded_data
+
+# Include analysis module for result export and visualization
+include("analysis/Analysis.jl")
+using .Analysis
+export export_csv, export_json, export_database, ExportResult
 
 # More modules will be added as we implement them:
 # include("core/Model.jl")

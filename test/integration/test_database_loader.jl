@@ -6,7 +6,7 @@ These tests use a mock database connection to verify loader behavior.
 """
 
 using OpenDESSEM
-using OpenDESSEM.DatabaseLoader
+using OpenDESSEM.DatabaseLoaders
 using Test
 using Dates
 
@@ -17,7 +17,7 @@ using Dates
 
     @testset "DatabaseLoader - Constructor and Validation" begin
         # Test that we can create a loader configuration
-        loader = DatabaseLoader.DatabaseLoader(;
+        loader = DatabaseLoaders.DatabaseLoader(;
             host = "localhost",
             port = 5432,
             dbname = "dessem_test",
@@ -32,7 +32,7 @@ using Dates
         @test loader.schema == "public"
 
         # Test connection string generation
-        conn_str = DatabaseLoader.get_connection_string(loader)
+        conn_str = DatabaseLoaders.get_connection_string(loader)
         @test occursin("host=localhost", conn_str)
         @test occursin("port=5432", conn_str)
         @test occursin("dbname=dessem_test", conn_str)
@@ -41,7 +41,7 @@ using Dates
 
     @testset "DatabaseLoader - SQL Query Generation" begin
         # Test thermal plants query generation
-        thermal_query = DatabaseLoader.generate_thermal_plants_query("public")
+        thermal_query = DatabaseLoaders.generate_thermal_plants_query("public")
 
         @test occursin("SELECT", uppercase(thermal_query))
         @test occursin("FROM", uppercase(thermal_query))
@@ -50,21 +50,21 @@ using Dates
         @test occursin("capacity_mw", lowercase(thermal_query))
 
         # Test hydro plants query generation
-        hydro_query = DatabaseLoader.generate_hydro_plants_query("public")
+        hydro_query = DatabaseLoaders.generate_hydro_plants_query("public")
 
         @test occursin("SELECT", uppercase(hydro_query))
         @test occursin("FROM", uppercase(hydro_query))
         @test occursin("hydro_plants", lowercase(hydro_query))
 
         # Test buses query generation
-        buses_query = DatabaseLoader.generate_buses_query("public")
+        buses_query = DatabaseLoaders.generate_buses_query("public")
 
         @test occursin("SELECT", uppercase(buses_query))
         @test occursin("FROM", uppercase(buses_query))
         @test occursin("buses", lowercase(buses_query))
 
         # Test loads query generation
-        loads_query = DatabaseLoader.generate_loads_query("public")
+        loads_query = DatabaseLoaders.generate_loads_query("public")
 
         @test occursin("SELECT", uppercase(loads_query))
         @test occursin("FROM", uppercase(loads_query))
@@ -95,7 +95,7 @@ using Dates
         )
 
         # Test conversion
-        plant = DatabaseLoader.row_to_thermal_plant(mock_row)
+        plant = DatabaseLoaders.row_to_thermal_plant(mock_row)
 
         @test plant isa ConventionalThermal
         @test plant.id == "T_TEST_001"
@@ -131,7 +131,7 @@ using Dates
             water_travel_time_hours = 2.0,
         )
 
-        plant = DatabaseLoader.row_to_hydro_plant(mock_row)
+        plant = DatabaseLoaders.row_to_hydro_plant(mock_row)
 
         @test plant isa ReservoirHydro
         @test plant.id == "H_TEST_001"
@@ -158,7 +158,7 @@ using Dates
             longitude = -46.6,
         )
 
-        bus = DatabaseLoader.row_to_bus(mock_row)
+        bus = DatabaseLoaders.row_to_bus(mock_row)
 
         @test bus isa Bus
         @test bus.id == "B_TEST_001"
@@ -179,7 +179,7 @@ using Dates
             description = "A test submarket",
         )
 
-        submarket = DatabaseLoader.row_to_submarket(mock_row)
+        submarket = DatabaseLoaders.row_to_submarket(mock_row)
 
         @test submarket isa Submarket
         @test submarket.id == "SM_TEST_001"
@@ -203,7 +203,7 @@ using Dates
             # load_profile would typically be loaded separately
         )
 
-        load = DatabaseLoader.row_to_load(mock_row, load_profile)
+        load = DatabaseLoaders.row_to_load(mock_row, load_profile)
 
         @test load isa Load
         @test load.id == "L_TEST_001"
@@ -217,20 +217,20 @@ using Dates
 
     @testset "Fuel Type String to Enum Conversion" begin
         # Test various fuel type strings
-        @test DatabaseLoader.parse_fuel_type("natural_gas") == NATURAL_GAS
-        @test DatabaseLoader.parse_fuel_type("NATURAL_GAS") == NATURAL_GAS
-        @test DatabaseLoader.parse_fuel_type("Natural_Gas") == NATURAL_GAS
-        @test DatabaseLoader.parse_fuel_type("coal") == COAL
-        @test DatabaseLoader.parse_fuel_type("COAL") == COAL
-        @test DatabaseLoader.parse_fuel_type("fuel_oil") == FUEL_OIL
-        @test DatabaseLoader.parse_fuel_type("diesel") == DIESEL
-        @test DatabaseLoader.parse_fuel_type("nuclear") == NUCLEAR
-        @test DatabaseLoader.parse_fuel_type("biomass") == BIOMASS
-        @test DatabaseLoader.parse_fuel_type("biogas") == BIOGAS
+        @test DatabaseLoaders.parse_fuel_type("natural_gas") == NATURAL_GAS
+        @test DatabaseLoaders.parse_fuel_type("NATURAL_GAS") == NATURAL_GAS
+        @test DatabaseLoaders.parse_fuel_type("Natural_Gas") == NATURAL_GAS
+        @test DatabaseLoaders.parse_fuel_type("coal") == COAL
+        @test DatabaseLoaders.parse_fuel_type("COAL") == COAL
+        @test DatabaseLoaders.parse_fuel_type("fuel_oil") == FUEL_OIL
+        @test DatabaseLoaders.parse_fuel_type("diesel") == DIESEL
+        @test DatabaseLoaders.parse_fuel_type("nuclear") == NUCLEAR
+        @test DatabaseLoaders.parse_fuel_type("biomass") == BIOMASS
+        @test DatabaseLoaders.parse_fuel_type("biogas") == BIOGAS
 
         # Test unknown fuel type
-        @test DatabaseLoader.parse_fuel_type("unknown") == OTHER
-        @test DatabaseLoader.parse_fuel_type("hydrogen") == OTHER
+        @test DatabaseLoaders.parse_fuel_type("unknown") == OTHER
+        @test DatabaseLoaders.parse_fuel_type("hydrogen") == OTHER
     end
 
     @testset "Data Validation - Missing Fields" begin
@@ -246,7 +246,7 @@ using Dates
         )
 
         # Should throw or handle gracefully
-        @test_throws Exception DatabaseLoader.row_to_thermal_plant(incomplete_row)
+        @test_throws Exception DatabaseLoaders.row_to_thermal_plant(incomplete_row)
     end
 
     @testset "Data Validation - Invalid Values" begin
@@ -272,12 +272,12 @@ using Dates
             must_run = false,
         )
 
-        @test_throws Exception DatabaseLoader.row_to_thermal_plant(invalid_row)
+        @test_throws Exception DatabaseLoaders.row_to_thermal_plant(invalid_row)
     end
 
     @testset "Database Connection - Error Handling" begin
         # Test connection failure handling
-        invalid_loader = DatabaseLoader.DatabaseLoader(;
+        invalid_loader = DatabaseLoaders.DatabaseLoader(;
             host = "invalid_host",
             port = 9999,
             dbname = "nonexistent_db",
@@ -287,12 +287,12 @@ using Dates
         )
 
         # Should handle connection errors gracefully
-        @test_logs (:error, r"Failed to connect") DatabaseLoader.load_from_database(invalid_loader)
+        @test_logs (:error, r"Failed to connect") DatabaseLoaders.load_from_database(invalid_loader)
     end
 
     @testset "Incremental Loading - Thermal Plants Only" begin
         # Test loading only specific entity types
-        loader = DatabaseLoader.DatabaseLoader(;
+        loader = DatabaseLoaders.DatabaseLoader(;
             host = "localhost",
             port = 5432,
             dbname = "dessem_test",
@@ -304,7 +304,7 @@ using Dates
         # This would test selective loading
         # In real scenario, this would connect to test database
         # For now, we test the query generation
-        thermal_query = DatabaseLoader.generate_thermal_plants_query("public")
+        thermal_query = DatabaseLoaders.generate_thermal_plants_query("public")
 
         @test occursin("WHERE", uppercase(thermal_query)) ||
               occursin("SELECT", uppercase(thermal_query))
@@ -312,7 +312,7 @@ using Dates
 
     @testset "Schema Support - Custom Schema" begin
         # Test that custom schemas are properly handled
-        loader = DatabaseLoader.DatabaseLoader(;
+        loader = DatabaseLoaders.DatabaseLoader(;
             host = "localhost",
             port = 5432,
             dbname = "dessem_test",
@@ -324,7 +324,7 @@ using Dates
         @test loader.schema == "dessem_2026"
 
         # Check that queries use the custom schema
-        thermal_query = DatabaseLoader.generate_thermal_plants_query("dessem_2026")
+        thermal_query = DatabaseLoaders.generate_thermal_plants_query("dessem_2026")
         @test occursin("dessem_2026", thermal_query)
         @test occursin("thermal_plants", thermal_query)
     end
@@ -352,7 +352,7 @@ using Dates
             must_run = false,
         )
 
-        plant = DatabaseLoader.row_to_thermal_plant(mock_row_with_strings)
+        plant = DatabaseLoaders.row_to_thermal_plant(mock_row_with_strings)
 
         # Verify all types are correct
         @test plant.id isa String
@@ -378,11 +378,11 @@ using Dates
         )
 
         # Test with 24-hour profile
-        load_24 = DatabaseLoader.row_to_load(mock_row, profile_24h)
+        load_24 = DatabaseLoaders.row_to_load(mock_row, profile_24h)
         @test load_24.load_profile == profile_24h
 
         # Test with 168-hour profile
-        load_168 = DatabaseLoader.row_to_load(mock_row, profile_168h)
+        load_168 = DatabaseLoaders.row_to_load(mock_row, profile_168h)
         @test load_168.load_profile == profile_168h
     end
 
@@ -390,7 +390,7 @@ using Dates
         # Test handling of empty database results
         empty_thermal_results = []
 
-        plants = [DatabaseLoader.row_to_thermal_plant(row) for row in empty_thermal_results]
+        plants = [DatabaseLoaders.row_to_thermal_plant(row) for row in empty_thermal_results]
 
         @test isempty(plants)
         @test plants isa Vector
@@ -443,7 +443,7 @@ using Dates
 
         plants = ConventionalThermal[]
         for row in mock_rows
-            push!(plants, DatabaseLoader.row_to_thermal_plant(row))
+            push!(plants, DatabaseLoaders.row_to_thermal_plant(row))
         end
 
         @test length(plants) == 2
@@ -455,7 +455,7 @@ using Dates
 
     @testset "Connection String Security" begin
         # Test that passwords are properly escaped
-        loader = DatabaseLoader.DatabaseLoader(;
+        loader = DatabaseLoaders.DatabaseLoader(;
             host = "localhost",
             port = 5432,
             dbname = "dessem_test",
@@ -464,14 +464,14 @@ using Dates
             schema = "public"
         )
 
-        conn_str = DatabaseLoader.get_connection_string(loader)
+        conn_str = DatabaseLoaders.get_connection_string(loader)
         @test occursin("user=user@special", conn_str) ||
               occursin("user=%27user%40special%27", conn_str)  # URL encoded
     end
 
     @testset "Logging and Progress Reporting" begin
         # Test that appropriate logging occurs
-        loader = DatabaseLoader.DatabaseLoader(;
+        loader = DatabaseLoaders.DatabaseLoader(;
             host = "localhost",
             port = 5432,
             dbname = "dessem_test",
