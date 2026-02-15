@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-15
 **Current Phase:** Phase 1 (Objective Function Completion)
-**Current Plan:** 01-01 Complete (1/?)
+**Current Plan:** 01-02 Complete (2/?)
 
 ---
 
@@ -19,17 +19,18 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 ## Current Position
 
 **Phase:** Phase 1 - Objective Function Completion (In Progress)
-**Plan:** 01-01 Complete
-**Status:** FCF Curve Loader implemented
+**Plan:** 01-02 Complete
+**Status:** Load shedding and deficit variables implemented
 
 **Progress Bar:**
 ```
-[█░░░░░░░░░░░░░░░░░░░] 1/? plans complete (Phase 1 in progress)
+[██░░░░░░░░░░░░░░░░░░] 2/? plans complete (Phase 1 in progress)
 ```
 
 **Milestones:**
 - [x] Phase 1 Plan 01: FCF Curve Loader ✅
-- [ ] Phase 1: Objective Function Completion (1/5 criteria - FCF loader done)
+- [x] Phase 1 Plan 02: Load Shedding & Deficit Variables ✅
+- [ ] Phase 1: Objective Function Completion (2/5 criteria - FCF + variables done)
 - [ ] Phase 2: Hydro Modeling Completion (0/4 criteria)
 - [ ] Phase 3: Solver Interface Implementation (0/5 criteria)
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
@@ -40,7 +41,7 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 980+ passing (FCF tests pending Julia execution)
+- Total tests: 980+ passing (new load/deficit tests pending Julia execution)
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Basic workflows passing
 
@@ -51,6 +52,7 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 
 **Technical Debt:**
 - ~~Implement FCF curve loader from infofcf.dat~~ ✅ DONE
+- ~~Add load shedding variables to VariableManager~~ ✅ DONE
 - Hydro inflows hardcoded to zero (blocker for validation)
 - Cascade delays commented out (blocker for multi-reservoir systems)
 - PowerModels in validate-only mode (not actively constraining)
@@ -71,13 +73,15 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 | Standard depth (5 phases) | 2026-02-15 | Matches brownfield project scope: focused completion, not greenfield development |
 | FCF clamping vs extrapolation | 2026-02-15 | Clamp storage to [min, max] range rather than extrapolate, matching optimization behavior |
 | FCF plant ID format | 2026-02-15 | Use `H_XX_NNN` format with external mapping required for subsystem codes |
+| Deficit indexed by submarket.code | 2026-02-15 | Use submarket code (SE, NE) for indexing to match how plants reference submarkets |
+| Separate shed/deficit functions | 2026-02-15 | Load shedding per-load, deficit per-submarket - different modeling purposes |
 
 ### Active TODOs
 
 **Phase 1 (Objective Function):**
 - ~~Implement FCF curve loader from infofcf.dat~~ ✅ DONE
+- ~~Add load shedding variables to VariableManager~~ ✅ DONE
 - Complete build_objective!() with all cost terms
-- Add load shedding variables to VariableManager
 - Apply numerical scaling (1e-6) to prevent solver issues
 - Integrate FCF loader into objective function (replace hardcoded water values)
 
@@ -108,7 +112,7 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 ### Known Blockers
 
 **Current:**
-- None - FCF loader complete and ready for integration
+- None - FCF loader and variable extensions complete
 
 **Anticipated:**
 - Inflow file format parsing (Phase 2) - may need research if documentation sparse
@@ -116,6 +120,14 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 - PowerModels variable linking (deferred to v2) - coupling pattern unclear
 
 ### Recent Changes
+
+**2026-02-15 (Session 3):**
+- Completed Phase 1 Plan 02: Load Shedding & Deficit Variables
+- Added create_load_shedding_variables! for shed[l,t] variables
+- Added create_deficit_variables! for deficit[s,t] variables
+- Added get_load_indices and get_submarket_indices helpers
+- Extended create_all_variables! to include new variable types
+- Created comprehensive test suite (255 lines)
 
 **2026-02-15 (Session 2):**
 - Completed Phase 1 Plan 01: FCF Curve Loader
@@ -137,24 +149,25 @@ Complete the solver pipeline by finishing objective function, hydro modeling, so
 
 ## Session Continuity
 
-**Last Session:** 2026-02-15 - Phase 1 Plan 01: FCF Curve Loader
+**Last Session:** 2026-02-15 - Phase 1 Plan 02: Load Shedding & Deficit Variables
 
 **Session Goals Achieved:**
-- FCF curve loader implemented (src/data/loaders/fcf_loader.jl, 640 lines)
-- Comprehensive test suite created (test/unit/test_fcf_loader.jl, 513 lines)
-- Water value interpolation with linear interpolation and clamping
-- Support for multiple file name patterns (infofcf.dat, fcf.dat, etc.)
+- Load shedding variables (shed[l,t]) implemented
+- Deficit variables (deficit[s,t]) implemented  
+- Helper functions for load and submarket indexing
+- Extended create_all_variables! for complete variable coverage
+- Comprehensive test suite for new variable types
 
 **Next Session Goals:**
 - Continue Phase 1: Objective Function Completion
 - Integrate FCF loader into objective function builder
-- Add load shedding variables and costs
-- Complete remaining Phase 1 plans
+- Add penalty cost coefficients for shed/deficit in objective
+- Complete remaining Phase 1 plans (01-03 onwards)
 
 **Context for Next Session:**
-FCF curve loader is complete and ready for integration. The loader can parse infofcf.dat files and provide water value lookup for hydro plants. Next step is to integrate this into the objective function builder to replace hardcoded water values. The objective function scaffold exists in src/objective/ but needs the FCF integration.
+Variable manager now has complete coverage of all optimization variables including load shedding and deficit penalty variables. The FCF loader provides water values for hydro plants. Next step is to integrate these into the objective function builder (src/objective/) to create the complete cost function. Penalty cost coefficients for shed/deficit need to be defined (typical values: 1000-5000 R$/MWh).
 
 ---
 
 **State saved:** 2026-02-15
-**Ready for:** Phase 1 Plan 02 or integration work
+**Ready for:** Phase 1 Plan 03 or objective function integration
