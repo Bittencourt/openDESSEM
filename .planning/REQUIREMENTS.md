@@ -90,31 +90,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OBJ-01 | TBD | Pending |
-| OBJ-02 | TBD | Pending |
-| OBJ-03 | TBD | Pending |
-| OBJ-04 | TBD | Pending |
-| SOLV-01 | TBD | Pending |
-| SOLV-02 | TBD | Pending |
-| SOLV-03 | TBD | Pending |
-| SOLV-04 | TBD | Pending |
-| HYDR-01 | TBD | Pending |
-| HYDR-02 | TBD | Pending |
-| HYDR-03 | TBD | Pending |
-| EXTR-01 | TBD | Pending |
-| EXTR-02 | TBD | Pending |
-| EXTR-03 | TBD | Pending |
-| EXTR-04 | TBD | Pending |
-| EXTR-05 | TBD | Pending |
-| VALD-01 | TBD | Pending |
-| VALD-02 | TBD | Pending |
-| VALD-03 | TBD | Pending |
+| OBJ-01 | Phase 1 | Pending |
+| OBJ-02 | Phase 1 | Pending |
+| OBJ-03 | Phase 1 | Pending |
+| OBJ-04 | Phase 1 | Pending |
+| HYDR-01 | Phase 2 | Pending |
+| HYDR-02 | Phase 2 | Pending |
+| HYDR-03 | Phase 2 | Pending |
+| SOLV-01 | Phase 3 | Pending |
+| SOLV-02 | Phase 3 | Pending |
+| SOLV-03 | Phase 3 | Pending |
+| SOLV-04 | Phase 3 | Pending |
+| EXTR-01 | Phase 4 | Pending |
+| EXTR-02 | Phase 4 | Pending |
+| EXTR-03 | Phase 4 | Pending |
+| EXTR-04 | Phase 4 | Pending |
+| EXTR-05 | Phase 4 | Pending |
+| VALD-01 | Phase 5 | Pending |
+| VALD-02 | Phase 5 | Pending |
+| VALD-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 19 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 19
+- Mapped to phases: 19/19 (100% coverage)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-15*
-*Last updated: 2026-02-15 after initial definition*
+*Last updated: 2026-02-15 after roadmap creation*
