@@ -23,6 +23,12 @@ hydro operations, and renewable generation.
 - `gr[i,t]`: Renewable generation output (MW)
 - `curtail[i,t]`: Curtailed generation (MW)
 
+## Load Shedding Variables
+- `shed[l,t]`: Load shedding (MW) for load l at time t
+
+## Deficit Variables
+- `deficit[s,t]`: Energy deficit (MW) in submarket s at time t
+
 # PowerModels Integration
 
 Network-related variables (voltage angles θ, voltage magnitudes V, power flows P/Q)
@@ -79,18 +85,23 @@ using ..OpenDESSEM:
     PumpedStorageHydro,
     RenewablePlant,
     WindPlant,
-    SolarPlant
+    SolarPlant,
+    Load
 
 # Export all public functions
 export create_thermal_variables!,
     create_hydro_variables!,
     create_renewable_variables!,
+    create_load_shedding_variables!,
+    create_deficit_variables!,
     create_all_variables!,
     get_powermodels_variable,
     list_supported_powermodels_variables,
     get_thermal_plant_indices,
     get_hydro_plant_indices,
     get_renewable_plant_indices,
+    get_load_indices,
+    get_submarket_indices,
     get_plant_by_index
 
 """
@@ -479,6 +490,212 @@ function create_renewable_variables!(
 end
 
 """
+    get_load_indices(system::ElectricitySystem) -> Dict{String, Int}
+
+Create a mapping from load IDs to their sequential indices.
+
+# Arguments
+- `system::ElectricitySystem`: The electricity system containing loads
+
+# Returns
+- `Dict{String, Int}`: Mapping of load ID to 1-based index
+
+# Example
+```julia
+indices = get_load_indices(system)
+load_idx = indices["LOAD_001"]  # Get index for specific load
+```
+"""
+function get_load_indices(system::ElectricitySystem)::Dict{String,Int}
+    return Dict(load.id => i for (i, load) in enumerate(system.loads))
+end
+
+"""
+    create_load_shedding_variables!(
+        model::Model,
+        system::ElectricitySystem,
+        time_periods::Union{UnitRange{Int}, Vector{Int}};
+        load_ids::Union{Nothing, Vector{String}} = nothing
+    )
+
+Create load shedding penalty variables.
+
+Creates:
+- `shed[l, t]`: Load shedding (MW) for load l at time t, >= 0
+
+Load shedding represents demand that cannot be met by available generation.
+High penalty costs in objective ensure shedding only occurs as last resort.
+
+# Arguments
+- `model::Model`: JuMP model to add variables to
+- `system::ElectricitySystem`: System containing loads
+- `time_periods::Union{UnitRange{Int}, Vector{Int}}`: Time periods for variables
+- `load_ids::Union{Nothing, Vector{String}}`: Optional specific load IDs to create variables for
+
+# Modifies
+- Adds `:shed` variables to the model
+
+# Throws
+- `ArgumentError` if any load_id is not found in the system
+
+# Example
+```julia
+model = Model()
+create_load_shedding_variables!(model, system, 1:168)
+shed = model[:shed]  # Access shedding variable
+
+# Access shedding for load 1 at time 5
+println(shed[1, 5])
+```
+"""
+function create_load_shedding_variables!(
+    model::Model,
+    system::ElectricitySystem,
+    time_periods::Union{UnitRange{Int},Vector{Int}};
+    load_ids::Union{Nothing,Vector{String}} = nothing,
+)
+    # Validate load_ids if provided
+    if load_ids !== nothing
+        system_load_ids = Set(load.id for load in system.loads)
+        for id in load_ids
+            if !(id in system_load_ids)
+                throw(
+                    ArgumentError(
+                        "Load ID '$id' not found in system. " *
+                        "Available IDs: $(sort(collect(system_load_ids)))",
+                    ),
+                )
+            end
+        end
+    end
+
+    # Filter loads
+    loads = if load_ids === nothing
+        system.loads
+    else
+        id_set = Set(load_ids)
+        [l for l in system.loads if l.id in id_set]
+    end
+
+    # Skip if no loads
+    if isempty(loads)
+        return nothing
+    end
+
+    n_loads = length(loads)
+    n_periods = length(time_periods)
+
+    # Create load shedding variables (continuous, non-negative)
+    # Upper bound will be enforced by constraints (limited by load demand)
+    @variable(model, shed[l = 1:n_loads, t = 1:n_periods] >= 0)
+
+    return nothing
+end
+
+"""
+    get_submarket_indices(system::ElectricitySystem) -> Dict{String, Int}
+
+Create a mapping from submarket codes to their sequential indices.
+
+# Arguments
+- `system::ElectricitySystem`: The electricity system containing submarkets
+
+# Returns
+- `Dict{String, Int}`: Mapping of submarket code to 1-based index
+
+# Example
+```julia
+indices = get_submarket_indices(system)
+sm_idx = indices["SE"]  # Get index for Southeast submarket
+```
+"""
+function get_submarket_indices(system::ElectricitySystem)::Dict{String,Int}
+    return Dict(sm.code => i for (i, sm) in enumerate(system.submarkets))
+end
+
+"""
+    create_deficit_variables!(
+        model::Model,
+        system::ElectricitySystem,
+        time_periods::Union{UnitRange{Int}, Vector{Int}};
+        submarket_ids::Union{Nothing, Vector{String}} = nothing
+    )
+
+Create energy deficit variables per submarket.
+
+Creates:
+- `deficit[s, t]`: Energy deficit (MW) in submarket s at time t, >= 0
+
+Deficit represents unmet demand at the submarket level. Different from
+load shedding - deficit is per-submarket aggregate, shedding is per-load.
+
+# Arguments
+- `model::Model`: JuMP model to add variables to
+- `system::ElectricitySystem`: System containing submarkets
+- `time_periods::Union{UnitRange{Int}, Vector{Int}}`: Time periods for variables
+- `submarket_ids::Union{Nothing, Vector{String}}`: Optional specific submarket codes
+
+# Modifies
+- Adds `:deficit` variables to the model
+
+# Throws
+- `ArgumentError` if any submarket_id is not found in the system
+
+# Example
+```julia
+model = Model()
+create_deficit_variables!(model, system, 1:168)
+deficit = model[:deficit]  # Access deficit variable
+
+# Access deficit for submarket 1 at time 24
+println(deficit[1, 24])
+```
+"""
+function create_deficit_variables!(
+    model::Model,
+    system::ElectricitySystem,
+    time_periods::Union{UnitRange{Int},Vector{Int}};
+    submarket_ids::Union{Nothing,Vector{String}} = nothing,
+)
+    # Validate submarket_ids if provided
+    if submarket_ids !== nothing
+        system_codes = Set(sm.code for sm in system.submarkets)
+        for id in submarket_ids
+            if !(id in system_codes)
+                throw(
+                    ArgumentError(
+                        "Submarket code '$id' not found in system. " *
+                        "Available codes: $(sort(collect(system_codes)))",
+                    ),
+                )
+            end
+        end
+    end
+
+    # Filter submarkets
+    submarkets = if submarket_ids === nothing
+        system.submarkets
+    else
+        id_set = Set(submarket_ids)
+        [sm for sm in system.submarkets if sm.code in id_set]
+    end
+
+    # Skip if no submarkets
+    if isempty(submarkets)
+        return nothing
+    end
+
+    n_submarkets = length(submarkets)
+    n_periods = length(time_periods)
+
+    # Create deficit variables (continuous, non-negative)
+    # Upper bound will be enforced by constraints (limited by submarket demand)
+    @variable(model, deficit[s = 1:n_submarkets, t = 1:n_periods] >= 0)
+
+    return nothing
+end
+
+"""
     create_all_variables!(
         model::Model,
         system::ElectricitySystem,
@@ -491,6 +708,8 @@ This is a convenience function that creates variables for all entity types:
 - Thermal variables: `u`, `v`, `w`, `g`
 - Hydro variables: `s`, `q`, `gh`, `pump`
 - Renewable variables: `gr`, `curtail`
+- Load shedding variables: `shed`
+- Deficit variables: `deficit`
 
 Note: Network variables (voltage angles, magnitudes, power flows) are NOT
 created here - they are handled by PowerModels.jl during network-constrained
@@ -520,6 +739,8 @@ function create_all_variables!(
     create_thermal_variables!(model, system, time_periods)
     create_hydro_variables!(model, system, time_periods)
     create_renewable_variables!(model, system, time_periods)
+    create_load_shedding_variables!(model, system, time_periods)
+    create_deficit_variables!(model, system, time_periods)
     return nothing
 end
 
