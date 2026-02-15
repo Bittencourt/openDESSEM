@@ -136,12 +136,25 @@ using Dates
         Submarket(; id = id, name = "Submarket $code", code = code, country = "Brazil")
     end
 
+    function create_test_load(; id::String, submarket_id::String = "SE")
+        Load(;
+            id = id,
+            name = "Load $id",
+            submarket_id = submarket_id,
+            base_mw = 1000.0,
+            load_profile = fill(1.0, 24),
+            is_elastic = false,
+            elasticity = -0.1,
+        )
+    end
+
     function create_minimal_system(;
         thermal_count::Int = 0,
         hydro_count::Int = 0,
         wind_count::Int = 0,
         solar_count::Int = 0,
         pumped_storage_count::Int = 0,
+        load_count::Int = 0,
     )
         # Use typed array initialization to avoid Vector{Any}
         thermals =
@@ -160,6 +173,7 @@ using Dates
 
         winds = WindPlant[create_test_wind(id = "W$i") for i = 1:wind_count]
         solars = SolarPlant[create_test_solar(id = "S$i") for i = 1:solar_count]
+        loads = Load[create_test_load(id = "L$i") for i = 1:load_count]
 
         buses = [create_test_bus(id = "B1", is_reference = true)]
         submarkets = [
@@ -174,6 +188,7 @@ using Dates
             solar_farms = solars,
             buses = buses,
             submarkets = submarkets,
+            loads = loads,
             base_date = Date(2025, 1, 1),
             description = "Test system",
         )
@@ -678,6 +693,246 @@ using Dates
             # Check variable names match convention
             @test name(model[:gr][1, 1]) == "gr[1,1]"
             @test name(model[:curtail][1, 1]) == "curtail[1,1]"
+        end
+    end
+
+    @testset "Load Shedding Variables" begin
+        @testset "create_load_shedding_variables! basic" begin
+            model = Model()
+            system = create_minimal_system(load_count = 2)
+            time_periods = 1:24
+
+            create_load_shedding_variables!(model, system, time_periods)
+
+            # Check shed variables exist
+            @test haskey(object_dictionary(model), :shed)
+            shed = model[:shed]
+            @test size(shed) == (2, 24)
+            @test !any(is_binary.(shed))
+        end
+
+        @testset "create_load_shedding_variables! with load_ids" begin
+            model = Model()
+            system = create_minimal_system(load_count = 3)
+            time_periods = 1:12
+            load_ids = ["L1", "L3"]  # Only create for these loads
+
+            create_load_shedding_variables!(model, system, time_periods; load_ids = load_ids)
+
+            # Should have 2 loads, 12 time periods
+            @test size(model[:shed]) == (2, 12)
+        end
+
+        @testset "create_load_shedding_variables! empty system" begin
+            model = Model()
+            system = create_minimal_system(load_count = 0)
+            time_periods = 1:24
+
+            # Should not throw, but also should not create variables
+            create_load_shedding_variables!(model, system, time_periods)
+
+            @test !haskey(object_dictionary(model), :shed)
+        end
+
+        @testset "create_load_shedding_variables! variable bounds" begin
+            model = Model()
+            system = create_minimal_system(load_count = 1)
+            time_periods = 1:4
+
+            create_load_shedding_variables!(model, system, time_periods)
+
+            shed = model[:shed]
+            # Shedding should have lower bound 0
+            for l = 1:1, t = 1:4
+                @test lower_bound(shed[l, t]) == 0.0
+            end
+        end
+
+        @testset "create_load_shedding_variables! invalid load_id throws" begin
+            model = Model()
+            system = create_minimal_system(load_count = 2)
+            time_periods = 1:24
+
+            @test_throws ArgumentError create_load_shedding_variables!(
+                model,
+                system,
+                time_periods;
+                load_ids = ["INVALID_ID"],
+            )
+        end
+
+        @testset "get_load_indices" begin
+            system = create_minimal_system(load_count = 3)
+
+            indices = get_load_indices(system)
+
+            @test length(indices) == 3
+            @test haskey(indices, "L1")
+            @test haskey(indices, "L2")
+            @test haskey(indices, "L3")
+            @test indices["L1"] == 1
+            @test indices["L2"] == 2
+            @test indices["L3"] == 3
+        end
+    end
+
+    @testset "Deficit Variables" begin
+        @testset "create_deficit_variables! basic" begin
+            model = Model()
+            system = create_minimal_system()  # Has 2 submarkets by default
+            time_periods = 1:24
+
+            create_deficit_variables!(model, system, time_periods)
+
+            # Check deficit variables exist
+            @test haskey(object_dictionary(model), :deficit)
+            deficit = model[:deficit]
+            @test size(deficit) == (2, 24)  # 2 submarkets
+            @test !any(is_binary.(deficit))
+        end
+
+        @testset "create_deficit_variables! with submarket_ids" begin
+            model = Model()
+            system = create_minimal_system()  # Has SE and NE submarkets
+            time_periods = 1:12
+            submarket_ids = ["SE"]  # Only create for SE
+
+            create_deficit_variables!(model, system, time_periods; submarket_ids = submarket_ids)
+
+            # Should have 1 submarket, 12 time periods
+            @test size(model[:deficit]) == (1, 12)
+        end
+
+        @testset "create_deficit_variables! empty system" begin
+            model = Model()
+            # Create system with no submarkets
+            system = ElectricitySystem(;
+                thermal_plants = ConventionalThermal[],
+                hydro_plants = HydroPlant[],
+                wind_farms = WindPlant[],
+                solar_farms = SolarPlant[],
+                buses = Bus[],
+                submarkets = Submarket[],
+                loads = Load[],
+                base_date = Date(2025, 1, 1),
+                description = "Empty test system",
+            )
+            time_periods = 1:24
+
+            # Should not throw, but also should not create variables
+            create_deficit_variables!(model, system, time_periods)
+
+            @test !haskey(object_dictionary(model), :deficit)
+        end
+
+        @testset "create_deficit_variables! variable bounds" begin
+            model = Model()
+            system = create_minimal_system()  # Has 2 submarkets
+            time_periods = 1:4
+
+            create_deficit_variables!(model, system, time_periods)
+
+            deficit = model[:deficit]
+            # Deficit should have lower bound 0
+            for s = 1:2, t = 1:4
+                @test lower_bound(deficit[s, t]) == 0.0
+            end
+        end
+
+        @testset "create_deficit_variables! invalid submarket_id throws" begin
+            model = Model()
+            system = create_minimal_system()
+            time_periods = 1:24
+
+            @test_throws ArgumentError create_deficit_variables!(
+                model,
+                system,
+                time_periods;
+                submarket_ids = ["INVALID"],
+            )
+        end
+
+        @testset "get_submarket_indices" begin
+            system = create_minimal_system()  # Has SE and NE submarkets
+
+            indices = get_submarket_indices(system)
+
+            @test length(indices) == 2
+            @test haskey(indices, "SE")
+            @test haskey(indices, "NE")
+            @test indices["SE"] == 1
+            @test indices["NE"] == 2
+        end
+
+        @testset "get_submarket_indices empty system" begin
+            system = ElectricitySystem(;
+                thermal_plants = ConventionalThermal[],
+                hydro_plants = HydroPlant[],
+                wind_farms = WindPlant[],
+                solar_farms = SolarPlant[],
+                buses = Bus[],
+                submarkets = Submarket[],
+                loads = Load[],
+                base_date = Date(2025, 1, 1),
+                description = "Empty test system",
+            )
+
+            indices = get_submarket_indices(system)
+
+            @test isempty(indices)
+        end
+    end
+
+    @testset "Create All Variables with Load Shedding and Deficit" begin
+        @testset "create_all_variables! includes shed and deficit" begin
+            model = Model()
+            system = create_minimal_system(
+                thermal_count = 2,
+                hydro_count = 2,
+                wind_count = 1,
+                solar_count = 1,
+                pumped_storage_count = 1,
+                load_count = 3,
+            )
+            time_periods = 1:24
+
+            create_all_variables!(model, system, time_periods)
+
+            # Check all thermal variables
+            @test haskey(object_dictionary(model), :u)
+            @test haskey(object_dictionary(model), :v)
+            @test haskey(object_dictionary(model), :w)
+            @test haskey(object_dictionary(model), :g)
+
+            # Check all hydro variables
+            @test haskey(object_dictionary(model), :s)
+            @test haskey(object_dictionary(model), :q)
+            @test haskey(object_dictionary(model), :gh)
+            @test haskey(object_dictionary(model), :pump)
+
+            # Check all renewable variables
+            @test haskey(object_dictionary(model), :gr)
+            @test haskey(object_dictionary(model), :curtail)
+
+            # Check load shedding variables
+            @test haskey(object_dictionary(model), :shed)
+            @test size(model[:shed]) == (3, 24)  # 3 loads
+
+            # Check deficit variables
+            @test haskey(object_dictionary(model), :deficit)
+            @test size(model[:deficit]) == (2, 24)  # 2 submarkets
+        end
+
+        @testset "create_all_variables! empty system with submarkets" begin
+            model = Model()
+            system = create_minimal_system()  # Only has submarkets
+
+            create_all_variables!(model, system, 1:24)
+
+            # Should have deficit variables (from submarkets)
+            @test haskey(object_dictionary(model), :deficit)
+            # Should not have shed variables (no loads)
+            @test !haskey(object_dictionary(model), :shed)
         end
     end
 
