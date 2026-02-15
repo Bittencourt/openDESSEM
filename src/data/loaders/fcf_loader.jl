@@ -10,7 +10,7 @@ from long-term stochastic dual dynamic programming (SDDP) models. They are used
 to value stored water at the end of the short-term optimization horizon.
 
 The FCF is a piecewise linear convex function for each hydro plant, mapping
-reservoir storage to marginal water value (R$/hm³).
+reservoir storage to marginal water value (R\$/hm³).
 
 # Main Functions
 - `load_fcf_curves(path)`: Load FCF curves from infofcf.dat file
@@ -26,7 +26,7 @@ fcf_data = load_fcf_curves("path/to/case/")
 
 # Get water value for a specific plant at 500 hm³ storage
 water_value = get_water_value(fcf_data, "H_SE_001", 500.0)
-println("Water value: R\$(water_value) per hm³")
+println("Water value: R\$", water_value, " per hm³")
 ```
 
 # References
@@ -76,7 +76,7 @@ curve = FCFCurve(;
 value = interpolate_water_value(curve, 600.0)
 ```
 """
-Base.@kwdef struct FCFCurve
+struct FCFCurve
     plant_id::String
     num_pieces::Int
     storage_breakpoints::Vector{Float64}
@@ -160,7 +160,7 @@ water_value = get_water_value(fcf_data, "H_SE_001", 500.0)
 println("Plants with FCF: \$(length(fcf_data.curves))")
 ```
 """
-Base.@kwdef struct FCFCurveData
+struct FCFCurveData
     curves::Dict{String,FCFCurve}
     study_date::Date
     num_periods::Int
@@ -527,7 +527,7 @@ println("Plants with FCF: \$(length(fcf_data.curves))")
 # Get water value
 if has_fcf_curve(fcf_data, "H_XX_001")
     value = get_water_value(fcf_data, "H_XX_001", 500.0)
-    println("Water value at 500 hm³: R\$(value)/hm³")
+    println("Water value at 500 hm³: R\$", value, "/hm³")
 end
 ```
 """

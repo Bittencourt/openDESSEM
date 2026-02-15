@@ -14,6 +14,9 @@ using JuMP
 using MathOptInterface
 using Dates
 
+# Resolve ambiguity: use Objective.build! explicitly
+const obj_build! = OpenDESSEM.Objective.build!
+
 @testset "Production Cost Objective Tests" begin
 
     # =====================================================================
@@ -118,7 +121,7 @@ using Dates
         load_count::Int = 0,
     )
         thermals = ConventionalThermal[create_test_thermal(id = "T$i") for i in 1:thermal_count]
-        hydros = HydroPlant[create_test_hydro(id = "H$i") for i in 1:hydro_count]
+        hydros = OpenDESSEM.Entities.HydroPlant[create_test_hydro(id = "H$i") for i in 1:hydro_count]
         winds = WindPlant[create_test_wind(id = "W$i") for i in 1:wind_count]
         loads = Load[create_test_load(id = "L$i") for i in 1:load_count]
 
@@ -208,7 +211,7 @@ using Dates
         model = setup_model_with_variables(system, time_periods)
 
         objective = create_default_objective()
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test result.success
         @test haskey(result.cost_component_summary, "thermal_fuel")
@@ -256,7 +259,7 @@ using Dates
         model = setup_model_with_variables(system, time_periods)
 
         objective = create_default_objective(hydro_water_value = false)
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test result.success
 
@@ -293,7 +296,7 @@ using Dates
                 use_terminal_water_value = true,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
 
             # Get the objective expression
@@ -332,7 +335,7 @@ using Dates
                 use_terminal_water_value = true,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
 
             # All periods should use base water value since plant not in FCF
@@ -359,7 +362,7 @@ using Dates
                 use_terminal_water_value = false,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
 
             # All periods use base water value since FCF disabled
@@ -385,7 +388,7 @@ using Dates
                 use_terminal_water_value = true,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
 
             # All periods use base water value
@@ -414,7 +417,7 @@ using Dates
             )
 
             # But pass fcf_data via keyword argument
-            result = build!(model, system, objective; fcf_data = fcf_data)
+            result = obj_build!(model, system, objective; fcf_data = fcf_data)
             @test result.success
 
             # Terminal period should use FCF value
@@ -447,7 +450,7 @@ using Dates
                 shedding_penalty = 5000.0,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test haskey(result.cost_component_summary, "load_shedding")
             @test result.cost_component_summary["load_shedding"] > 0.0
@@ -476,7 +479,7 @@ using Dates
                 shedding_penalty = 5000.0,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test !isempty(result.warnings)
             @test any(contains(w, "shed") for w in result.warnings)
@@ -490,7 +493,7 @@ using Dates
             model = setup_model_with_variables(system, time_periods)
 
             objective = create_default_objective()
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test !haskey(result.cost_component_summary, "load_shedding")
         end
@@ -517,7 +520,7 @@ using Dates
                 deficit_penalty = 10000.0,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test haskey(result.cost_component_summary, "deficit")
             @test result.cost_component_summary["deficit"] > 0.0
@@ -545,7 +548,7 @@ using Dates
                 deficit_penalty = 10000.0,
             )
 
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test !isempty(result.warnings)
             @test any(contains(w, "deficit") for w in result.warnings)
@@ -559,7 +562,7 @@ using Dates
             model = setup_model_with_variables(system, time_periods)
 
             objective = create_default_objective()
-            result = build!(model, system, objective)
+            result = obj_build!(model, system, objective)
             @test result.success
             @test !haskey(result.cost_component_summary, "deficit")
         end
@@ -597,7 +600,7 @@ using Dates
             fcf_data = fcf_data,
         )
 
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test result.success
         @test length(result.cost_component_summary) >= 6
@@ -619,7 +622,7 @@ using Dates
     @testset "Empty system fails gracefully" begin
         system = ElectricitySystem(;
             thermal_plants = ConventionalThermal[],
-            hydro_plants = HydroPlant[],
+            hydro_plants = OpenDESSEM.Entities.HydroPlant[],
             wind_farms = WindPlant[],
             solar_farms = SolarPlant[],
             buses = [create_test_bus(id = "B1", is_reference = true)],
@@ -631,7 +634,7 @@ using Dates
 
         model = Model()
         objective = create_default_objective()
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test !result.success
         @test contains(result.message, "validation failed")
@@ -643,7 +646,7 @@ using Dates
         model = Model()  # No variables created
 
         objective = create_default_objective()
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test !result.success
         @test contains(result.message, "No valid cost components")
@@ -753,7 +756,7 @@ using Dates
             hydro_water_value = false,
         )
 
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
         @test result.success
 
         # Cost summary should reflect only 2 plants, not 3
@@ -779,7 +782,7 @@ using Dates
             hydro_water_value = false,
         )
 
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
         @test result.success
 
         obj = objective_function(model)
@@ -839,7 +842,7 @@ using Dates
         @testset "Invalid empty system" begin
             system = ElectricitySystem(;
                 thermal_plants = ConventionalThermal[],
-                hydro_plants = HydroPlant[],
+                hydro_plants = OpenDESSEM.Entities.HydroPlant[],
                 wind_farms = WindPlant[],
                 solar_farms = SolarPlant[],
                 buses = [create_test_bus(id = "B1", is_reference = true)],
@@ -862,7 +865,7 @@ using Dates
         model = setup_model_with_variables(system, time_periods)
 
         objective = create_default_objective()
-        result = build!(model, system, objective)
+        result = obj_build!(model, system, objective)
 
         @test result.success
         @test result.build_time_seconds >= 0.0
