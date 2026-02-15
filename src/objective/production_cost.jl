@@ -332,17 +332,18 @@ function build!(
                     idx = hydro_indices[plant.id]
                     for t in time_periods
                         # Determine water value: use FCF for terminal period if available
-                        water_value = if t == T && use_fcf
-                            # Try to get FCF water value for terminal period
+                        water_value = if t == T && use_fcf && haskey(fcf_data.curves, plant.id)
+                            # Use FCF curve to get water value at initial storage level.
+                            # This linearizes the piecewise FCF around the current
+                            # operating point. Full piecewise treatment requires
+                            # additional constraints (handled separately).
                             try
-                                # Get current storage value for interpolation
-                                # Note: We use plant's base water value as coefficient 
-                                # since FCF is state-dependent (storage-dependent)
-                                # The actual FCF-based valuation happens via the 
-                                # piecewise linear constraint or terminal constraint
-                                plant.water_value_rs_per_hm3
-                            catch
-                                # Fallback to plant's base water value
+                                get_water_value(fcf_data, plant.id, plant.initial_volume_hm3)
+                            catch e
+                                push!(
+                                    warnings,
+                                    "FCF lookup failed for $(plant.id): $e, using base water value",
+                                )
                                 plant.water_value_rs_per_hm3
                             end
                         else
@@ -600,7 +601,7 @@ function calculate_cost_breakdown(
                 idx = hydro_indices[plant.id]
                 for t in time_periods
                     # For terminal period with FCF, compute actual water value from storage
-                    if t == T && use_fcf
+                    if t == T && use_fcf && haskey(fcf_data.curves, plant.id)
                         try
                             storage_val = value(s[idx, t])
                             wv = get_water_value(fcf_data, plant.id, storage_val)
@@ -639,6 +640,38 @@ function calculate_cost_breakdown(
             end
         end
         breakdown["renewable_curtailment"] = curtail_cost
+    end
+
+    # Calculate load shedding cost from solution
+    if objective.load_shedding_cost && haskey(model, :shed)
+        shed = model[:shed]
+        load_indices = get_load_indices(system)
+        shed_cost = 0.0
+        for load in system.loads
+            if haskey(load_indices, load.id)
+                load_idx = load_indices[load.id]
+                for t in time_periods
+                    shed_cost += objective.shedding_penalty * value(shed[load_idx, t])
+                end
+            end
+        end
+        breakdown["load_shedding"] = shed_cost
+    end
+
+    # Calculate deficit cost from solution
+    if objective.deficit_cost && haskey(model, :deficit)
+        deficit = model[:deficit]
+        submarket_indices = get_submarket_indices(system)
+        deficit_cost = 0.0
+        for submarket in system.submarkets
+            if haskey(submarket_indices, submarket.code)
+                sm_idx = submarket_indices[submarket.code]
+                for t in time_periods
+                    deficit_cost += objective.deficit_penalty * value(deficit[sm_idx, t])
+                end
+            end
+        end
+        breakdown["deficit"] = deficit_cost
     end
 
     # Calculate total
