@@ -72,12 +72,16 @@ using .Variables
 export create_thermal_variables!,
     create_hydro_variables!,
     create_renewable_variables!,
+    create_load_shedding_variables!,
+    create_deficit_variables!,
     create_all_variables!,
     get_powermodels_variable,
     list_supported_powermodels_variables,
     get_thermal_plant_indices,
     get_hydro_plant_indices,
     get_renewable_plant_indices,
+    get_load_indices,
+    get_submarket_indices,
     get_plant_by_index
 
 # Export constraints functionality
@@ -102,6 +106,18 @@ export AbstractConstraint,
     has_tag,
     validate_constraint_system
 
+# Include FCF curve loader (required by Objective module)
+include("data/loaders/fcf_loader.jl")
+using .FCFCurveLoader
+export FCFCurveData,
+    FCFCurve,
+    load_fcf_curves,
+    parse_infofcf_file,
+    get_water_value,
+    interpolate_water_value,
+    has_fcf_curve,
+    get_plant_ids
+
 # Include objective function builder
 include("objective/Objective.jl")
 using .Objective
@@ -109,6 +125,7 @@ export AbstractObjective,
     ObjectiveMetadata,
     ObjectiveBuildResult,
     ProductionCostObjective,
+    COST_SCALE,
     calculate_cost_breakdown,
     get_fuel_cost,
     validate_objective_system
