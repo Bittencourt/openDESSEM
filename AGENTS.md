@@ -1,5 +1,9 @@
 # OpenDESSEM - Droid Agent Configuration
 
+> **Note**: This file is designed for AI agents. It contains comprehensive guidelines for automated development assistants.
+> Some content overlaps with [.claude/CLAUDE.md](.claude/CLAUDE.md) which contains the core development guidelines.
+> For human developers, refer to `.claude/CLAUDE.md` as the primary source.
+
 This file provides project-specific guidelines, conventions, and workflows for AI agents working on the OpenDESSEM project.
 
 ---

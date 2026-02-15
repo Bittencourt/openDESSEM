@@ -68,10 +68,23 @@ prices = calculate_marginal_costs(solution)  # PLD
 
 ## Documentation
 
+### Quick Links
+
+- [**Documentation Index**](docs/INDEX.md) - Complete documentation map
 - [**Quick Reference**](docs/QUICK_REFERENCE.md) - Essential commands and workflows
-- [**Technical Plan**](docs/01_DETAILED_TECHNICAL_PLAN.md) - Complete architecture and implementation plan
-- [**Original Planning Document**](docs/DESSEM_Planning_Document.md) - Background and problem definition
-- [**Development Guidelines**](.claude/claude.md) - Development rules and best practices
+- [**Development Guidelines**](.claude/CLAUDE.md) - TDD, commit conventions, code style
+
+### Core Documentation
+
+- [**Technical Plan**](docs/01_DETAILED_TECHNICAL_PLAN.md) - Architecture and implementation
+- [**Planning Document**](docs/DESSEM_Planning_Document.md) - Background and problem definition
+- [**Constraint System Guide**](docs/constraint_system_guide.md) - Constraint builder documentation
+- [**Architectural Decisions**](docs/ARCHITECTURAL_DECISION.md) - Design rationale
+
+### Examples & Tutorials
+
+- [**Interactive Wizard**](examples/WIZARD_README.md) - Step-by-step system builder
+- [**Examples**](examples/) - Usage examples and workflows
 
 ## Project Structure
 
