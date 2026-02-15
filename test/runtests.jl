@@ -40,4 +40,7 @@ using Test
     # Integration tests for constraints
     include("integration/test_constraint_system.jl")
 
+    # Objective function tests
+    include("unit/test_production_cost_objective.jl")
+
 end
