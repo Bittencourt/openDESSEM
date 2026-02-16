@@ -857,7 +857,7 @@ function _infer_time_periods(model::Model, system::ElectricitySystem)
         g = model[:g]
         if g isa JuMP.VariableRef
             return 1:1  # Single period
-        elseif hasmethod(size, (typeof(g)))
+        elseif applicable(size, g)
             dims = size(g)
             if length(dims) >= 2
                 return 1:dims[2]  # Second dimension is time

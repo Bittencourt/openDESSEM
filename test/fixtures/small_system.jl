@@ -48,11 +48,17 @@ using OpenDESSEM
 using OpenDESSEM:
     ConventionalThermal, NATURAL_GAS, ReservoirHydro, Bus, Submarket, Load,
     ElectricitySystem
-using OpenDESSEM:
-    create_thermal_variables!, create_hydro_variables!, create_deficit_variables!,
+using OpenDESSEM.Variables:
+    create_thermal_variables!, create_hydro_variables!, create_deficit_variables!
+using OpenDESSEM.Constraints:
     ThermalCommitmentConstraint, HydroGenerationConstraint, HydroWaterBalanceConstraint,
-    SubmarketBalanceConstraint, ConstraintMetadata, build!,
+    SubmarketBalanceConstraint, ConstraintMetadata
+using OpenDESSEM.Objective:
     ProductionCostObjective, ObjectiveMetadata
+
+# Import build! from both modules with qualification
+import OpenDESSEM.Constraints: build!
+import OpenDESSEM.Objective: build! as build_objective!
 
 export create_small_test_system, create_infeasible_test_system
 
@@ -243,14 +249,17 @@ function create_small_test_system(;
                 submarket_id = "SE",
                 max_generation_mw = 200.0,
                 min_generation_mw = 0.0,
-                max_storage_hm3 = 1000.0,
-                min_storage_hm3 = 200.0,
+                max_volume_hm3 = 1000.0,
+                min_volume_hm3 = 200.0,
                 initial_volume_hm3 = 800.0,
-                productivity_m3_per_s_to_mw = 0.9,
+                efficiency = 0.9,
                 max_outflow_m3_per_s = 300.0,
                 min_outflow_m3_per_s = 0.0,
-                max_turbining_m3_per_s = 250.0,
-                commissioning_date = DateTime(2010, 1, 1),
+                water_value_rs_per_hm3 = 100.0,
+                subsystem_code = 1,
+                initial_volume_percent = 80.0,
+                downstream_plant_id = nothing,
+                water_travel_time_hours = nothing,
             ),
         )
     end
@@ -266,14 +275,17 @@ function create_small_test_system(;
                 submarket_id = "SE",
                 max_generation_mw = 150.0,
                 min_generation_mw = 0.0,
-                max_storage_hm3 = 800.0,
-                min_storage_hm3 = 150.0,
+                max_volume_hm3 = 800.0,
+                min_volume_hm3 = 150.0,
                 initial_volume_hm3 = 600.0,
-                productivity_m3_per_s_to_mw = 0.85,
+                efficiency = 0.85,
                 max_outflow_m3_per_s = 250.0,
                 min_outflow_m3_per_s = 0.0,
-                max_turbining_m3_per_s = 200.0,
-                commissioning_date = DateTime(2012, 1, 1),
+                water_value_rs_per_hm3 = 80.0,
+                subsystem_code = 1,
+                initial_volume_percent = 75.0,
+                downstream_plant_id = nothing,
+                water_travel_time_hours = nothing,
             ),
         )
     end
@@ -383,6 +395,7 @@ function create_small_test_system(;
             priority = 10,
         ),
         include_renewables = false,  # No renewables in this test system
+        use_time_periods = time_periods,  # Use the same periods as variables
     )
     build!(model, system, balance_constraint)
 
@@ -393,13 +406,13 @@ function create_small_test_system(;
             description = "Minimize total operating cost",
         ),
         thermal_fuel_cost = true,
-        thermal_startup_cost = true,
-        thermal_shutdown_cost = true,
-        hydro_water_value = false,  # No FCF curves in test system
-        deficit_cost = include_deficit,
-        deficit_penalty = 5000.0,  # High penalty for deficit
-    )
-    build!(model, system, objective)
+         thermal_startup_cost = true,
+         thermal_shutdown_cost = true,
+         hydro_water_value = false,  # No FCF curves in test system
+         deficit_cost = include_deficit,
+         deficit_penalty = 5000.0,  # High penalty for deficit
+     )
+    build_objective!(model, system, objective)
 
     return model, system
 end
@@ -538,6 +551,7 @@ function create_infeasible_test_system()
             priority = 10,
         ),
         include_renewables = false,
+        use_time_periods = time_periods,  # Use the same periods as variables
     )
     build!(model, system, balance_constraint)
 
@@ -553,7 +567,7 @@ function create_infeasible_test_system()
         hydro_water_value = false,
         deficit_cost = false,  # NO deficit - ensures infeasibility
     )
-    build!(model, system, objective)
+    build_objective!(model, system, objective)
 
     return model, system
 end
