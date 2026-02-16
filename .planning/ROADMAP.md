@@ -65,12 +65,21 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 
 **Requirements:** SOLV-01, SOLV-02, SOLV-03, SOLV-04
 
+**Plans:** 5 plans in 3 waves
+
 **Success Criteria:**
 1. End-to-end workflow executes: load system, create variables, build constraints, set objective, optimize, extract results
 2. Two-stage pricing works: solve MILP for unit commitment, fix binaries, solve LP relaxation, extract PLD duals
 3. Multi-solver support verified with HiGHS (primary), Gurobi, CPLEX, GLPK via lazy loading
 4. Solver status handling reports optimal, infeasible, time limit with diagnostic messages and infeasibility analysis
 5. Small test case (3-5 plants) solves successfully and produces expected cost magnitude
+
+**Plans:**
+- [ ] 03-01-PLAN.md — Unified solve_model!() API with SolveStatus enum
+- [ ] 03-02-PLAN.md — Lazy loading for optional solvers (Gurobi, CPLEX, GLPK)
+- [ ] 03-03-PLAN.md — Infeasibility diagnostics with compute_iis!()
+- [ ] 03-04-PLAN.md — PLD DataFrame output and cost breakdown
+- [ ] 03-05-PLAN.md — End-to-end integration tests
 
 ---
 
@@ -154,12 +163,20 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 ### Phase 3 Notes
 
 **Key deliverables:**
-- Implement `solve_model()` orchestration function
-- Verify two_stage_pricing.jl works end-to-end
-- Add solver auto-detection and lazy loading for Gurobi/CPLEX/GLPK
-- Implement termination status checking and infeasibility diagnostics
+- `solve_model!()` unified API with keyword arguments and two-stage pricing
+- `SolveStatus` enum for user-friendly status (OPTIMAL, INFEASIBLE, TIME_LIMIT, etc.)
+- Lazy loading infrastructure for optional solvers (Gurobi, CPLEX, GLPK)
+- `compute_iis!()` for infeasibility diagnostics with report generation
+- `get_pld_dataframe()` for PLD extraction as DataFrame table
+- `get_cost_breakdown()` for detailed cost component analysis
+- End-to-end integration tests with small test system (2 thermal, 1 hydro, 6 periods)
 
-**Research flags:** Standard MOI patterns (no research-phase needed)
+**Architecture:**
+- Wave 1 (parallel): Plans 01-02 (solve API, lazy loading)
+- Wave 2 (parallel, depends on 01): Plans 03-04 (infeasibility, PLD/costs)
+- Wave 3 (depends on 01-04): Plan 05 (integration tests)
+
+**Research flags:** Standard MOI/JuMP patterns (research complete)
 
 **Estimated effort:** 4-6 days
 
