@@ -4,7 +4,9 @@
 Tests for the unified ElectricitySystem container that holds all power system entities.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities
+using OpenDESSEM: ElectricitySystem, get_thermal_plant, get_hydro_plant, get_bus,
+                  get_submarket, count_generators, total_capacity, validate_system
 using Test
 using Dates
 
@@ -1072,6 +1074,137 @@ using Dates
             interconnections = [ic1, ic2],
             base_date = Date(2025, 1, 1),
         )
+    end
+
+    @testset "Cascade Cycle Detection" begin
+        # Helper function to create test hydro plant
+        function create_test_hydro(;
+            id::String,
+            downstream_id::Union{String,Nothing} = nothing,
+            travel_time::Union{Float64,Nothing} = nothing,
+        )
+            if downstream_id !== nothing && travel_time === nothing
+                travel_time = 1.0
+            end
+
+            return ReservoirHydro(;
+                id = id,
+                name = "Test Hydro $id",
+                bus_id = "B001",
+                submarket_id = "SE",
+                max_volume_hm3 = 10000.0,
+                min_volume_hm3 = 1000.0,
+                initial_volume_hm3 = 5000.0,
+                max_outflow_m3_per_s = 5000.0,
+                min_outflow_m3_per_s = 0.0,
+                max_generation_mw = 1000.0,
+                min_generation_mw = 0.0,
+                efficiency = 0.9,
+                water_value_rs_per_hm3 = 50.0,
+                subsystem_code = 1,
+                initial_volume_percent = 50.0,
+                downstream_plant_id = downstream_id,
+                water_travel_time_hours = travel_time,
+            )
+        end
+
+        bus1 = create_test_bus()
+        submarket1 = create_test_submarket()
+
+        @testset "Valid linear cascade" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 2.0)
+            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 3.0)
+            hydro3 = create_test_hydro(id = "H003")
+
+            # Should NOT throw - valid cascade
+            system = ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1, hydro2, hydro3],
+                base_date = Date(2025, 1, 1),
+            )
+
+            @test length(system.hydro_plants) == 3
+        end
+
+        @testset "Valid confluence (two upstream to one downstream)" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H003", travel_time = 1.0)
+            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.5)
+            hydro3 = create_test_hydro(id = "H003")
+
+            system = ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1, hydro2, hydro3],
+                base_date = Date(2025, 1, 1),
+            )
+
+            @test length(system.hydro_plants) == 3
+        end
+
+        @testset "Valid disconnected cascades" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro2 = create_test_hydro(id = "H002")
+            hydro3 = create_test_hydro(id = "H003", downstream_id = "H004", travel_time = 1.0)
+            hydro4 = create_test_hydro(id = "H004")
+
+            system = ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1, hydro2, hydro3, hydro4],
+                base_date = Date(2025, 1, 1),
+            )
+
+            @test length(system.hydro_plants) == 4
+        end
+
+        @testset "Self-loop cycle" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H001", travel_time = 1.0)
+
+            @test_throws ArgumentError ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1],
+                base_date = Date(2025, 1, 1),
+            )
+        end
+
+        @testset "Simple cycle (H001 -> H002 -> H001)" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro2 = create_test_hydro(id = "H002", downstream_id = "H001", travel_time = 1.0)
+
+            @test_throws ArgumentError ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1, hydro2],
+                base_date = Date(2025, 1, 1),
+            )
+        end
+
+        @testset "Longer cycle (H001 -> H002 -> H003 -> H001)" begin
+            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.0)
+            hydro3 = create_test_hydro(id = "H003", downstream_id = "H001", travel_time = 1.0)
+
+            @test_throws ArgumentError ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = [hydro1, hydro2, hydro3],
+                base_date = Date(2025, 1, 1),
+            )
+        end
+
+        @testset "System without hydro plants" begin
+            # Should work fine - no hydro plants means no cascade validation needed
+            system = ElectricitySystem(;
+                buses = [bus1],
+                submarkets = [submarket1],
+                hydro_plants = HydroPlant[],
+                base_date = Date(2025, 1, 1),
+            )
+
+            @test isempty(system.hydro_plants)
+        end
     end
 
 end

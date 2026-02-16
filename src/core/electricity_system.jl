@@ -35,6 +35,9 @@ using .Entities:
     Interconnection,
     validate_unique_ids
 
+# Import cascade topology for cycle detection
+using ..CascadeTopologyUtils: build_cascade_topology
+
 """
     ElectricitySystem
 
@@ -508,6 +511,11 @@ struct ElectricitySystem
                     ),
                 )
             end
+        end
+
+        # Validate cascade topology (detect cycles)
+        if !isempty(hydro_plants)
+            build_cascade_topology(hydro_plants)  # Throws on cycle
         end
 
         # Create the system
