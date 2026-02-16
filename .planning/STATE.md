@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-16
 **Current Phase:** Phase 3 (Solver Interface Implementation) - IN PROGRESS
-**Current Plan:** 03-04 Complete (3/5)
+**Current Plan:** 03-03 Complete (4/5)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for solver auto-detection (03-03) or remaining plans.
+Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-detection (03-05).
 
 ---
 
 ## Current Position
 
 **Phase:** Phase 3 - Solver Interface Implementation (IN PROGRESS)
-**Plan:** 03-04 Complete (3/5)
-**Status:** Plan 03-04 complete, ready for 03-03 or 03-05
+**Plan:** 03-03 Complete (4/5)
+**Status:** Plan 03-03 complete, ready for 03-05
 
 **Progress Bar:**
 ```
-[████████████░░░░░░░░░] 3/5 plans complete (Phase 3 IN PROGRESS)
+[████████████████░░░░] 4/5 plans complete (Phase 3 IN PROGRESS)
 ```
 
 **Milestones:**
@@ -38,8 +38,9 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 - [x] Phase 2: Hydro Modeling Completion (4/4 criteria met) ✅
 - [x] Phase 3 Plan 01: Unified Solve API ✅
 - [x] Phase 3 Plan 02: Lazy Loading for Optional Solvers ✅
+- [x] Phase 3 Plan 03: Infeasibility Diagnostics ✅
 - [x] Phase 3 Plan 04: PLD DataFrame & Cost Breakdown ✅
-- [ ] Phase 3: Solver Interface Implementation (3/5 criteria)
+- [ ] Phase 3: Solver Interface Implementation (4/5 criteria)
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
@@ -48,7 +49,7 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1700+ passing (28 new PLD/cost breakdown tests)
+- Total tests: 1775+ passing (75 new infeasibility tests)
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Basic workflows passing
 
@@ -102,6 +103,9 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 | CostBreakdown struct over Dict | 2026-02-16 | Provides type safety and explicit field documentation for cost components |
 | Duals from LP for two-stage pricing | 2026-02-16 | SCED provides valid shadow prices, UC provides commitment decisions |
 | Empty DataFrame with correct schema | 2026-02-16 | Returns proper structure even when no data, enabling downstream code to work consistently |
+| On-demand IIS computation | 2026-02-16 | Users call compute_iis!(model) explicitly when needed, not auto-computed every solve |
+| Auto-generated timestamped reports | 2026-02-16 | IIS reports include timestamp in filename for easy identification |
+| Warning for non-infeasible models | 2026-02-16 | compute_iis!() warns but doesn't error when called on non-infeasible models |
 
 ### Active TODOs
 
@@ -114,9 +118,9 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 - [x] Add solver lazy loading with graceful fallback
 - [x] Implement PLD DataFrame output with get_pld_dataframe()
 - [x] Implement cost breakdown with get_cost_breakdown()
+- [x] Implement infeasibility diagnostics with compute_iis!()
 - [ ] Verify two-stage pricing end-to-end
 - [ ] Add solver auto-detection
-- [ ] Implement infeasibility diagnostics
 
 **Phase 4 (Solution Extraction):**
 - Extract all variable types (thermal, hydro, renewable)
@@ -141,6 +145,16 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 
 ### Recent Changes
 
+**2026-02-16 (Session 11 - Plan 03-03):**
+- Completed Phase 3 Plan 03: Infeasibility Diagnostics
+- Added IISConflict and IISResult structs for IIS representation
+- Implemented compute_iis!() using JuMP's compute_conflict!() API
+- Implemented write_iis_report() with troubleshooting guide
+- Auto-generated timestamped report files
+- Fixed MOI constant names (CONFLICT_FOUND, NO_CONFLICT_EXISTS, etc.)
+- Fixed R$ escaping in docstrings
+- 75 new infeasibility tests (all passing)
+
 **2026-02-16 (Session 10 - Plan 03-04):**
 - Completed Phase 3 Plan 04: PLD DataFrame and Cost Breakdown
 - Added get_pld_dataframe() returning DataFrame with submarket, period, pld columns
@@ -161,45 +175,35 @@ Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for
 - Fixed duplicate SolverResult constructor bug
 - 11 new lazy loading tests (all passing)
 
-**2026-02-16 (Session 8 - Plan 03-01):**
-- Completed Phase 3 Plan 01: Unified Solve API
-- Added SolveStatus enum with 8 user-friendly values (OPTIMAL, INFEASIBLE, etc.)
-- Added map_to_solve_status() to convert MOI codes to SolveStatus
-- Enhanced SolverResult with mip_result, lp_result, cost_breakdown, log_file fields
-- Implemented solve_model!() with keyword arguments (solver, time_limit, mip_gap, pricing, etc.)
-- Integrated two-stage pricing via pricing=true kwarg
-- Added warm start support for faster re-solving
-- Auto-generates log files in ./logs/ with timestamp format
-- 88 new solver interface tests
-
 ---
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 3 Plan 04 Complete
+**Last Session:** 2026-02-16 - Phase 3 Plan 03 Complete
 
 **Session Goals Achieved:**
-- PLD DataFrame output with get_pld_dataframe()
-- Cost breakdown with CostBreakdown struct and get_cost_breakdown()
-- Two-stage pricing integration (duals from LP, vars from MIP)
-- Fixed is_infeasible() and map_to_solve_status() bugs
-- 28 new tests for PLD and cost breakdown
+- Infeasibility diagnostics with compute_iis!()
+- IISConflict and IISResult structs
+- write_iis_report() with troubleshooting guide
+- Fixed MOI constant names
+- 75 new tests for infeasibility diagnostics
 
 **Next Session Goals:**
 - Continue Phase 3: Solver Interface
-- Plan 03-03: Solver auto-detection
-- Plan 03-05: Infeasibility diagnostics
+- Plan 03-05: Solver auto-detection (if needed)
+- Or proceed to Phase 4: Solution Extraction
 
 **Context for Next Session:**
-Phase 3 Plan 04 complete. PLD extraction ready:
-- get_pld_dataframe(result) returns DataFrame with submarket, period, pld
-- get_cost_breakdown(result, system) returns CostBreakdown struct
-- solve_model!() populates cost_breakdown field
-- Duals from LP (SCED) for valid shadow prices
+Phase 3 Plan 03 complete. Infeasibility diagnostics ready:
+- compute_iis!(model) computes IIS when model is infeasible
+- write_iis_report(result) generates timestamped report file
+- Reports include DESSEM-specific troubleshooting guide
+- HiGHS uses MathOptIIS for limited support
+- Gurobi/CPLEX have full native IIS support
 
-1700+ tests passing. Ready for Plan 03-03 or 03-05.
+1775+ tests passing. Phase 3 nearly complete.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Plan 03-03 (Solver auto-detection) or 03-05 (Infeasibility diagnostics)
+**Ready for:** Plan 03-05 (Solver auto-detection) or Phase 4 transition
