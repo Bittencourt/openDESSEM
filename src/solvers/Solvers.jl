@@ -48,6 +48,7 @@ module Solvers
 using JuMP
 using MathOptInterface
 using Dates
+using DataFrames
 
 # Import entity types from parent module
 using ..OpenDESSEM:

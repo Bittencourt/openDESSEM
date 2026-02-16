@@ -571,6 +571,109 @@ function get_renewable_generation(
     return gen
 end
 
+"""
+    get_pld_dataframe(
+        result::SolverResult;
+        submarkets::Union{Vector{String},Nothing}=nothing,
+        time_periods::Union{UnitRange{Int},Nothing}=nothing
+    ) -> DataFrame
+
+Extract PLD (Preço de Liquidação das Diferenças) values as a DataFrame.
+
+PLD is the locational marginal price (LMP) for each submarket and time period,
+obtained from the dual values of submarket energy balance constraints.
+
+# Arguments
+- `result::SolverResult`: Solver result with dual values (from LP or SCED)
+- `submarkets::Union{Vector{String},Nothing}`: Filter to specific submarkets (default: all)
+- `time_periods::Union{UnitRange{Int},Nothing}`: Filter to specific time periods (default: all available)
+
+# Returns
+- `DataFrame` with columns:
+  - `submarket`: Submarket code (e.g., "SE", "NE", "S", "N")
+  - `period`: Time period index
+  - `pld`: PLD value in R$/MWh
+
+# Example
+```julia
+# Get all PLDs as DataFrame
+pld_df = get_pld_dataframe(result)
+println(first(pld_df, 5))
+
+# Filter to specific submarket
+pld_se = get_pld_dataframe(result; submarkets=["SE"])
+println("SE submarket PLDs:")
+println(pld_se)
+
+# Filter to specific time periods
+pld_peak = get_pld_dataframe(result; time_periods=18:21)  # Peak hours
+println("Peak period PLDs:")
+println(pld_peak)
+```
+
+# Notes
+- Returns empty DataFrame with correct columns if no dual values available
+- PLD values are the shadow prices of submarket balance constraints
+- For MIP problems, use `result.lp_result` (from two-stage pricing) for valid PLDs
+"""
+function get_pld_dataframe(
+    result::SolverResult;
+    submarkets::Union{Vector{String},Nothing} = nothing,
+    time_periods::Union{UnitRange{Int},Nothing} = nothing,
+)
+    # Create empty DataFrame with correct schema
+    empty_df = DataFrame(;
+        submarket = String[],
+        period = Int[],
+        pld = Float64[],
+    )
+
+    # Check if dual values are available
+    if !result.has_duals
+        @warn "Result does not have dual values. For MIP problems, use result.lp_result for valid PLDs."
+        return empty_df
+    end
+
+    # Check for submarket_balance duals
+    if !haskey(result.dual_values, "submarket_balance")
+        @warn "Submarket balance duals not found in result. Ensure model has submarket balance constraints."
+        return empty_df
+    end
+
+    sb_dict = result.dual_values["submarket_balance"]
+
+    # Collect all available keys
+    rows = []
+    for ((submarket_code, t), pld_value) in sb_dict
+        # Apply submarket filter
+        if submarkets !== nothing && !(submarket_code in submarkets)
+            continue
+        end
+
+        # Apply time period filter
+        if time_periods !== nothing && !(t in time_periods)
+            continue
+        end
+
+        push!(rows, (submarket = submarket_code, period = t, pld = pld_value))
+    end
+
+    # Handle empty results gracefully
+    if isempty(rows)
+        if submarkets !== nothing || time_periods !== nothing
+            @warn "No PLD values found for specified filters" submarkets =
+                submarkets time_periods = time_periods
+        end
+        return empty_df
+    end
+
+    # Create DataFrame and sort
+    df = DataFrame(rows)
+    sort!(df, [:submarket, :period])
+
+    return df
+end
+
 # Export public functions
 export extract_solution_values!,
     extract_dual_values!,
@@ -578,4 +681,5 @@ export extract_solution_values!,
     get_thermal_generation,
     get_hydro_generation,
     get_hydro_storage,
-    get_renewable_generation
+    get_renewable_generation,
+    get_pld_dataframe
