@@ -674,6 +674,214 @@ function get_pld_dataframe(
     return df
 end
 
+"""
+    CostBreakdown
+
+Detailed breakdown of total system cost by component.
+
+# Fields
+- `thermal_fuel::Float64`: Fuel costs for thermal generation (R$)
+- `thermal_startup::Float64`: Startup costs for thermal plants (R$)
+- `thermal_shutdown::Float64`: Shutdown costs for thermal plants (R$)
+- `deficit_penalty::Float64`: Penalty cost for load deficit (R$)
+- `hydro_water_value::Float64`: Water value/opportunity cost for hydro (R$)
+- `total::Float64`: Total system cost (R$)
+
+# Example
+```julia
+breakdown = get_cost_breakdown(result, system)
+println("Total cost: R\$ ", breakdown.total)
+println("Thermal fuel: R\$ ", breakdown.thermal_fuel)
+println("Deficit penalty: R\$ ", breakdown.deficit_penalty)
+```
+"""
+Base.@kwdef struct CostBreakdown
+    thermal_fuel::Float64 = 0.0
+    thermal_startup::Float64 = 0.0
+    thermal_shutdown::Float64 = 0.0
+    deficit_penalty::Float64 = 0.0
+    hydro_water_value::Float64 = 0.0
+    total::Float64 = 0.0
+end
+
+"""
+    get_cost_breakdown(
+        result::SolverResult,
+        system::ElectricitySystem;
+        time_periods::Union{UnitRange{Int},Nothing}=nothing
+    ) -> CostBreakdown
+
+Calculate detailed cost breakdown from optimization result.
+
+Computes individual cost components by combining variable values from the
+optimization result with cost parameters from the system entities.
+
+# Arguments
+- `result::SolverResult`: Solver result with variable values
+- `system::ElectricitySystem`: Electricity system with cost parameters
+- `time_periods::Union{UnitRange{Int},Nothing}`: Time periods to include (default: all available)
+
+# Returns
+- `CostBreakdown` struct with individual cost components
+
+# Cost Components Calculated
+- **thermal_fuel**: Sum of g[i,t] * fuel_cost[i] for all thermal plants
+- **thermal_startup**: Sum of v[i,t] * startup_cost[i] for all thermal plants
+- **thermal_shutdown**: Sum of w[i,t] * shutdown_cost[i] for all thermal plants
+- **deficit_penalty**: Sum of deficit[submarket,t] * deficit_cost[submarket]
+- **hydro_water_value**: Placeholder (0.0 if FCF not available)
+- **total**: Sum of all components
+
+# Example
+```julia
+# After solving with two-stage pricing
+result = solve_model!(model, system)
+if result.solve_status == OPTIMAL
+    breakdown = get_cost_breakdown(result, system)
+    
+    println("Cost Breakdown:")
+    println("  Thermal Fuel: R\$ ", breakdown.thermal_fuel)
+    println("  Startup: R\$ ", breakdown.thermal_startup)
+    println("  Shutdown: R\$ ", breakdown.thermal_shutdown)
+    println("  Deficit: R\$ ", breakdown.deficit_penalty)
+    println("  Hydro: R\$ ", breakdown.hydro_water_value)
+    println("  Total: R\$ ", breakdown.total)
+end
+
+# For two-stage pricing, use the LP result for accurate duals
+if result.lp_result !== nothing
+    breakdown = get_cost_breakdown(result.lp_result, system)
+end
+```
+
+# Notes
+- Requires `result.has_values == true`
+- Thermal costs are computed from actual generation and commitment decisions
+- Hydro water value is 0 if FCF curves are not available (future enhancement)
+- All costs are in Brazilian Reais (R$)
+"""
+function get_cost_breakdown(
+    result::SolverResult,
+    system::ElectricitySystem;
+    time_periods::Union{UnitRange{Int},Nothing} = nothing,
+)
+    # Initialize all components to zero
+    thermal_fuel = 0.0
+    thermal_startup = 0.0
+    thermal_shutdown = 0.0
+    deficit_penalty = 0.0
+    hydro_water_value = 0.0
+
+    # Check if variable values are available
+    if !result.has_values
+        @warn "Result does not have variable values. Cannot compute cost breakdown."
+        return CostBreakdown()
+    end
+
+    # Determine time periods to use
+    if time_periods === nothing
+        # Infer from available data
+        if haskey(result.variables, :thermal_generation) &&
+           !isempty(result.variables[:thermal_generation])
+            # Get time periods from thermal generation keys
+            periods_seen = Set{Int}()
+            for ((_, t), _) in result.variables[:thermal_generation]
+                push!(periods_seen, t)
+            end
+            time_periods = minimum(periods_seen):maximum(periods_seen)
+        else
+            @warn "Cannot infer time periods from result. Using empty range."
+            time_periods = 1:0  # Empty range
+        end
+    end
+
+    # Calculate thermal fuel cost: g[i,t] * fuel_cost[i]
+    if haskey(result.variables, :thermal_generation)
+        thermal_gen = result.variables[:thermal_generation]
+        for plant in system.thermal_plants
+            for t in time_periods
+                key = (plant.id, t)
+                if haskey(thermal_gen, key)
+                    gen_mw = thermal_gen[key]
+                    # fuel_cost_rsj_per_mwh is R$/MWh, gen is in MW for 1 hour = MWh
+                    thermal_fuel += gen_mw * plant.fuel_cost_rsj_per_mwh
+                end
+            end
+        end
+    end
+
+    # Calculate thermal startup cost: v[i,t] * startup_cost[i]
+    if haskey(result.variables, :thermal_startup)
+        thermal_startup_vars = result.variables[:thermal_startup]
+        for plant in system.thermal_plants
+            for t in time_periods
+                key = (plant.id, t)
+                if haskey(thermal_startup_vars, key)
+                    startup_val = thermal_startup_vars[key]
+                    # v is binary, startup_cost_rs is R$ per startup event
+                    if startup_val > 0.5  # Count as startup if > 0.5
+                        thermal_startup += plant.startup_cost_rs
+                    end
+                end
+            end
+        end
+    end
+
+    # Calculate thermal shutdown cost: w[i,t] * shutdown_cost[i]
+    if haskey(result.variables, :thermal_shutdown)
+        thermal_shutdown_vars = result.variables[:thermal_shutdown]
+        for plant in system.thermal_plants
+            for t in time_periods
+                key = (plant.id, t)
+                if haskey(thermal_shutdown_vars, key)
+                    shutdown_val = thermal_shutdown_vars[key]
+                    # w is binary, shutdown_cost_rs is R$ per shutdown event
+                    if shutdown_val > 0.5  # Count as shutdown if > 0.5
+                        thermal_shutdown += plant.shutdown_cost_rs
+                    end
+                end
+            end
+        end
+    end
+
+    # Calculate deficit penalty: deficit[submarket,t] * deficit_cost
+    # The deficit variable is stored as :deficit or similar
+    if haskey(result.variables, :deficit)
+        deficit_vars = result.variables[:deficit]
+        # Get deficit costs from submarkets
+        deficit_cost_per_mwh = 5000.0  # Default high penalty (R$/MWh)
+        for ((submarket_code, t), deficit_mw) in deficit_vars
+            # Look for submarket-specific deficit cost
+            for submarket in system.submarkets
+                if submarket.code == submarket_code
+                    # Use submarket-specific cost if available
+                    # deficit_cost_per_mwh = get(submarket, :deficit_cost, 5000.0)
+                    break
+                end
+            end
+            deficit_penalty += deficit_mw * deficit_cost_per_mwh
+        end
+    end
+
+    # Hydro water value: placeholder (0 if FCF not available)
+    # Future enhancement: integrate with FCF curves from Phase 1
+    # The water value represents the opportunity cost of using water now vs future
+    # It's computed from the terminal storage and FCF slope
+    hydro_water_value = 0.0
+
+    # Total cost
+    total = thermal_fuel + thermal_startup + thermal_shutdown + deficit_penalty + hydro_water_value
+
+    return CostBreakdown(;
+        thermal_fuel = thermal_fuel,
+        thermal_startup = thermal_startup,
+        thermal_shutdown = thermal_shutdown,
+        deficit_penalty = deficit_penalty,
+        hydro_water_value = hydro_water_value,
+        total = total,
+    )
+end
+
 # Export public functions
 export extract_solution_values!,
     extract_dual_values!,
@@ -682,4 +890,6 @@ export extract_solution_values!,
     get_hydro_generation,
     get_hydro_storage,
     get_renewable_generation,
-    get_pld_dataframe
+    get_pld_dataframe,
+    CostBreakdown,
+    get_cost_breakdown

@@ -72,6 +72,7 @@ include("solver_types.jl")
 include("solver_interface.jl")
 include("solution_extraction.jl")
 include("two_stage_pricing.jl")
+include("infeasibility.jl")
 
 # Export public types and functions
 export
@@ -97,6 +98,8 @@ export
     # Configuration and result types
     SolverOptions,
     SolverResult,
+    IISConflict,
+    IISResult,
 
     # Main solver functions
     optimize!,
@@ -123,9 +126,16 @@ export
     get_hydro_generation,
     get_hydro_storage,
     get_renewable_generation,
+    get_pld_dataframe,
+    CostBreakdown,
+    get_cost_breakdown,
 
     # Status helpers
     is_optimal,
-    is_infeasible
+    is_infeasible,
+
+    # Infeasibility diagnostics
+    compute_iis!,
+    write_iis_report
 
 end # module
