@@ -6,6 +6,44 @@ Provides enumeration of supported solvers and configuration options.
 """
 
 """
+    SolveStatus
+
+User-friendly solver status enumeration.
+
+Maps MathOptInterface status codes to simple, actionable values.
+
+# Values
+- `OPTIMAL`: Solution found and optimal
+- `INFEASIBLE`: No feasible solution exists
+- `UNBOUNDED`: Objective can improve infinitely
+- `TIME_LIMIT`: Time limit reached with solution
+- `ITERATION_LIMIT`: Iteration limit reached
+- `NUMERICAL_ERROR`: Numerical issues encountered
+- `OTHER_LIMIT`: Other limit (memory, nodes, etc.)
+- `NOT_SOLVED`: Model not yet solved
+
+# Example
+```julia
+result = solve_model!(model, system)
+if result.solve_status == OPTIMAL
+    println("Found optimal solution!")
+elseif result.solve_status == INFEASIBLE
+    println("Problem is infeasible - check constraints")
+end
+```
+"""
+@enum SolveStatus begin
+    OPTIMAL           # Solution found and optimal
+    INFEASIBLE        # No feasible solution exists
+    UNBOUNDED         # Objective can improve infinitely
+    TIME_LIMIT        # Time limit reached with solution
+    ITERATION_LIMIT   # Iteration limit reached
+    NUMERICAL_ERROR   # Numerical issues encountered
+    OTHER_LIMIT       # Other limit (memory, nodes, etc.)
+    NOT_SOLVED        # Model not yet solved
+end
+
+"""
     SolverType
 
 Enumeration of supported solvers.
@@ -72,7 +110,8 @@ end
 Complete solution result from optimization.
 
 # Fields
-- `status::MOI.TerminationStatusCode`: Solution status (OPTIMAL, INFEASIBLE, etc.)
+- `status::MOI.TerminationStatusCode`: Raw MOI solution status (OPTIMAL, INFEASIBLE, etc.)
+- `solve_status::SolveStatus`: User-friendly status enum
 - `objective_value::Union{Float64, Nothing}`: Optimal objective value (if available)
 - `solve_time_seconds::Float64`: Time taken to solve
 - `objective_bound::Union{Float64, Nothing}`: Best known objective bound (for MIP)
@@ -81,18 +120,28 @@ Complete solution result from optimization.
 - `dual_values::Dict{String, Dict{Tuple, Float64}}`: Dual values by constraint type
 - `has_values::Bool`: Whether variable values were extracted
 - `has_duals::Bool`: Whether dual values were extracted
+- `mip_result::Union{SolverResult, Nothing}`: Stage 1 MIP result (for two-stage pricing)
+- `lp_result::Union{SolverResult, Nothing}`: Stage 2 LP result (for two-stage pricing)
+- `cost_breakdown::Dict{String, Float64}`: Component costs (thermal, hydro, startup, etc.)
+- `log_file::Union{String, Nothing}`: Path to solver log file (if generated)
 
 # Example
 ```julia
-result = optimize!(model, system, HiGHS.Optimizer; options=solver_options)
-if result.status == MOI.OPTIMAL
+result = solve_model!(model, system)
+if result.solve_status == OPTIMAL
     println("Optimal cost: R\$ ", result.objective_value)
     println("Solve time: ", result.solve_time_seconds, " seconds")
+    
+    # For two-stage pricing
+    if result.lp_result !== nothing
+        lmps = get_submarket_lmps(result.lp_result, "SE", 1:24)
+    end
 end
 ```
 """
 Base.@kwdef mutable struct SolverResult
     status::MathOptInterface.TerminationStatusCode
+    solve_status::SolveStatus = NOT_SOLVED
     objective_value::Union{Float64,Nothing} = nothing
     solve_time_seconds::Float64 = 0.0
     objective_bound::Union{Float64,Nothing} = nothing
@@ -101,6 +150,104 @@ Base.@kwdef mutable struct SolverResult
     dual_values::Dict{String,Dict{Tuple,Float64}} = Dict{String,Dict{Tuple,Float64}}()
     has_values::Bool = false
     has_duals::Bool = false
+    mip_result::Union{SolverResult,Nothing} = nothing
+    lp_result::Union{SolverResult,Nothing} = nothing
+    cost_breakdown::Dict{String,Float64} = Dict{String,Float64}()
+    log_file::Union{String,Nothing} = nothing
+
+    # Inner constructor to handle self-referential type
+    function SolverResult(;
+        status::MathOptInterface.TerminationStatusCode = MOI.OPTIMIZE_NOT_CALLED,
+        solve_status::SolveStatus = NOT_SOLVED,
+        objective_value::Union{Float64,Nothing} = nothing,
+        solve_time_seconds::Float64 = 0.0,
+        objective_bound::Union{Float64,Nothing} = nothing,
+        node_count::Union{Int,Nothing} = nothing,
+        variables::Dict{Symbol,Any} = Dict{Symbol,Any}(),
+        dual_values::Dict{String,Dict{Tuple,Float64}} = Dict{String,Dict{Tuple,Float64}}(),
+        has_values::Bool = false,
+        has_duals::Bool = false,
+        mip_result::Union{SolverResult,Nothing} = nothing,
+        lp_result::Union{SolverResult,Nothing} = nothing,
+        cost_breakdown::Dict{String,Float64} = Dict{String,Float64}(),
+        log_file::Union{String,Nothing} = nothing,
+    )
+        new(
+            status,
+            solve_status,
+            objective_value,
+            solve_time_seconds,
+            objective_bound,
+            node_count,
+            variables,
+            dual_values,
+            has_values,
+            has_duals,
+            mip_result,
+            lp_result,
+            cost_breakdown,
+            log_file,
+        )
+    end
+end
+
+"""
+    map_to_solve_status(moi_status::MOI.TerminationStatusCode)::SolveStatus
+
+Convert MathOptInterface termination status to user-friendly SolveStatus enum.
+
+# Arguments
+- `moi_status::MOI.TerminationStatusCode`: Raw MOI status code from solver
+
+# Returns
+- `SolveStatus`: User-friendly status enum
+
+# Mapping Table
+| MOI Status | SolveStatus |
+|------------|-------------|
+| OPTIMAL, LOCALLY_SOLVED | OPTIMAL |
+| INFEASIBLE, LOCALLY_INFEASIBLE, INFEASIBLE_OR_UNBOUNDED | INFEASIBLE |
+| UNBOUNDED, DUAL_INFEASIBLE | UNBOUNDED |
+| TIME_LIMIT | TIME_LIMIT |
+| ITERATION_LIMIT | ITERATION_LIMIT |
+| NUMERICAL_ERROR, SLOW_PROGRESS | NUMERICAL_ERROR |
+| NODE_LIMIT, SOLUTION_LIMIT, MEMORY_LIMIT, OBJECTIVE_LIMIT, NORM_LIMIT, OTHER_LIMIT | OTHER_LIMIT |
+| OPTIMIZE_NOT_CALLED, INVALID_MODEL, INVALID_OPTION | NOT_SOLVED |
+
+# Example
+```julia
+status = map_to_solve_status(termination_status(model))
+if status == OPTIMAL
+    println("Found optimal solution!")
+end
+```
+"""
+function map_to_solve_status(moi_status::MOI.TerminationStatusCode)::SolveStatus
+    if moi_status == MOI.OPTIMAL || moi_status == MOI.LOCALLY_SOLVED
+        return OPTIMAL
+    elseif moi_status == MOI.INFEASIBLE ||
+           moi_status == MOI.LOCALLY_INFEASIBLE ||
+           moi_status == MOI.INFEASIBLE_OR_UNBOUNDED
+        return INFEASIBLE
+    elseif moi_status == MOI.UNBOUNDED || moi_status == MOI.DUAL_INFEASIBLE
+        return UNBOUNDED
+    elseif moi_status == MOI.TIME_LIMIT
+        return TIME_LIMIT
+    elseif moi_status == MOI.ITERATION_LIMIT
+        return ITERATION_LIMIT
+    elseif moi_status == MOI.NUMERICAL_ERROR || moi_status == MOI.SLOW_PROGRESS
+        return NUMERICAL_ERROR
+    elseif moi_status == MOI.NODE_LIMIT ||
+           moi_status == MOI.SOLUTION_LIMIT ||
+           moi_status == MOI.MEMORY_LIMIT ||
+           moi_status == MOI.OBJECTIVE_LIMIT ||
+           moi_status == MOI.NORM_LIMIT ||
+           moi_status == MOI.OTHER_LIMIT
+        return OTHER_LIMIT
+    else
+        # Includes OPTIMIZE_NOT_CALLED, INVALID_MODEL, INVALID_OPTION, etc.
+        return NOT_SOLVED
+    end
 end
 
 """
@@ -185,13 +332,23 @@ function has_solution(result::SolverResult)::Bool
 end
 
 # Export public types and functions
-export SolverType,
+export SolveStatus,
+    OPTIMAL,
+    INFEASIBLE,
+    UNBOUNDED,
+    TIME_LIMIT,
+    ITERATION_LIMIT,
+    NUMERICAL_ERROR,
+    OTHER_LIMIT,
+    NOT_SOLVED,
+    SolverType,
     HIGHS,
     GUROBI,
     CPLEX,
     GLPK,
     SolverOptions,
     SolverResult,
+    map_to_solve_status,
     is_optimal,
     is_infeasible,
     is_time_limit,

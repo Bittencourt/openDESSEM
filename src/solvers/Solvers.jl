@@ -64,9 +64,7 @@ using ..OpenDESSEM:
 
 # Import variable manager
 using ..OpenDESSEM.Variables:
-    get_thermal_plant_indices,
-    get_hydro_plant_indices,
-    get_renewable_plant_indices
+    get_thermal_plant_indices, get_hydro_plant_indices, get_renewable_plant_indices
 
 # Include all solver modules
 include("solver_types.jl")
@@ -76,6 +74,18 @@ include("two_stage_pricing.jl")
 
 # Export public types and functions
 export
+    # User-friendly status enum
+    SolveStatus,
+    OPTIMAL,
+    INFEASIBLE,
+    UNBOUNDED,
+    TIME_LIMIT,
+    ITERATION_LIMIT,
+    NUMERICAL_ERROR,
+    OTHER_LIMIT,
+    NOT_SOLVED,
+    map_to_solve_status,
+
     # Solver type enum
     SolverType,
     HIGHS,
@@ -92,6 +102,10 @@ export
     solve_lp_relaxation,
     get_solver_optimizer,
     apply_solver_options!,
+    solver_available,
+
+    # Unified solve API
+    solve_model!,
 
     # Two-stage pricing (UC → SCED for LMPs)
     compute_two_stage_lmps,
