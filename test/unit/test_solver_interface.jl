@@ -251,4 +251,50 @@ const MOI = MathOptInterface
         end
     end
 
+    # =========================================================================
+    # Lazy Loading Tests
+    # =========================================================================
+
+    @testset "Lazy Loading and Solver Availability" begin
+        @testset "HIGHS always available" begin
+            @test solver_available(HIGHS) == true
+        end
+
+        @testset "Optional solvers lazy loading" begin
+            # These should not throw errors regardless of installation
+            @test OpenDESSEM.Solvers._try_load_gurobi() isa Bool
+            @test OpenDESSEM.Solvers._try_load_cplex() isa Bool
+            @test OpenDESSEM.Solvers._try_load_glpk() isa Bool
+        end
+
+        @testset "solver_available function" begin
+            @test solver_available(HIGHS) == true
+
+            # Check optional solvers (result depends on installation)
+            gurobi_avail = solver_available(GUROBI)
+            @test gurobi_avail isa Bool
+
+            cplex_avail = solver_available(CPLEX)
+            @test cplex_avail isa Bool
+
+            glpk_avail = solver_available(GLPK)
+            @test glpk_avail isa Bool
+        end
+
+        @testset "Lazy loading caches results" begin
+            # Call twice to verify caching works
+            result1 = OpenDESSEM.Solvers._try_load_gurobi()
+            result2 = OpenDESSEM.Solvers._try_load_gurobi()
+            @test result1 == result2
+
+            result1 = OpenDESSEM.Solvers._try_load_cplex()
+            result2 = OpenDESSEM.Solvers._try_load_cplex()
+            @test result1 == result2
+
+            result1 = OpenDESSEM.Solvers._try_load_glpk()
+            result2 = OpenDESSEM.Solvers._try_load_glpk()
+            @test result1 == result2
+        end
+    end
+
 end

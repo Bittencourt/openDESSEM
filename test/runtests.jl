@@ -50,4 +50,7 @@ using Test
     # Objective function tests
     include("unit/test_production_cost_objective.jl")
 
+    # Solver interface tests
+    include("unit/test_solver_interface.jl")
+
 end
