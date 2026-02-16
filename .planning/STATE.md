@@ -1,8 +1,8 @@
 # Project State: OpenDESSEM
 
 **Last Updated:** 2026-02-16
-**Current Phase:** Phase 2 (Hydro Modeling Completion) - COMPLETE
-**Current Plan:** 02-03 Complete (3/3)
+**Current Phase:** Phase 3 (Solver Interface Implementation) - IN PROGRESS
+**Current Plan:** 03-02 Complete (2/5)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 2 complete. Hydro plants now operate with realistic cascade topology and inflow data. Ready to proceed to Phase 3 (Solver Interface).
+Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solver auto-detection (03-03).
 
 ---
 
 ## Current Position
 
-**Phase:** Phase 2 - Hydro Modeling Completion (COMPLETE)
-**Plan:** 02-03 Complete (3/3 - Phase 2 COMPLETE)
-**Status:** All 4 success criteria verified ✓
+**Phase:** Phase 3 - Solver Interface Implementation (IN PROGRESS)
+**Plan:** 03-02 Complete (2/5)
+**Status:** Plan 03-02 complete, ready for 03-03
 
 **Progress Bar:**
 ```
-[████████████████████] 3/3 plans complete (Phase 2 COMPLETE)
+[████████░░░░░░░░░░░░] 2/5 plans complete (Phase 3 IN PROGRESS)
 ```
 
 **Milestones:**
@@ -36,7 +36,9 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 - [x] Phase 2 Plan 02: Inflow Data Loading ✅
 - [x] Phase 2 Plan 03: Water Balance Cascade & Inflow Integration ✅
 - [x] Phase 2: Hydro Modeling Completion (4/4 criteria met) ✅
-- [ ] Phase 3: Solver Interface Implementation (0/5 criteria)
+- [x] Phase 3 Plan 01: Unified Solve API ✅
+- [x] Phase 3 Plan 02: Lazy Loading for Optional Solvers ✅
+- [ ] Phase 3: Solver Interface Implementation (2/5 criteria)
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
@@ -45,7 +47,7 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1541+ passing (including 103 cascade + 34 inflow + 46 water balance tests)
+- Total tests: 1613+ passing (11 new lazy loading tests)
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Basic workflows passing
 
@@ -62,6 +64,7 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 - ~~Cascade delays commented out (blocker for multi-reservoir systems)~~ ✅ DONE - Now integrated in water balance
 - PowerModels in validate-only mode (not actively constraining)
 - ~~Objective function scaffold incomplete (water value integration pending)~~ ✅ DONE
+- LibPQ dependency issue causing precompilation failures (non-blocking)
 
 ---
 
@@ -89,23 +92,25 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 | PumpedStorageHydro as cascade terminals | 2026-02-16 | No downstream_plant_id field, doesn't participate in cascade topology |
 | AffExpr construction via add_to_expression!() | 2026-02-16 | Proper JuMP variable handling, avoids type conversion errors |
 | Optional inflow parameters for backward compatibility | 2026-02-16 | Existing code works without changes, new code can pass inflow data |
+| SolveStatus enum over raw MOI codes | 2026-02-16 | Provides user-friendly abstraction that maps 15+ MOI status codes to 8 actionable values |
+| Outer constructor for SolverResult | 2026-02-16 | Avoids method overwriting issues with self-referential types in Julia |
+| pricing=true as default | 2026-02-16 | Two-stage pricing is the standard for UC problems; users must explicitly opt out |
+| Auto-generate log files | 2026-02-16 | Ensures solve history is preserved without user action |
+| Lazy loading with Ref{Bool} caching | 2026-02-16 | Cache loading attempts to avoid repeated @eval import for optional solvers |
+| Warning (not error) for missing optional solvers | 2026-02-16 | Missing optional solver is not a failure - just log warning with install hint |
 
 ### Active TODOs
 
 **Phase 1 (Objective Function): COMPLETE**
 
-**Phase 2 (Hydro Modeling):**
-- ~~Parse dadvaz.dat for inflow data~~ ✅ DONE (02-02)
-- ~~Build cascade topology: DAG construction, depth computation, cycle detection~~ ✅ DONE (02-01)
-- ~~Integrate inflows into HydroWaterBalanceConstraint~~ ✅ DONE (02-03)
-- ~~Complete cascade delay logic~~ ✅ DONE (02-03)
-- Add production coefficient constraints
+**Phase 2 (Hydro Modeling): COMPLETE**
 
 **Phase 3 (Solver Interface):**
-- Implement solve_model() orchestration
-- Verify two-stage pricing end-to-end
-- Add solver auto-detection and lazy loading
-- Implement infeasibility diagnostics
+- [x] Implement unified solve_model!() API
+- [x] Add solver lazy loading with graceful fallback
+- [ ] Verify two-stage pricing end-to-end
+- [ ] Add solver auto-detection
+- [ ] Implement infeasibility diagnostics
 
 **Phase 4 (Solution Extraction):**
 - Extract all variable types (thermal, hydro, renewable)
@@ -122,7 +127,7 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 ### Known Blockers
 
 **Current:**
-- None - Water balance cascade and inflow integration complete
+- LibPQ dependency issue causing precompilation failures (non-blocking for development)
 
 **Anticipated:**
 - DESSEM binary output parsing (Phase 5) - may need reverse-engineering FORTRAN format
@@ -130,64 +135,54 @@ Phase 2 complete. Hydro plants now operate with realistic cascade topology and i
 
 ### Recent Changes
 
-**2026-02-16 (Session 7 - Plan 02-03):**
-- Completed Phase 2 Plan 03: Water Balance Cascade & Inflow Integration
-- Integrated cascade topology via build_cascade_topology() in constraint builder
-- Added upstream outflows with travel time delays (t - round(Int, delay_hours))
-- Replaced hardcoded inflow=0.0 with loaded inflow data via InflowData
-- Added get_inflow_for_period() helper function with safe fallback
-- Fixed AffExpr construction using add_to_expression!() for JuMP compatibility
-- Reordered module includes (DessemLoader before Constraints)
-- 46 new water balance tests (cascade, inflow, edge cases, integration)
+**2026-02-16 (Session 9 - Plan 03-02):**
+- Completed Phase 3 Plan 02: Lazy Loading for Optional Solvers
+- Added _try_load_gurobi(), _try_load_cplex(), _try_load_glpk() functions
+- Added solver_available() function for programmatic checking
+- Ref{Bool} caching to avoid repeated loading attempts
+- Warnings (not errors) when optional solvers unavailable
+- Refined get_solver_optimizer() to use lazy loading
+- Fixed duplicate SolverResult constructor bug
+- 11 new lazy loading tests (all passing)
 
-**2026-02-16 (Session 6):**
-- Completed Phase 2 Plan 01: Cascade Topology Utility
-- Created CascadeTopologyUtils module with build_cascade_topology()
-- DFS cycle detection with full path error messages
-- BFS depth computation from headwaters
-- Integrated cascade validation into ElectricitySystem constructor
-- Handles unknown downstream references with warnings
-- Handles PumpedStorageHydro (no downstream_plant_id field)
-- 103 cascade topology tests + 7 electricity system tests
-
-**2026-02-16 (Session 5):**
-- Completed Phase 2 Plan 02: Inflow Data Loading
-- Added InflowData struct with inflows Dict, num_periods, start_date, plant_numbers
-- Implemented load_inflow_data() using DESSEM2Julia.parse_dadvaz
-- Daily inflows distributed to hourly (daily/24)
-- Added get_inflow() and get_inflow_by_id() helper functions
-- Updated DessemCaseData with inflow_data and hydro_plant_numbers fields
-- Created 34 new tests for inflow loading
-- Fixed include order (cascade_topology.jl before electricity_system.jl)
+**2026-02-16 (Session 8 - Plan 03-01):**
+- Completed Phase 3 Plan 01: Unified Solve API
+- Added SolveStatus enum with 8 user-friendly values (OPTIMAL, INFEASIBLE, etc.)
+- Added map_to_solve_status() to convert MOI codes to SolveStatus
+- Enhanced SolverResult with mip_result, lp_result, cost_breakdown, log_file fields
+- Implemented solve_model!() with keyword arguments (solver, time_limit, mip_gap, pricing, etc.)
+- Integrated two-stage pricing via pricing=true kwarg
+- Added warm start support for faster re-solving
+- Auto-generates log files in ./logs/ with timestamp format
+- 88 new solver interface tests
 
 ---
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 2 COMPLETE
+**Last Session:** 2026-02-16 - Phase 3 Plan 02 Complete
 
 **Session Goals Achieved:**
-- All Phase 2 plans executed (02-01, 02-02, 02-03)
-- Cascade topology utility with cycle detection
-- Inflow data loading from dadvaz.dat
-- Water balance with cascade delays and loaded inflows
-- Phase verification: 12/12 must-haves verified ✓
+- Lazy loading infrastructure for Gurobi, CPLEX, GLPK
+- solver_available() function for checking optional solver presence
+- Refined get_solver_optimizer() with graceful errors
+- 11 lazy loading tests passing
 
 **Next Session Goals:**
-- Begin Phase 3: Solver Interface Implementation
-- Implement solve_model() orchestration
-- Verify two-stage pricing end-to-end
+- Continue Phase 3: Solver Interface
+- Plan 03-03: Solver auto-detection
+- Plan 03-04: Infeasibility diagnostics
 
 **Context for Next Session:**
-Phase 2 is complete. All 4 success criteria verified:
-1. Inflows load from dadvaz.dat ✓
-2. Cascade water delays work ✓
-3. Cycle detection and plant depths ✓
-4. Unit conversion 0.0036 ✓
+Phase 3 Plan 02 complete. Lazy loading ready:
+- solver_available(GUROBI) returns true/false
+- _try_load_*() functions cache results in Ref{Bool}
+- HiGHS always available (required dependency)
+- Optional solvers log warnings with install hints
 
-1541+ tests passing. Ready for Phase 3 (Solver Interface).
+1613+ tests passing. Ready for Plan 03-03.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Phase 3 (Solver Interface Implementation)
+**Ready for:** Plan 03-03 (Solver auto-detection)
