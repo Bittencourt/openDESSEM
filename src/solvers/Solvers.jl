@@ -49,6 +49,7 @@ using JuMP
 using MathOptInterface
 using Dates
 using DataFrames
+using HiGHS
 
 # Import entity types from parent module
 using ..OpenDESSEM:
