@@ -130,7 +130,9 @@ function build_cascade_topology(hydro_plants::Vector{<:HydroPlant})::CascadeTopo
 
     # Build upstream_map from downstream references
     for plant in hydro_plants
-        if plant.downstream_plant_id !== nothing
+        # Check if plant has downstream_plant_id field (ReservoirHydro, RunOfRiverHydro have it)
+        # PumpedStorageHydro does not participate in cascade topology
+        if hasproperty(plant, :downstream_plant_id) && plant.downstream_plant_id !== nothing
             downstream_id = plant.downstream_plant_id
             delay_hours = plant.water_travel_time_hours
 
@@ -158,9 +160,10 @@ function build_cascade_topology(hydro_plants::Vector{<:HydroPlant})::CascadeTopo
         push!(rec_stack, plant_id)
         push!(path, plant_id)
 
-        # Get downstream of this plant
+        # Get downstream of this plant (only if it has downstream_plant_id field)
         plant = plant_dict[plant_id]
-        if plant.downstream_plant_id !== nothing &&
+        if hasproperty(plant, :downstream_plant_id) &&
+           plant.downstream_plant_id !== nothing &&
            haskey(plant_dict, plant.downstream_plant_id)
             downstream_id = plant.downstream_plant_id
 
@@ -220,7 +223,9 @@ function build_cascade_topology(hydro_plants::Vector{<:HydroPlant})::CascadeTopo
 
         # Find all plants that have current as their downstream
         current_plant = plant_dict[current_id]
-        if current_plant.downstream_plant_id !== nothing &&
+        # Only plants with downstream_plant_id field can have downstream
+        if hasproperty(current_plant, :downstream_plant_id) &&
+           current_plant.downstream_plant_id !== nothing &&
            haskey(plant_dict, current_plant.downstream_plant_id)
             downstream_id = current_plant.downstream_plant_id
 
@@ -247,9 +252,11 @@ function build_cascade_topology(hydro_plants::Vector{<:HydroPlant})::CascadeTopo
     end
 
     # Find terminals (plants with no downstream, or downstream not in system)
+    # Plants without downstream_plant_id field (e.g., PumpedStorageHydro) are terminals
     terminals = String[]
     for plant in hydro_plants
-        if plant.downstream_plant_id === nothing ||
+        if !hasproperty(plant, :downstream_plant_id) ||
+           plant.downstream_plant_id === nothing ||
            !haskey(plant_dict, plant.downstream_plant_id)
             push!(terminals, plant.id)
         end

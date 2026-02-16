@@ -8,13 +8,9 @@ detecting circular dependencies, and computing plant depths.
 using Test
 using Logging: Logging, AbstractLogger, with_logger, @warn
 
-# Include the entities module first (needed by CascadeTopology)
-include("../../src/entities/Entities.jl")
-using .Entities
-
-# Include the cascade topology module
-include("../../src/utils/cascade_topology.jl")
-using .CascadeTopologyUtils
+# Use the package modules
+using OpenDESSEM.Entities
+using OpenDESSEM.CascadeTopologyUtils
 
 # Helper function to create a reservoir hydro plant for testing
 function make_test_hydro(;
