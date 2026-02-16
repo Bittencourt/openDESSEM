@@ -139,56 +139,56 @@ if result.solve_status == OPTIMAL
 end
 ```
 """
-Base.@kwdef mutable struct SolverResult
+mutable struct SolverResult
     status::MathOptInterface.TerminationStatusCode
-    solve_status::SolveStatus = NOT_SOLVED
-    objective_value::Union{Float64,Nothing} = nothing
-    solve_time_seconds::Float64 = 0.0
-    objective_bound::Union{Float64,Nothing} = nothing
-    node_count::Union{Int,Nothing} = nothing
-    variables::Dict{Symbol,Any} = Dict{Symbol,Any}()
-    dual_values::Dict{String,Dict{Tuple,Float64}} = Dict{String,Dict{Tuple,Float64}}()
-    has_values::Bool = false
-    has_duals::Bool = false
-    mip_result::Union{SolverResult,Nothing} = nothing
-    lp_result::Union{SolverResult,Nothing} = nothing
-    cost_breakdown::Dict{String,Float64} = Dict{String,Float64}()
-    log_file::Union{String,Nothing} = nothing
+    solve_status::SolveStatus
+    objective_value::Union{Float64,Nothing}
+    solve_time_seconds::Float64
+    objective_bound::Union{Float64,Nothing}
+    node_count::Union{Int,Nothing}
+    variables::Dict{Symbol,Any}
+    dual_values::Dict{String,Dict{Tuple,Float64}}
+    has_values::Bool
+    has_duals::Bool
+    mip_result::Union{SolverResult,Nothing}
+    lp_result::Union{SolverResult,Nothing}
+    cost_breakdown::Dict{String,Float64}
+    log_file::Union{String,Nothing}
+end
 
-    # Inner constructor to handle self-referential type
-    function SolverResult(;
-        status::MathOptInterface.TerminationStatusCode = MOI.OPTIMIZE_NOT_CALLED,
-        solve_status::SolveStatus = NOT_SOLVED,
-        objective_value::Union{Float64,Nothing} = nothing,
-        solve_time_seconds::Float64 = 0.0,
-        objective_bound::Union{Float64,Nothing} = nothing,
-        node_count::Union{Int,Nothing} = nothing,
-        variables::Dict{Symbol,Any} = Dict{Symbol,Any}(),
-        dual_values::Dict{String,Dict{Tuple,Float64}} = Dict{String,Dict{Tuple,Float64}}(),
-        has_values::Bool = false,
-        has_duals::Bool = false,
-        mip_result::Union{SolverResult,Nothing} = nothing,
-        lp_result::Union{SolverResult,Nothing} = nothing,
-        cost_breakdown::Dict{String,Float64} = Dict{String,Float64}(),
-        log_file::Union{String,Nothing} = nothing,
+# Outer constructor with keyword arguments and defaults for SolverResult
+function SolverResult(;
+    status::MathOptInterface.TerminationStatusCode = MOI.OPTIMIZE_NOT_CALLED,
+    solve_status::SolveStatus = NOT_SOLVED,
+    objective_value::Union{Float64,Nothing} = nothing,
+    solve_time_seconds::Float64 = 0.0,
+    objective_bound::Union{Float64,Nothing} = nothing,
+    node_count::Union{Int,Nothing} = nothing,
+    variables::Dict{Symbol,Any} = Dict{Symbol,Any}(),
+    dual_values::Dict{String,Dict{Tuple,Float64}} = Dict{String,Dict{Tuple,Float64}}(),
+    has_values::Bool = false,
+    has_duals::Bool = false,
+    mip_result::Union{SolverResult,Nothing} = nothing,
+    lp_result::Union{SolverResult,Nothing} = nothing,
+    cost_breakdown::Dict{String,Float64} = Dict{String,Float64}(),
+    log_file::Union{String,Nothing} = nothing,
+)
+    return SolverResult(
+        status,
+        solve_status,
+        objective_value,
+        solve_time_seconds,
+        objective_bound,
+        node_count,
+        variables,
+        dual_values,
+        has_values,
+        has_duals,
+        mip_result,
+        lp_result,
+        cost_breakdown,
+        log_file,
     )
-        new(
-            status,
-            solve_status,
-            objective_value,
-            solve_time_seconds,
-            objective_bound,
-            node_count,
-            variables,
-            dual_values,
-            has_values,
-            has_duals,
-            mip_result,
-            lp_result,
-            cost_breakdown,
-            log_file,
-        )
-    end
 end
 
 """
