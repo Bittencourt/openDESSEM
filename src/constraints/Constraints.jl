@@ -159,6 +159,12 @@ using ..OpenDESSEM.Variables:
     get_hydro_plant_indices,
     get_renewable_plant_indices
 
+# Import cascade topology utilities
+using ..OpenDESSEM.CascadeTopologyUtils: build_cascade_topology, CascadeTopology, get_upstream_plants
+
+# Import inflow data types
+using ..OpenDESSEM.DessemLoader: InflowData, get_inflow
+
 # Include all constraint modules
 include("constraint_types.jl")
 include("thermal_commitment.jl")

@@ -37,6 +37,10 @@ include("utils/cascade_topology.jl")
 include("core/electricity_system.jl")
 include("integration/Integration.jl")
 include("variables/variable_manager.jl")
+
+# Include data loaders before constraints (constraints need InflowData type)
+include("data/loaders/dessem_loader.jl")
+
 include("constraints/Constraints.jl")
 
 # Export main functionality
@@ -162,8 +166,7 @@ export SolverType,
     is_optimal,
     is_infeasible
 
-# Include DESSEM loader for ONS data integration
-include("data/loaders/dessem_loader.jl")
+# Export DESSEM loader (already included before Constraints)
 using .DessemLoader
 export load_dessem_case,
     DessemCaseData,

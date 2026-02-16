@@ -12,6 +12,12 @@ These constraints are critical for modeling Brazilian hydro system operations.
 
 # Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
 
+# Import cascade topology utilities
+using ..CascadeTopologyUtils: build_cascade_topology, CascadeTopology, get_upstream_plants
+
+# Import inflow data types
+using ..DessemLoader: InflowData, get_inflow
+
 """
     HydroWaterBalanceConstraint <: AbstractConstraint
 
@@ -71,6 +77,12 @@ constraint = HydroWaterBalanceConstraint(;
     include_spill=true
 )
 
+# With inflow data (recommended):
+result = build!(model, system, constraint;
+    inflow_data=inflow_data,
+    hydro_plant_numbers=hydro_plant_numbers)
+
+# Without inflow data (backward compatible, uses zero inflows):
 result = build!(model, system, constraint)
 ```
 """
@@ -83,7 +95,48 @@ Base.@kwdef struct HydroWaterBalanceConstraint <: AbstractConstraint
 end
 
 """
-    build!(model::Model, system::ElectricitySystem, constraint::HydroWaterBalanceConstraint)
+    get_inflow_for_period(inflow_data, hydro_plant_numbers, plant_id, t) -> Float64
+
+Helper function to look up inflow for a specific plant and time period.
+
+# Arguments
+- `inflow_data::Union{InflowData,Nothing}`: Inflow data container (can be nothing)
+- `hydro_plant_numbers::Union{Dict{String,Int},Nothing}`: Mapping from plant_id to plant_number
+- `plant_id::String`: The plant ID to look up
+- `t::Int`: Time period (hour, 1-indexed)
+
+# Returns
+- `Float64`: Hourly inflow in m³/s, or 0.0 if data not available
+
+# Notes
+- Returns 0.0 if inflow_data is nothing (backward compatibility)
+- Returns 0.0 if plant_id not found in hydro_plant_numbers mapping
+- Returns 0.0 if time period is out of range
+"""
+function get_inflow_for_period(
+    inflow_data::Union{InflowData,Nothing},
+    hydro_plant_numbers::Union{Dict{String,Int},Nothing},
+    plant_id::String,
+    t::Int,
+)::Float64
+    # Return 0.0 if no inflow data provided
+    if inflow_data === nothing || hydro_plant_numbers === nothing
+        return 0.0
+    end
+
+    # Look up plant number from plant_id
+    plant_num = get(hydro_plant_numbers, plant_id, nothing)
+    if plant_num === nothing
+        return 0.0
+    end
+
+    # Get inflow using the get_inflow helper (handles bounds checking)
+    return get_inflow(inflow_data, plant_num, t)
+end
+
+"""
+    build!(model::Model, system::ElectricitySystem, constraint::HydroWaterBalanceConstraint;
+           inflow_data=nothing, hydro_plant_numbers=nothing)
 
 Build hydro water balance constraints.
 
@@ -91,6 +144,8 @@ Build hydro water balance constraints.
 - `model::Model`: JuMP optimization model
 - `system::ElectricitySystem`: Electricity system with hydro plants
 - `constraint::HydroWaterBalanceConstraint`: Constraint configuration
+- `inflow_data::Union{InflowData,Nothing}`: Optional inflow time series data (default: nothing)
+- `hydro_plant_numbers::Union{Dict{String,Int},Nothing}`: Optional mapping from plant_id to plant_number (default: nothing)
 
 # Returns
 - `ConstraintBuildResult`: Build statistics
@@ -102,14 +157,17 @@ Build hydro water balance constraints.
 - Optional: `pump[i,t]`: Pumping power (MW)
 
 # Notes
-- Water balance requires inflow data (should be pre-loaded in plant data or system)
+- If inflow_data is not provided, natural inflows default to 0.0
 - Conversion factor: 1 m³/s × 3600 s = 3600 m³ = 0.0036 hm³ per period (hourly)
 - For cascade delays, downstream plants receive upstream outflow after travel time
+- Upstream outflows include both turbine outflow (q) and spillage (spill)
 """
 function build!(
     model::Model,
     system::ElectricitySystem,
-    constraint::HydroWaterBalanceConstraint,
+    constraint::HydroWaterBalanceConstraint;
+    inflow_data::Union{InflowData,Nothing} = nothing,
+    hydro_plant_numbers::Union{Dict{String,Int},Nothing} = nothing,
 )
     start_time = time()
     num_constraints = 0
@@ -118,9 +176,9 @@ function build!(
     # Validate system
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="HydroWaterBalanceConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "HydroWaterBalanceConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
@@ -128,9 +186,9 @@ function build!(
     if !haskey(object_dictionary(model), :s) || !haskey(object_dictionary(model), :q)
         @warn "Hydro variables (s, q) not found in model. Run create_hydro_variables! first."
         return ConstraintBuildResult(;
-            constraint_type="HydroWaterBalanceConstraint",
-            success=false,
-            message="Required variables not found",
+            constraint_type = "HydroWaterBalanceConstraint",
+            success = false,
+            message = "Required variables not found",
         )
     end
 
@@ -152,9 +210,9 @@ function build!(
     if isempty(plants)
         @warn "No hydro plants found for constraint building"
         return ConstraintBuildResult(;
-            constraint_type="HydroWaterBalanceConstraint",
-            success=false,
-            message="No hydro plants found",
+            constraint_type = "HydroWaterBalanceConstraint",
+            success = false,
+            message = "No hydro plants found",
         )
     end
 
@@ -176,10 +234,14 @@ function build!(
         @info "Created spillage variables"
     end
 
-    @info "Building hydro water balance constraints" num_plants=length(plants) num_periods=length(time_periods)
+    @info "Building hydro water balance constraints" num_plants = length(plants) num_periods =
+        length(time_periods)
 
     # Build plant lookup for cascade
     plant_dict = Dict(p.id => p for p in all_hydro)
+
+    # Build cascade topology for upstream flow tracking
+    cascade_topology = build_cascade_topology(all_hydro)
 
     # Conversion factor: m³/s to hm³ per hour
     # 1 m³/s × 3600 s = 3600 m³ = 0.0036 hm³
@@ -193,39 +255,66 @@ function build!(
             for t in time_periods
                 if t == 1
                     # Initial condition
-                    @constraint(
-                        model,
-                        s[plant_idx, t] == plant.initial_volume_hm3
-                    )
+                    @constraint(model, s[plant_idx, t] == plant.initial_volume_hm3)
                     num_constraints += 1
                 else
-                    # Water balance: s[t] = s[t-1] + inflow - outflow - spill
-                    # For simplicity, assume inflow is stored in plant metadata or use 0
-                    inflow = 0.0  # TODO: Load from data
+                    # Get natural inflow from loaded data
+                    inflow_m3s =
+                        get_inflow_for_period(inflow_data, hydro_plant_numbers, plant.id, t)
+                    inflow_hm3 = inflow_m3s * M3S_TO_HM3_PER_HOUR
 
-                    outflow_hm3 = q[plant_idx, t] * M3S_TO_HM3_PER_HOUR
+                    # Build balance expression incrementally
+                    # s[t] = s[t-1] + inflow - outflow - spill + upstream_outflows
+                    balance_expr = AffExpr(0.0)
+                    # Add previous period storage
+                    add_to_expression!(balance_expr, 1.0, s[plant_idx, t-1])
+                    # Add natural inflow (constant)
+                    add_to_expression!(balance_expr, inflow_hm3)
 
+                    # Add upstream outflows with cascade delays
+                    if constraint.include_cascade
+                        upstream_plants = get(
+                            cascade_topology.upstream_map,
+                            plant.id,
+                            Tuple{String,Float64}[],
+                        )
+                        for (upstream_id, delay_hours) in upstream_plants
+                            t_upstream = t - round(Int, delay_hours)
+                            if t_upstream >= 1
+                                upstream_idx = plant_indices[upstream_id]
+                                # Add upstream turbine outflow
+                                add_to_expression!(
+                                    balance_expr,
+                                    M3S_TO_HM3_PER_HOUR,
+                                    q[upstream_idx, t_upstream],
+                                )
+                                # Add upstream spillage if available
+                                if constraint.include_spill && spill !== nothing
+                                    add_to_expression!(
+                                        balance_expr,
+                                        M3S_TO_HM3_PER_HOUR,
+                                        spill[upstream_idx, t_upstream],
+                                    )
+                                end
+                            end
+                        end
+                    end
+
+                    # Subtract local outflow
+                    add_to_expression!(balance_expr, -M3S_TO_HM3_PER_HOUR, q[plant_idx, t])
+
+                    # Subtract spillage if included
                     if constraint.include_spill && spill !== nothing
-                        spill_hm3 = spill[plant_idx, t] * M3S_TO_HM3_PER_HOUR
-                        @constraint(
-                            model,
-                            s[plant_idx, t] ==
-                            s[plant_idx, t - 1] + inflow - outflow_hm3 - spill_hm3
-                        )
-                    else
-                        @constraint(
-                            model,
-                            s[plant_idx, t] == s[plant_idx, t - 1] + inflow - outflow_hm3
+                        add_to_expression!(
+                            balance_expr,
+                            -M3S_TO_HM3_PER_HOUR,
+                            spill[plant_idx, t],
                         )
                     end
-                    num_constraints += 1
 
-                    # Cascade: add upstream outflow
-                    if constraint.include_cascade && plant.downstream_plant_id !== nothing
-                        # This plant receives water from upstream
-                        # The constraint would be added to the downstream plant
-                        # This is a simplified version - full cascade requires topology traversal
-                    end
+                    # Build the constraint: s[t] = balance_expr
+                    @constraint(model, s[plant_idx, t] == balance_expr)
+                    num_constraints += 1
                 end
 
                 # Volume limits
@@ -239,8 +328,10 @@ function build!(
         elseif plant isa RunOfRiverHydro
             # Run-of-river: outflow cannot exceed inflow
             for t in time_periods
-                inflow = 0.0  # TODO: Load from data
-                @constraint(model, q[plant_idx, t] <= inflow)
+                # Get natural inflow from loaded data
+                inflow_m3s =
+                    get_inflow_for_period(inflow_data, hydro_plant_numbers, plant.id, t)
+                @constraint(model, q[plant_idx, t] <= inflow_m3s)
                 num_constraints += 1
             end
 
@@ -248,13 +339,14 @@ function build!(
             # Pumped storage: account for pumping
             for t in time_periods
                 if t == 1
-                    @constraint(
-                        model,
-                        s[plant_idx, t] == plant.initial_volume_hm3
-                    )
+                    @constraint(model, s[plant_idx, t] == plant.initial_volume_hm3)
                     num_constraints += 1
                 else
-                    inflow = 0.0
+                    # Get natural inflow from loaded data
+                    inflow_m3s =
+                        get_inflow_for_period(inflow_data, hydro_plant_numbers, plant.id, t)
+                    inflow_hm3 = inflow_m3s * M3S_TO_HM3_PER_HOUR
+
                     outflow_hm3 = q[plant_idx, t] * M3S_TO_HM3_PER_HOUR
 
                     if pump !== nothing
@@ -270,13 +362,14 @@ function build!(
                         @constraint(
                             model,
                             s[plant_idx, t] ==
-                            s[plant_idx, t - 1] + inflow - outflow_hm3 - spill_hm3 + pump_return
+                            s[plant_idx, t-1] + inflow_hm3 - outflow_hm3 - spill_hm3 +
+                            pump_return
                         )
                     else
                         @constraint(
                             model,
                             s[plant_idx, t] ==
-                            s[plant_idx, t - 1] + inflow - outflow_hm3 + pump_return
+                            s[plant_idx, t-1] + inflow_hm3 - outflow_hm3 + pump_return
                         )
                     end
                     num_constraints += 1
@@ -294,15 +387,16 @@ function build!(
 
     build_time = time() - start_time
 
-    @info "Hydro water balance constraints built successfully" num_constraints=num_constraints build_time=build_time
+    @info "Hydro water balance constraints built successfully" num_constraints =
+        num_constraints build_time = build_time
 
     return ConstraintBuildResult(;
-        constraint_type="HydroWaterBalanceConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints hydro water balance constraints",
-        warnings=warnings,
+        constraint_type = "HydroWaterBalanceConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints hydro water balance constraints",
+        warnings = warnings,
     )
 end
 
