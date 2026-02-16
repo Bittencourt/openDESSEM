@@ -592,7 +592,7 @@ obtained from the dual values of submarket energy balance constraints.
 - `DataFrame` with columns:
   - `submarket`: Submarket code (e.g., "SE", "NE", "S", "N")
   - `period`: Time period index
-  - `pld`: PLD value in R$/MWh
+  - `pld`: PLD value in R\$/MWh
 
 # Example
 ```julia
@@ -680,12 +680,12 @@ end
 Detailed breakdown of total system cost by component.
 
 # Fields
-- `thermal_fuel::Float64`: Fuel costs for thermal generation (R$)
-- `thermal_startup::Float64`: Startup costs for thermal plants (R$)
-- `thermal_shutdown::Float64`: Shutdown costs for thermal plants (R$)
-- `deficit_penalty::Float64`: Penalty cost for load deficit (R$)
-- `hydro_water_value::Float64`: Water value/opportunity cost for hydro (R$)
-- `total::Float64`: Total system cost (R$)
+- `thermal_fuel::Float64`: Fuel costs for thermal generation (R\$)
+- `thermal_startup::Float64`: Startup costs for thermal plants (R\$)
+- `thermal_shutdown::Float64`: Shutdown costs for thermal plants (R\$)
+- `deficit_penalty::Float64`: Penalty cost for load deficit (R\$)
+- `hydro_water_value::Float64`: Water value/opportunity cost for hydro (R\$)
+- `total::Float64`: Total system cost (R\$)
 
 # Example
 ```julia
@@ -758,7 +758,7 @@ end
 - Requires `result.has_values == true`
 - Thermal costs are computed from actual generation and commitment decisions
 - Hydro water value is 0 if FCF curves are not available (future enhancement)
-- All costs are in Brazilian Reais (R$)
+- All costs are in Brazilian Reais (R\$)
 """
 function get_cost_breakdown(
     result::SolverResult,

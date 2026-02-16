@@ -331,6 +331,80 @@ function has_solution(result::SolverResult)::Bool
            result.status == MOI.SOLUTION_LIMIT
 end
 
+"""
+    IISConflict
+
+Represents a single conflicting constraint or bound in an Irreducible Inconsistent Subsystem (IIS).
+
+An IIS is a minimal set of constraints and variable bounds that is infeasible,
+but removing any single element makes the remaining set feasible.
+
+# Fields
+- `constraint_ref::Union{ConstraintRef, Nothing}`: Reference to the constraint (nothing for variable bounds)
+- `constraint_name::String`: Human-readable name for the constraint
+- `expression::String`: String representation of the constraint expression
+- `lower_bound::Union{Float64, Nothing}`: Lower bound value (if applicable)
+- `upper_bound::Union{Float64, Nothing}`: Upper bound value (if applicable)
+
+# Example
+```julia
+conflict = IISConflict(
+    constraint_ref = constraint_ref,
+    constraint_name = "thermal_min_generation[T001, 5]",
+    expression = "g[T001, 5] >= 100.0",
+    lower_bound = 100.0,
+    upper_bound = nothing
+)
+```
+"""
+Base.@kwdef struct IISConflict
+    constraint_ref::Union{ConstraintRef,Nothing}
+    constraint_name::String
+    expression::String
+    lower_bound::Union{Float64,Nothing} = nothing
+    upper_bound::Union{Float64,Nothing} = nothing
+end
+
+"""
+    IISResult
+
+Result of Irreducible Inconsistent Subsystem (IIS) computation for diagnosing infeasibility.
+
+An IIS is a minimal set of constraints and variable bounds that is infeasible.
+Identifying the IIS helps debug which constraints conflict with each other.
+
+# Fields
+- `status::MOI.ConflictStatusCode`: Status of IIS computation from MathOptInterface
+- `conflicts::Vector{IISConflict}`: List of conflicting constraints/bounds in the IIS
+- `computation_time::Float64`: Time taken to compute IIS in seconds
+- `solver_used::String`: Name of solver used for IIS computation
+- `report_file::Union{String, Nothing}`: Path to auto-generated report file (if any)
+
+# Example
+```julia
+# After detecting infeasibility
+if is_infeasible(result)
+    iis_result = compute_iis!(model)
+    println("Found \$(length(iis_result.conflicts)) conflicting constraints")
+    for conflict in iis_result.conflicts
+        println("  - \$(conflict.constraint_name): \$(conflict.expression)")
+    end
+end
+```
+
+# Notes
+- Not all solvers support IIS computation (Gurobi does, HiGHS has limited support)
+- If solver doesn't support IIS, status will be `MOI.COMPUTE_CONFLICT_NOT_SUPPORTED`
+- The IIS is computed using the conflict refinement algorithm
+"""
+Base.@kwdef struct IISResult
+    status::MathOptInterface.ConflictStatusCode
+    conflicts::Vector{IISConflict} = IISConflict[]
+    computation_time::Float64 = 0.0
+    solver_used::String = "unknown"
+    report_file::Union{String,Nothing} = nothing
+end
+
 # Export public types and functions
 export SolveStatus,
     OPTIMAL,
@@ -348,6 +422,8 @@ export SolveStatus,
     GLPK,
     SolverOptions,
     SolverResult,
+    IISConflict,
+    IISResult,
     map_to_solve_status,
     is_optimal,
     is_infeasible,
