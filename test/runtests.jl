@@ -55,7 +55,14 @@ using Test
     # Infeasibility diagnostics tests
     include("unit/test_infeasibility.jl")
 
+    # Solution extraction and export tests
+    include("unit/test_solution_extraction.jl")
+    include("unit/test_solution_exporter.jl")
+
     # End-to-end integration tests
     include("integration/test_solver_end_to_end.jl")
+
+    # Constraint violation reporting tests
+    include("unit/test_constraint_violations.jl")
 
 end
