@@ -1,8 +1,8 @@
 # Project State: OpenDESSEM
 
 **Last Updated:** 2026-02-16
-**Current Phase:** Phase 3 (Solver Interface Implementation) - COMPLETE
-**Current Plan:** 03-05 Complete (5/5)
+**Current Phase:** Phase 4 (Solution Extraction & Export) - IN PROGRESS
+**Current Plan:** 04-02 Complete (2/2)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
+Phase 4 Plan 02 complete. Constraint violation reporting implemented.
 
 ---
 
 ## Current Position
 
-**Phase:** Phase 3 - Solver Interface Implementation (COMPLETE)
-**Plan:** 03-05 Complete (5/5)
-**Status:** Phase 3 complete, ready for Phase 4
+**Phase:** Phase 4 - Solution Extraction & Export (IN PROGRESS)
+**Plan:** 04-02 Complete (2/2)
+**Status:** Phase 4 complete, ready for Phase 5
 
 **Progress Bar:**
 ```
-[████████████████████] 5/5 plans complete (Phase 3 COMPLETE)
+[████████████████████] 2/2 plans complete (Phase 4 COMPLETE)
 ```
 
 **Milestones:**
@@ -42,7 +42,8 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 - [x] Phase 3 Plan 04: PLD DataFrame & Cost Breakdown ✅
 - [x] Phase 3 Plan 05: End-to-End Integration Tests ✅
 - [x] Phase 3: Solver Interface Implementation (5/5 criteria) ✅
-- [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
+- [x] Phase 4 Plan 02: Constraint Violation Reporting ✅
+- [ ] Phase 4: Solution Extraction & Export (partial - constraint violations done)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
 ---
@@ -50,7 +51,7 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1724+ passing
+- Total tests: 1944+ passing
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Full solve pipeline verified
 
@@ -95,6 +96,8 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 | On-demand IIS computation | 2026-02-16 | Explicit compute_iis!() when needed |
 | Factory pattern for test systems | 2026-02-16 | Configurable test system size |
 | Infeasible test system without deficit | 2026-02-16 | Guaranteed IIS for testing |
+| constraint_violations.jl at module level (not submodule) | 2026-02-16 | Avoid JuMP type re-import through nested submodules |
+| Constraint classification via lowercase name matching | 2026-02-16 | Matches codebase constraint naming conventions |
 
 ### Active TODOs
 
@@ -115,7 +118,7 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 - Extract all variable types (thermal, hydro, renewable)
 - Extract PLD duals from energy balance constraints
 - Complete CSV/JSON export with formatting
-- Add constraint violation reporting
+- [x] Add constraint violation reporting ✅
 
 **Phase 5 (Validation):**
 - Create integration test for ONS sample DS_ONS_102025_RV2D11
@@ -133,6 +136,14 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 - PowerModels variable linking (deferred to v2) - coupling pattern unclear
 
 ### Recent Changes
+
+**2026-02-16 (Session 13 - Plan 04-02):**
+- Completed Phase 4 Plan 02: Constraint Violation Reporting
+- Created ConstraintViolation and ViolationReport structs
+- Implemented check_constraint_violations() using JuMP.primal_feasibility_report()
+- Implemented write_violation_report() for human-readable text output
+- Added 56 new test assertions
+- 1944+ tests passing
 
 **2026-02-16 (Session 12 - Plan 03-05):**
 - Completed Phase 3 Plan 05: End-to-End Integration Tests
@@ -159,28 +170,28 @@ Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 3 Complete
+**Last Session:** 2026-02-16 - Phase 4 Plan 02 Complete
 
 **Session Goals Achieved:**
-- Small test system factory created
-- 12 end-to-end integration test sets
-- Phase 3 success criteria verified
+- Constraint violation reporter implemented (EXTR-05)
+- 56 new test assertions added
+- Analysis module extended with violation reporting
 
 **Next Session Goals:**
-- Start Phase 4: Solution Extraction & Export
-- Extract all variable types
-- CSV/JSON export implementation
+- Start Phase 5: End-to-End Validation
+- Create integration test for ONS sample data
+- Implement tolerance checking
 
 **Context for Next Session:**
-Phase 3 COMPLETE. All solver interface features implemented:
-- solve_model!() unified API works
-- Two-stage pricing produces valid PLDs
-- Infeasibility diagnostics available
-- Small test systems solve successfully
+Phase 4 Plan 02 COMPLETE. Constraint violation reporting implemented:
+- check_constraint_violations() wraps JuMP.primal_feasibility_report()
+- Violations classified by type (thermal, hydro, balance, network, ramp)
+- write_violation_report() produces human-readable text files
+- All 1944+ tests passing
 
-Ready for Phase 4: Solution Extraction & Export.
+Ready for Phase 5: End-to-End Validation.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Phase 4 - Solution Extraction & Export
+**Ready for:** Phase 5 - End-to-End Validation
