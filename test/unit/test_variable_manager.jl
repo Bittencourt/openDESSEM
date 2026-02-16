@@ -5,7 +5,7 @@ Tests creation of JuMP optimization variables for all entity types.
 Validates variable naming conventions and PowerModels bridge functionality.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities
 using OpenDESSEM.Variables
 using Test
 using JuMP
@@ -516,8 +516,13 @@ using Dates
             # Should not throw on empty system
             create_all_variables!(model, system, time_periods)
 
-            # No variables should be created
-            @test isempty(object_dictionary(model))
+            # Only deficit variables created (for existing submarkets)
+            # No plant-specific variables should exist
+            @test !haskey(object_dictionary(model), :u)
+            @test !haskey(object_dictionary(model), :g)
+            @test !haskey(object_dictionary(model), :gh)
+            @test !haskey(object_dictionary(model), :gr)
+            @test !haskey(object_dictionary(model), :shed)
         end
     end
 

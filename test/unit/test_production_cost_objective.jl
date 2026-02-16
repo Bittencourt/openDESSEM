@@ -5,8 +5,13 @@ Tests COST_SCALE application, FCF integration, load shedding/deficit cost
 terms, and complete objective building.
 """
 
-using OpenDESSEM
-using OpenDESSEM.Objective
+using OpenDESSEM.Entities:
+    ConventionalThermal, ReservoirHydro, HydroPlant, WindPlant, SolarPlant,
+    Bus, Submarket, Load, NATURAL_GAS
+using OpenDESSEM: ElectricitySystem
+using OpenDESSEM.Objective:
+    ProductionCostObjective, ObjectiveMetadata, ObjectiveBuildResult,
+    validate_objective_system, get_fuel_cost, COST_SCALE
 using OpenDESSEM.Variables
 using OpenDESSEM.FCFCurveLoader
 using Test
@@ -14,7 +19,6 @@ using JuMP
 using MathOptInterface
 using Dates
 
-# Resolve ambiguity: use Objective.build! explicitly
 const obj_build! = OpenDESSEM.Objective.build!
 
 @testset "Production Cost Objective Tests" begin

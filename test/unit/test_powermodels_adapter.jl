@@ -4,7 +4,7 @@
 Tests conversion of OpenDESSEM entities to PowerModels.jl data format.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities
 using OpenDESSEM.Integration
 using Test
 using Dates

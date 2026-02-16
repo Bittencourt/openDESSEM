@@ -5,7 +5,7 @@ Tests for PostgreSQL database loader functionality.
 These tests use a mock database connection to verify loader behavior.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities
 using OpenDESSEM.DatabaseLoaders
 using Test
 using Dates

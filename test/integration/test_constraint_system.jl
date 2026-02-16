@@ -5,8 +5,14 @@ Tests the full constraint building workflow from system loading
 through constraint building to model readiness.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities:
+    ConventionalThermal, ReservoirHydro, RunOfRiverHydro, HydroPlant,
+    WindPlant, SolarPlant, Bus, Submarket, Load, Interconnection,
+    NATURAL_GAS
+using OpenDESSEM: ElectricitySystem
 using OpenDESSEM.Constraints
+using OpenDESSEM.Constraints: build!, is_enabled, enable!, disable!,
+    get_priority, set_priority!, add_tag!, has_tag
 using OpenDESSEM.Variables
 using Test
 using JuMP
@@ -256,13 +262,13 @@ end
         @info "Interconnection constraints: $(interconnection_result.num_constraints)"
 
         # Verify model has constraints
-        num_constraints = num_constraints(model)
-        @test num_constraints > 0
-        @info "Total constraints in model: $num_constraints"
+        constraint_count = JuMP.num_constraints(model; count_variable_in_set_constraints = false)
+        @test constraint_count > 0
+        @info "Total constraints in model: $constraint_count"
 
         # Verify model is ready for solving (has variables and constraints)
         @test num_variables(model) > 0
-        @test num_constraints > 0
+        @test constraint_count > 0
         @info "Total variables in model: $(num_variables(model))"
     end
 
@@ -450,6 +456,6 @@ end
 
         # Verify model integrity
         @test num_variables(model) > 0
-        @test num_constraints(model) > 0
+        @test JuMP.num_constraints(model; count_variable_in_set_constraints = false) > 0
     end
 end

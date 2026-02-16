@@ -61,7 +61,7 @@ metadata = ConstraintMetadata(;
 )
 ```
 """
-Base.@kwdef struct ConstraintMetadata
+Base.@kwdef mutable struct ConstraintMetadata
     name::String
     description::String
     priority::Int = 10
@@ -307,7 +307,16 @@ function validate_constraint_system(system::ElectricitySystem)::Bool
         return false
     end
 
-    # Additional checks can be added here
+    # Check for at least one generator (thermal, hydro, or renewable)
+    has_thermal = !isempty(system.thermal_plants)
+    has_hydro = !isempty(system.hydro_plants)
+    has_wind = !isempty(system.wind_farms)
+    has_solar = !isempty(system.solar_farms)
+
+    if !has_thermal && !has_hydro && !has_wind && !has_solar
+        @warn "No generators defined in system"
+        return false
+    end
 
     return true
 end

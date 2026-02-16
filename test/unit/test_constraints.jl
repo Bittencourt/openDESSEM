@@ -5,8 +5,14 @@ Tests all constraint types and their building methods.
 Follows TDD principles: tests written first, then implementation.
 """
 
-using OpenDESSEM
+using OpenDESSEM.Entities:
+    ConventionalThermal, ReservoirHydro, RunOfRiverHydro, HydroPlant,
+    WindPlant, SolarPlant, Bus, Submarket, Load, Interconnection,
+    NATURAL_GAS
+using OpenDESSEM: ElectricitySystem
 using OpenDESSEM.Constraints
+using OpenDESSEM.Constraints: build!, is_enabled, enable!, disable!,
+    get_priority, set_priority!, add_tag!, has_tag, validate_constraint_system
 using OpenDESSEM.Variables
 using Test
 using JuMP
@@ -175,8 +181,9 @@ end
         # Valid system
         @test validate_constraint_system(system) == true
 
-        # System with no submarkets (should fail)
-        invalid_system = ElectricitySystem(;
+        # System with no submarkets should fail at construction time
+        # (plants reference non-existent submarkets)
+        @test_throws ArgumentError ElectricitySystem(;
             thermal_plants=system.thermal_plants,
             hydro_plants=system.hydro_plants,
             wind_farms=system.wind_farms,
@@ -184,13 +191,28 @@ end
             buses=system.buses,
             ac_lines=system.ac_lines,
             dc_lines=system.dc_lines,
-            submarkets=[],  # Empty submarkets
+            submarkets=Submarket[],  # Empty submarkets
             loads=system.loads,
             base_date=system.base_date,
             description="Invalid system"
         )
 
-        @test validate_constraint_system(invalid_system) == false
+        # Test validate_constraint_system with no generators (should fail)
+        empty_system = ElectricitySystem(;
+            thermal_plants=ConventionalThermal[],
+            hydro_plants=ReservoirHydro[],
+            wind_farms=WindPlant[],
+            solar_farms=SolarPlant[],
+            buses=system.buses,
+            ac_lines=system.ac_lines,
+            dc_lines=system.dc_lines,
+            submarkets=system.submarkets,
+            loads=system.loads,
+            base_date=system.base_date,
+            description="System with no generators"
+        )
+
+        @test validate_constraint_system(empty_system) == false
     end
 end
 
