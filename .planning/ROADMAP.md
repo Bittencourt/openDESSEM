@@ -91,12 +91,18 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 
 **Requirements:** EXTR-01, EXTR-02, EXTR-03, EXTR-04, EXTR-05
 
+**Plans:** 2 plans in 1 wave
+
 **Success Criteria:**
 1. All primal variable values extract correctly: thermal dispatch/commitment, hydro storage/outflow/generation, renewable generation/curtailment
 2. PLD marginal prices extract per submarket per time period from LP relaxation dual variables
 3. CSV export produces readable dispatch and price files with entity identifiers and timestamps
 4. JSON export produces nested structure suitable for programmatic consumption
 5. Constraint violation report identifies violated constraints with magnitudes and types
+
+**Plans:**
+- [ ] 04-01-PLAN.md — Fix extraction gaps (deficit variables, JSON3.pretty bug) + unit tests for extraction/export
+- [ ] 04-02-PLAN.md — Constraint violation reporter with type classification + unit tests
 
 ---
 
