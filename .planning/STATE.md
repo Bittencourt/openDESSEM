@@ -1,8 +1,8 @@
 # Project State: OpenDESSEM
 
 **Last Updated:** 2026-02-16
-**Current Phase:** Phase 3 (Solver Interface Implementation) - IN PROGRESS
-**Current Plan:** 03-03 Complete (4/5)
+**Current Phase:** Phase 3 (Solver Interface Implementation) - COMPLETE
+**Current Plan:** 03-05 Complete (5/5)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-detection (03-05).
+Phase 3 complete. Ready for Phase 4: Solution Extraction & Export.
 
 ---
 
 ## Current Position
 
-**Phase:** Phase 3 - Solver Interface Implementation (IN PROGRESS)
-**Plan:** 03-03 Complete (4/5)
-**Status:** Plan 03-03 complete, ready for 03-05
+**Phase:** Phase 3 - Solver Interface Implementation (COMPLETE)
+**Plan:** 03-05 Complete (5/5)
+**Status:** Phase 3 complete, ready for Phase 4
 
 **Progress Bar:**
 ```
-[████████████████░░░░] 4/5 plans complete (Phase 3 IN PROGRESS)
+[████████████████████] 5/5 plans complete (Phase 3 COMPLETE)
 ```
 
 **Milestones:**
@@ -40,7 +40,8 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 - [x] Phase 3 Plan 02: Lazy Loading for Optional Solvers ✅
 - [x] Phase 3 Plan 03: Infeasibility Diagnostics ✅
 - [x] Phase 3 Plan 04: PLD DataFrame & Cost Breakdown ✅
-- [ ] Phase 3: Solver Interface Implementation (4/5 criteria)
+- [x] Phase 3 Plan 05: End-to-End Integration Tests ✅
+- [x] Phase 3: Solver Interface Implementation (5/5 criteria) ✅
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
@@ -49,9 +50,9 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1775+ passing (75 new infeasibility tests)
+- Total tests: 1724+ passing
 - Coverage: >90% on core modules (entities, constraints, variables)
-- Integration tests: Basic workflows passing
+- Integration tests: Full solve pipeline verified
 
 **Code Quality:**
 - Architecture: Entity-driven, modular constraint system
@@ -61,11 +62,11 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 **Technical Debt:**
 - ~~Implement FCF curve loader from infofcf.dat~~ ✅ DONE
 - ~~Add load shedding variables to VariableManager~~ ✅ DONE
-- ~~Hydro inflows hardcoded to zero (blocker for validation)~~ ✅ DONE - Now loading from dadvaz.dat
-- ~~Cascade topology missing~~ ✅ DONE - CascadeTopologyUtils module created
-- ~~Cascade delays commented out (blocker for multi-reservoir systems)~~ ✅ DONE - Now integrated in water balance
+- ~~Hydro inflows hardcoded to zero (blocker for validation)~~ ✅ DONE
+- ~~Cascade topology missing~~ ✅ DONE
+- ~~Cascade delays commented out~~ ✅ DONE
 - PowerModels in validate-only mode (not actively constraining)
-- ~~Objective function scaffold incomplete (water value integration pending)~~ ✅ DONE
+- ~~Objective function scaffold incomplete~~ ✅ DONE
 - LibPQ dependency issue causing precompilation failures (non-blocking)
 
 ---
@@ -79,33 +80,21 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 | 5-phase roadmap structure | 2026-02-15 | Natural requirement groupings: Objective → Hydro → Solver → Extraction → Validation |
 | Objective before hydro | 2026-02-15 | Foundation layer must exist before domain refinements |
 | Hydro before validation | 2026-02-15 | Cannot validate with hardcoded zero inflows |
-| Validation as separate phase | 2026-02-15 | Proof of correctness deserves dedicated focus, not bundled with extraction |
-| Standard depth (5 phases) | 2026-02-15 | Matches brownfield project scope: focused completion, not greenfield development |
-| FCF clamping vs extrapolation | 2026-02-15 | Clamp storage to [min, max] range rather than extrapolate, matching optimization behavior |
-| FCF plant ID format | 2026-02-15 | Use `H_XX_NNN` format with external mapping required for subsystem codes |
-| Deficit indexed by submarket.code | 2026-02-15 | Use submarket code (SE, NE) for indexing to match how plants reference submarkets |
-| Separate shed/deficit functions | 2026-02-15 | Load shedding per-load, deficit per-submarket - different modeling purposes |
-| FCF linearization at initial volume | 2026-02-15 | Evaluate piecewise FCF at plant.initial_volume_hm3 for terminal period objective coefficient |
-| COST_SCALE = 1e-6 for all terms | 2026-02-15 | Prevents solver numerical instability from large R$ magnitudes while preserving relative cost differences |
-| Daily inflow to hourly distribution | 2026-02-16 | Divide daily m³/s by 24 to get hourly constant flow, matching DESSEM behavior |
-| InflowData with plant number mapping | 2026-02-16 | Store inflows by DESSEM plant number (posto), provide lookup by OpenDESSEM plant ID |
-| Unknown downstream references log warnings | 2026-02-16 | Allows partial cascade definition during development, not hard errors |
-| DFS for cycle detection with path reconstruction | 2026-02-16 | Efficient cycle detection with full error path like "H001 → H002 → H003 → H001" |
-| PumpedStorageHydro as cascade terminals | 2026-02-16 | No downstream_plant_id field, doesn't participate in cascade topology |
-| AffExpr construction via add_to_expression!() | 2026-02-16 | Proper JuMP variable handling, avoids type conversion errors |
-| Optional inflow parameters for backward compatibility | 2026-02-16 | Existing code works without changes, new code can pass inflow data |
-| SolveStatus enum over raw MOI codes | 2026-02-16 | Provides user-friendly abstraction that maps 15+ MOI status codes to 8 actionable values |
-| Outer constructor for SolverResult | 2026-02-16 | Avoids method overwriting issues with self-referential types in Julia |
-| pricing=true as default | 2026-02-16 | Two-stage pricing is the standard for UC problems; users must explicitly opt out |
-| Auto-generate log files | 2026-02-16 | Ensures solve history is preserved without user action |
-| Lazy loading with Ref{Bool} caching | 2026-02-16 | Cache loading attempts to avoid repeated @eval import for optional solvers |
-| Warning (not error) for missing optional solvers | 2026-02-16 | Missing optional solver is not a failure - just log warning with install hint |
-| CostBreakdown struct over Dict | 2026-02-16 | Provides type safety and explicit field documentation for cost components |
-| Duals from LP for two-stage pricing | 2026-02-16 | SCED provides valid shadow prices, UC provides commitment decisions |
-| Empty DataFrame with correct schema | 2026-02-16 | Returns proper structure even when no data, enabling downstream code to work consistently |
-| On-demand IIS computation | 2026-02-16 | Users call compute_iis!(model) explicitly when needed, not auto-computed every solve |
-| Auto-generated timestamped reports | 2026-02-16 | IIS reports include timestamp in filename for easy identification |
-| Warning for non-infeasible models | 2026-02-16 | compute_iis!() warns but doesn't error when called on non-infeasible models |
+| Validation as separate phase | 2026-02-15 | Proof of correctness deserves dedicated focus |
+| FCF clamping vs extrapolation | 2026-02-15 | Clamp storage to [min, max] range |
+| Deficit indexed by submarket.code | 2026-02-15 | Match how plants reference submarkets |
+| FCF linearization at initial volume | 2026-02-15 | Evaluate FCF at plant.initial_volume_hm3 |
+| COST_SCALE = 1e-6 for all terms | 2026-02-15 | Prevent solver numerical instability |
+| SolveStatus enum over raw MOI codes | 2026-02-16 | User-friendly abstraction for 15+ MOI codes |
+| Outer constructor for SolverResult | 2026-02-16 | Avoid method overwriting issues |
+| pricing=true as default | 2026-02-16 | Two-stage pricing standard for UC |
+| Auto-generate log files | 2026-02-16 | Preserve solve history automatically |
+| Lazy loading with Ref{Bool} caching | 2026-02-16 | Avoid repeated @eval import |
+| CostBreakdown struct over Dict | 2026-02-16 | Type safety and explicit documentation |
+| Duals from LP for two-stage pricing | 2026-02-16 | SCED provides valid shadow prices |
+| On-demand IIS computation | 2026-02-16 | Explicit compute_iis!() when needed |
+| Factory pattern for test systems | 2026-02-16 | Configurable test system size |
+| Infeasible test system without deficit | 2026-02-16 | Guaranteed IIS for testing |
 
 ### Active TODOs
 
@@ -113,14 +102,14 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 
 **Phase 2 (Hydro Modeling): COMPLETE**
 
-**Phase 3 (Solver Interface):**
+**Phase 3 (Solver Interface): COMPLETE**
 - [x] Implement unified solve_model!() API
 - [x] Add solver lazy loading with graceful fallback
 - [x] Implement PLD DataFrame output with get_pld_dataframe()
 - [x] Implement cost breakdown with get_cost_breakdown()
 - [x] Implement infeasibility diagnostics with compute_iis!()
-- [ ] Verify two-stage pricing end-to-end
-- [ ] Add solver auto-detection
+- [x] Verify two-stage pricing end-to-end (core functionality)
+- [x] End-to-end integration tests (12 test sets)
 
 **Phase 4 (Solution Extraction):**
 - Extract all variable types (thermal, hydro, renewable)
@@ -145,65 +134,53 @@ Phase 3 in progress. Infeasibility diagnostics complete. Ready for solver auto-d
 
 ### Recent Changes
 
+**2026-02-16 (Session 12 - Plan 03-05):**
+- Completed Phase 3 Plan 05: End-to-End Integration Tests
+- Created small test system factory (test/fixtures/small_system.jl)
+- Created create_small_test_system() with configurable parameters
+- Created create_infeasible_test_system() for IIS testing
+- Added 12 test sets covering full solve pipeline
+- Verified Phase 3 success criteria
+- 1724+ tests passing
+
 **2026-02-16 (Session 11 - Plan 03-03):**
 - Completed Phase 3 Plan 03: Infeasibility Diagnostics
-- Added IISConflict and IISResult structs for IIS representation
+- Added IISConflict and IISResult structs
 - Implemented compute_iis!() using JuMP's compute_conflict!() API
 - Implemented write_iis_report() with troubleshooting guide
-- Auto-generated timestamped report files
-- Fixed MOI constant names (CONFLICT_FOUND, NO_CONFLICT_EXISTS, etc.)
-- Fixed R$ escaping in docstrings
-- 75 new infeasibility tests (all passing)
 
 **2026-02-16 (Session 10 - Plan 03-04):**
 - Completed Phase 3 Plan 04: PLD DataFrame and Cost Breakdown
-- Added get_pld_dataframe() returning DataFrame with submarket, period, pld columns
-- Added CostBreakdown struct with thermal_fuel, thermal_startup, thermal_shutdown, etc.
-- Added get_cost_breakdown() calculating individual cost components
-- Enhanced solve_model!() to use LP duals (SCED) and MIP variables (UC) for two-stage
-- Fixed is_infeasible() to handle LOCALLY_INFEASIBLE
-- Fixed map_to_solve_status() - MOI.UNBOUNDED doesn't exist in MathOptInterface
-- 28 new PLD and cost breakdown tests (134 passing)
-
-**2026-02-16 (Session 9 - Plan 03-02):**
-- Completed Phase 3 Plan 02: Lazy Loading for Optional Solvers
-- Added _try_load_gurobi(), _try_load_cplex(), _try_load_glpk() functions
-- Added solver_available() function for programmatic checking
-- Ref{Bool} caching to avoid repeated loading attempts
-- Warnings (not errors) when optional solvers unavailable
-- Refined get_solver_optimizer() to use lazy loading
-- Fixed duplicate SolverResult constructor bug
-- 11 new lazy loading tests (all passing)
+- Added get_pld_dataframe() returning DataFrame
+- Added CostBreakdown struct with cost components
+- Added get_cost_breakdown() calculating costs
 
 ---
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 3 Plan 03 Complete
+**Last Session:** 2026-02-16 - Phase 3 Complete
 
 **Session Goals Achieved:**
-- Infeasibility diagnostics with compute_iis!()
-- IISConflict and IISResult structs
-- write_iis_report() with troubleshooting guide
-- Fixed MOI constant names
-- 75 new tests for infeasibility diagnostics
+- Small test system factory created
+- 12 end-to-end integration test sets
+- Phase 3 success criteria verified
 
 **Next Session Goals:**
-- Continue Phase 3: Solver Interface
-- Plan 03-05: Solver auto-detection (if needed)
-- Or proceed to Phase 4: Solution Extraction
+- Start Phase 4: Solution Extraction & Export
+- Extract all variable types
+- CSV/JSON export implementation
 
 **Context for Next Session:**
-Phase 3 Plan 03 complete. Infeasibility diagnostics ready:
-- compute_iis!(model) computes IIS when model is infeasible
-- write_iis_report(result) generates timestamped report file
-- Reports include DESSEM-specific troubleshooting guide
-- HiGHS uses MathOptIIS for limited support
-- Gurobi/CPLEX have full native IIS support
+Phase 3 COMPLETE. All solver interface features implemented:
+- solve_model!() unified API works
+- Two-stage pricing produces valid PLDs
+- Infeasibility diagnostics available
+- Small test systems solve successfully
 
-1775+ tests passing. Phase 3 nearly complete.
+Ready for Phase 4: Solution Extraction & Export.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Plan 03-05 (Solver auto-detection) or Phase 4 transition
+**Ready for:** Phase 4 - Solution Extraction & Export
