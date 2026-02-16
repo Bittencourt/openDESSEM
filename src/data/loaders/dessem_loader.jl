@@ -86,7 +86,11 @@ using DESSEM2Julia:
     RenovaveisRecord,
     # Types - Network
     DesseletData,
-    DessemArq
+    DessemArq,
+    # Types - Inflow
+    DadvazData,
+    DadvazHeader,
+    DadvazInflowRecord
 
 # Import OpenDESSEM Entities module types
 using ..Entities:
@@ -120,7 +124,11 @@ export load_dessem_case,
     convert_dessem_hydro,
     convert_dessem_bus,
     convert_dessem_renewable,
-    DessemCaseData
+    DessemCaseData,
+    InflowData,
+    load_inflow_data,
+    get_inflow,
+    get_inflow_by_id
 
 #=============================================================================
 # Constants and Mappings
@@ -160,8 +168,52 @@ Default base voltage for buses when not specified.
 const DEFAULT_BASE_KV = 230.0
 
 #=============================================================================
-# Data Container
+# Data Containers
 =============================================================================#
+
+"""
+    InflowData
+
+Container for hydrological inflow time series loaded from dadvaz.dat.
+
+Daily inflows from DESSEM are distributed to hourly periods by dividing by 24.
+
+# Fields
+- `inflows::Dict{Int,Vector{Float64}}`: Plant number => hourly inflow (m³/s)
+- `num_periods::Int`: Number of time periods (hours)
+- `start_date::Date`: Start date of inflow data
+- `plant_numbers::Vector{Int}`: List of plant numbers with inflow data
+
+# Example
+```julia
+# Get hourly inflow for plant 1 at hour 5
+inflow = inflow_data.inflows[1][5]  # m³/s
+
+# Get all hourly inflows for a plant
+plant_1_inflows = inflow_data.inflows[1]  # Vector{Float64}
+```
+"""
+struct InflowData
+    inflows::Dict{Int,Vector{Float64}}  # plant_number => hourly inflows m³/s
+    num_periods::Int
+    start_date::Date
+    plant_numbers::Vector{Int}
+
+    function InflowData(
+        inflows::Dict{Int,Vector{Float64}},
+        num_periods::Int,
+        start_date::Date,
+        plant_numbers::Vector{Int},
+    )
+        # Validate that all plant_numbers have entries in inflows
+        for plant_num in plant_numbers
+            if !haskey(inflows, plant_num)
+                throw(ArgumentError("Plant $plant_num in plant_numbers but not in inflows dict"))
+            end
+        end
+        new(inflows, num_periods, start_date, plant_numbers)
+    end
+end
 
 """
     DessemCaseData
@@ -178,6 +230,8 @@ This intermediate structure holds all parsed DESSEM2Julia types.
 - `operuh_data::Union{OperuhData, Nothing}`: Hydro constraints
 - `renovaveis_data::Union{RenovaveisData, Nothing}`: Renewable plants
 - `desselet_data::Union{DesseletData, Nothing}`: Network case mapping
+- `inflow_data::Union{InflowData, Nothing}`: Hydrological inflow data
+- `hydro_plant_numbers::Dict{String,Int}`: Mapping from plant_id to plant_number
 - `base_path::String`: Base directory of the DESSEM case
 - `study_date::Date`: Base date for the study
 """
@@ -190,6 +244,8 @@ mutable struct DessemCaseData
     operuh_data::Union{OperuhData,Nothing}
     renovaveis_data::Union{RenovaveisData,Nothing}
     desselet_data::Union{DesseletData,Nothing}
+    inflow_data::Union{InflowData,Nothing}
+    hydro_plant_numbers::Dict{String,Int}
     base_path::String
     study_date::Date
 
@@ -203,6 +259,8 @@ mutable struct DessemCaseData
             nothing,
             nothing,
             nothing,
+            nothing,
+            Dict{String,Int}(),
             base_path,
             Date(2025, 1, 1),
         )
@@ -319,6 +377,17 @@ function parse_dessem_case(path::String)::DessemCaseData
         end
     end
 
+    # Parse inflow data (dadvaz.dat)
+    dadvaz_path = joinpath(path, "dadvaz.dat")
+    if isfile(dadvaz_path)
+        try
+            data.inflow_data = load_inflow_data(path)
+            @info "Parsed inflow data: $(length(data.inflow_data.plant_numbers)) plants, $(data.inflow_data.num_periods) periods"
+        catch e
+            @warn "Failed to parse dadvaz.dat: $e"
+        end
+    end
+
     # Try to extract study date from general data
     if data.general_data !== nothing && !isempty(data.general_data.time_periods)
         # First time period gives us the study start
@@ -328,6 +397,163 @@ function parse_dessem_case(path::String)::DessemCaseData
     end
 
     return data
+end
+
+#=============================================================================
+# Inflow Data Loading
+=============================================================================#
+
+"""
+    load_inflow_data(path::String) -> InflowData
+
+Load hydrological inflow data from dadvaz.dat file.
+
+Parses the dadvaz.dat file using DESSEM2Julia and converts daily inflows
+to hourly by dividing by 24 (assuming constant flow throughout the day).
+
+# Arguments
+- `path::String`: Path to DESSEM case directory (containing dadvaz.dat)
+
+# Returns
+- `InflowData`: Container with hourly inflows indexed by plant number
+
+# Example
+```julia
+inflow_data = load_inflow_data("path/to/dessem/case/")
+
+# Get hourly inflow for plant 1 at hour 5
+inflow = inflow_data.inflows[1][5]  # m³/s
+```
+
+# Notes
+- Daily inflows from dadvaz.dat are in m³/s
+- Hourly inflows are distributed as daily/24 (constant throughout day)
+- Plants with no inflow data will use zero inflows in constraint builders
+"""
+function load_inflow_data(path::String)::InflowData
+    dadvaz_path = joinpath(path, "dadvaz.dat")
+
+    if !isfile(dadvaz_path)
+        throw(ArgumentError("dadvaz.dat not found at: $dadvaz_path"))
+    end
+
+    # Parse using DESSEM2Julia
+    dadvaz_data = parse_dadvaz(dadvaz_path)
+
+    # Extract study start date
+    start_date = Date(dadvaz_data.header.study_start)
+
+    # Get unique days and plant numbers
+    records = dadvaz_data.records
+    unique_days = sort(unique([r.start_day for r in records]))
+    plant_numbers = dadvaz_data.header.plant_numbers
+
+    # Calculate number of hourly periods (days * 24 hours)
+    num_days = length(unique_days)
+    num_periods = num_days * 24
+
+    # Build inflow dictionary: plant_number => hourly inflows
+    inflows = Dict{Int,Vector{Float64}}()
+
+    for plant_num in plant_numbers
+        # Initialize hourly inflows array
+        hourly_inflows = zeros(Float64, num_periods)
+
+        # Get records for this plant
+        plant_records = filter(r -> r.plant_num == plant_num, records)
+
+        for record in plant_records
+            # Find which day this record is for (1-indexed)
+            day_index = findfirst(==(record.start_day), unique_days)
+            if day_index === nothing
+                continue
+            end
+
+            # Daily inflow in m³/s - distribute equally across 24 hours
+            # The daily inflow represents total flow for the day
+            # Hourly inflow = daily_inflow / 24
+            daily_inflow = record.flow_m3s
+            hourly_inflow = daily_inflow / 24.0
+
+            # Fill all 24 hours for this day
+            start_hour = (day_index - 1) * 24 + 1
+            end_hour = day_index * 24
+            for h in start_hour:end_hour
+                hourly_inflows[h] = hourly_inflow
+            end
+        end
+
+        inflows[plant_num] = hourly_inflows
+    end
+
+    return InflowData(inflows, num_periods, start_date, plant_numbers)
+end
+
+"""
+    get_inflow(inflow_data::InflowData, plant_num::Int, hour::Int) -> Float64
+
+Get the hourly inflow for a specific plant and hour.
+
+# Arguments
+- `inflow_data::InflowData`: Inflow data container
+- `plant_num::Int`: Plant number (DESSEM posto)
+- `hour::Int`: Hour index (1-indexed)
+
+# Returns
+- `Float64`: Hourly inflow in m³/s, or 0.0 if plant not found
+
+# Example
+```julia
+inflow = get_inflow(inflow_data, 1, 5)  # Plant 1, hour 5
+```
+"""
+function get_inflow(inflow_data::InflowData, plant_num::Int, hour::Int)::Float64
+    if !haskey(inflow_data.inflows, plant_num)
+        return 0.0
+    end
+
+    inflows = inflow_data.inflows[plant_num]
+    if hour < 1 || hour > length(inflows)
+        return 0.0
+    end
+
+    return inflows[hour]
+end
+
+"""
+    get_inflow_by_id(case_data::DessemCaseData, plant_id::String, hour::Int) -> Float64
+
+Get the hourly inflow for a hydro plant by its plant_id.
+
+Uses the hydro_plant_numbers mapping to look up the DESSEM plant number (posto)
+and then retrieves the inflow for that plant.
+
+# Arguments
+- `case_data::DessemCaseData`: DESSEM case data with inflow_data and hydro_plant_numbers
+- `plant_id::String`: OpenDESSEM hydro plant ID (e.g., "H_SE_001")
+- `hour::Int`: Hour index (1-indexed)
+
+# Returns
+- `Float64`: Hourly inflow in m³/s, or 0.0 if plant not found or no inflow data
+
+# Example
+```julia
+inflow = get_inflow_by_id(case_data, "H_SE_001", 5)  # Plant "H_SE_001", hour 5
+```
+"""
+function get_inflow_by_id(case_data::DessemCaseData, plant_id::String, hour::Int)::Float64
+    # Check if we have inflow data
+    if case_data.inflow_data === nothing
+        return 0.0
+    end
+
+    # Look up plant number from plant_id
+    if !haskey(case_data.hydro_plant_numbers, plant_id)
+        return 0.0
+    end
+
+    plant_num = case_data.hydro_plant_numbers[plant_id]
+    return get_inflow(case_data.inflow_data, plant_num, hour)
 end
 
 #=============================================================================
@@ -880,6 +1106,10 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
                 )
                 push!(hydro_plants, plant)
                 push!(used_hydro_ids, plant.id)
+
+                # Build hydro_plant_numbers mapping for inflow lookup
+                # Maps plant_id -> plant_number (posto)
+                case_data.hydro_plant_numbers[plant.id] = hidr.posto
             catch e
                 @warn "Failed to convert hydro plant $(hidr.posto): $e"
             end

@@ -1,7 +1,7 @@
 name = "OpenDESSEM"
 uuid = "12345678-1234-1234-1234-123456789abc"
-authors = ["OpenDESSEM Development Team"]
 version = "0.1.0"
+authors = ["OpenDESSEM Development Team"]
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -12,6 +12,7 @@ HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 PWF = "0f4c3beb-4231-4c4d-93e1-709cb40a89e6"
 PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"

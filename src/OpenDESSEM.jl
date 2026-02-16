@@ -33,13 +33,11 @@ module OpenDESSEM
 
 # Include submodules
 include("entities/Entities.jl")
+include("utils/cascade_topology.jl")
 include("core/electricity_system.jl")
 include("integration/Integration.jl")
 include("variables/variable_manager.jl")
 include("constraints/Constraints.jl")
-
-# Include utility modules
-include("utils/cascade_topology.jl")
 
 # Export main functionality
 using .Entities
@@ -175,7 +173,8 @@ export load_dessem_case,
     convert_dessem_renewable,
     InflowData,
     load_inflow_data,
-    get_inflow
+    get_inflow,
+    get_inflow_by_id
 
 # Include database loader for PostgreSQL data loading
 include("data/loaders/database_loader.jl")
