@@ -69,8 +69,8 @@ using ..OpenDESSEM.Variables:
 
 # Include all solver modules
 include("solver_types.jl")
+include("solution_extraction.jl")  # Include before solver_interface (contains get_cost_breakdown)
 include("solver_interface.jl")
-include("solution_extraction.jl")
 include("two_stage_pricing.jl")
 include("infeasibility.jl")
 

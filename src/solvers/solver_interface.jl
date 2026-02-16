@@ -639,12 +639,20 @@ function solve_model!(
         result.solve_time_seconds = uc_result.solve_time_seconds
         result.objective_bound = uc_result.objective_bound
         result.node_count = uc_result.node_count
+        # Variables come from MIP (commitment decisions)
         result.variables = uc_result.variables
-        result.dual_values = uc_result.dual_values
         result.has_values = uc_result.has_values
-        result.has_duals = uc_result.has_duals
         result.mip_result = uc_result
         result.lp_result = sced_result
+
+        # Duals come from LP (SCED) for valid PLDs
+        if sced_result !== nothing && sced_result.has_duals
+            result.dual_values = sced_result.dual_values
+            result.has_duals = true
+        else
+            result.dual_values = uc_result.dual_values
+            result.has_duals = uc_result.has_duals
+        end
 
         # Build cost breakdown from SCED if available
         if sced_result !== nothing && sced_result.has_values
@@ -754,36 +762,20 @@ end
 """
     _build_cost_breakdown(result::SolverResult, system::ElectricitySystem) -> Dict{String, Float64}
 
-Build a cost breakdown dictionary from the result.
+Build a cost breakdown dictionary from the result using get_cost_breakdown().
 """
 function _build_cost_breakdown(result::SolverResult, system::ElectricitySystem)
+    # Use the detailed get_cost_breakdown function
+    cb = get_cost_breakdown(result, system)
+
+    # Convert CostBreakdown struct to Dict for SolverResult
     breakdown = Dict{String,Float64}()
-
-    # Thermal fuel costs
-    thermal_cost = 0.0
-    if haskey(result.variables, :thermal_generation)
-        for plant in system.thermal_plants
-            gen = get_thermal_generation(result, plant.id, 1:1)
-            if !isempty(gen)
-                thermal_cost += sum(gen) * plant.fuel_cost_rsj_per_mwh / 1e6  # Scale down
-            end
-        end
-    end
-    breakdown["thermal_fuel"] = thermal_cost
-
-    # Startup costs (if tracked)
-    if haskey(result.variables, :thermal_startup)
-        startup_cost = 0.0
-        for plant in system.thermal_plants
-            startup_cost += plant.startup_cost_rs / 1e6  # Scale down
-        end
-        breakdown["startup"] = startup_cost
-    end
-
-    # Total
-    if result.objective_value !== nothing
-        breakdown["total"] = result.objective_value / 1e6  # Scale down
-    end
+    breakdown["thermal_fuel"] = cb.thermal_fuel
+    breakdown["thermal_startup"] = cb.thermal_startup
+    breakdown["thermal_shutdown"] = cb.thermal_shutdown
+    breakdown["deficit_penalty"] = cb.deficit_penalty
+    breakdown["hydro_water_value"] = cb.hydro_water_value
+    breakdown["total"] = cb.total
 
     return breakdown
 end
