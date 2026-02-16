@@ -8,6 +8,7 @@ using Test
 using OpenDESSEM.Solvers
 using MathOptInterface
 using Dates
+using DataFrames
 
 const MOI = MathOptInterface
 
@@ -57,7 +58,7 @@ const MOI = MathOptInterface
         end
 
         @testset "Unbounded cases" begin
-            @test map_to_solve_status(MOI.UNBOUNDED) == UNBOUNDED
+            # Note: MOI.DUAL_INFEASIBLE indicates unboundedness in minimization
             @test map_to_solve_status(MOI.DUAL_INFEASIBLE) == UNBOUNDED
         end
 
@@ -294,6 +295,334 @@ const MOI = MathOptInterface
             result1 = OpenDESSEM.Solvers._try_load_glpk()
             result2 = OpenDESSEM.Solvers._try_load_glpk()
             @test result1 == result2
+        end
+    end
+
+    # =========================================================================
+    # PLD DataFrame Tests
+    # =========================================================================
+
+    @testset "get_pld_dataframe" begin
+        @testset "Returns DataFrame with correct columns" begin
+            # Create a result with dual values
+            duals = Dict{String,Dict{Tuple,Float64}}()
+            duals["submarket_balance"] = Dict{Tuple,Float64}(
+                ("SE", 1) => 100.0,
+                ("SE", 2) => 150.0,
+                ("NE", 1) => 80.0,
+                ("NE", 2) => 90.0,
+            )
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = true,
+                dual_values = duals,
+            )
+
+            df = get_pld_dataframe(result)
+
+            @test df isa DataFrame
+            @test :submarket in propertynames(df)
+            @test :period in propertynames(df)
+            @test :pld in propertynames(df)
+            @test nrow(df) == 4
+        end
+
+        @testset "Filtering by submarket works" begin
+            duals = Dict{String,Dict{Tuple,Float64}}()
+            duals["submarket_balance"] = Dict{Tuple,Float64}(
+                ("SE", 1) => 100.0,
+                ("SE", 2) => 150.0,
+                ("NE", 1) => 80.0,
+                ("NE", 2) => 90.0,
+                ("S", 1) => 120.0,
+            )
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = true,
+                dual_values = duals,
+            )
+
+            df_se = get_pld_dataframe(result; submarkets = ["SE"])
+            @test nrow(df_se) == 2
+            @test all(df_se.submarket .== "SE")
+
+            df_multi = get_pld_dataframe(result; submarkets = ["SE", "NE"])
+            @test nrow(df_multi) == 4
+            @test all(in.(df_multi.submarket, Ref(["SE", "NE"])))
+        end
+
+        @testset "Filtering by time period works" begin
+            duals = Dict{String,Dict{Tuple,Float64}}()
+            duals["submarket_balance"] = Dict{Tuple,Float64}(
+                ("SE", 1) => 100.0,
+                ("SE", 2) => 150.0,
+                ("SE", 3) => 200.0,
+                ("SE", 4) => 180.0,
+            )
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = true,
+                dual_values = duals,
+            )
+
+            df_periods = get_pld_dataframe(result; time_periods = 2:3)
+            @test nrow(df_periods) == 2
+            @test sort(collect(df_periods.period)) == [2, 3]
+        end
+
+        @testset "Empty result when no duals" begin
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = false,
+            )
+
+            df = get_pld_dataframe(result)
+            @test df isa DataFrame
+            @test nrow(df) == 0
+            @test :submarket in propertynames(df)
+            @test :period in propertynames(df)
+            @test :pld in propertynames(df)
+        end
+
+        @testset "Empty result when submarket_balance missing" begin
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = true,
+                dual_values = Dict{String,Dict{Tuple,Float64}}(),
+            )
+
+            df = get_pld_dataframe(result)
+            @test nrow(df) == 0
+        end
+
+        @testset "DataFrame is sorted by submarket and period" begin
+            duals = Dict{String,Dict{Tuple,Float64}}()
+            duals["submarket_balance"] = Dict{Tuple,Float64}(
+                ("NE", 3) => 90.0,
+                ("SE", 1) => 100.0,
+                ("SE", 3) => 200.0,
+                ("NE", 1) => 80.0,
+            )
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_duals = true,
+                dual_values = duals,
+            )
+
+            df = get_pld_dataframe(result)
+            @test df.submarket == ["NE", "NE", "SE", "SE"]
+            @test df.period == [1, 3, 1, 3]
+        end
+    end
+
+    # =========================================================================
+    # Cost Breakdown Tests
+    # =========================================================================
+
+    @testset "CostBreakdown struct" begin
+        @testset "Default constructor" begin
+            cb = CostBreakdown()
+            @test cb.thermal_fuel == 0.0
+            @test cb.thermal_startup == 0.0
+            @test cb.thermal_shutdown == 0.0
+            @test cb.deficit_penalty == 0.0
+            @test cb.hydro_water_value == 0.0
+            @test cb.total == 0.0
+        end
+
+        @testset "Constructor with values" begin
+            cb = CostBreakdown(;
+                thermal_fuel = 1000.0,
+                thermal_startup = 100.0,
+                thermal_shutdown = 50.0,
+                deficit_penalty = 0.0,
+                hydro_water_value = 0.0,
+                total = 1150.0,
+            )
+            @test cb.thermal_fuel == 1000.0
+            @test cb.thermal_startup == 100.0
+            @test cb.thermal_shutdown == 50.0
+            @test cb.total == 1150.0
+        end
+    end
+
+    @testset "get_cost_breakdown" begin
+        @testset "Returns CostBreakdown struct with zeros for empty result" begin
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_values = false,
+            )
+
+            # Create a minimal mock system using Dict for testing
+            # Note: Full system creation requires many required fields,
+            # so we test the function exists and returns correct type
+            using OpenDESSEM:
+                ElectricitySystem,
+                Submarket
+
+            submarket = Submarket(;
+                id = "SE",
+                name = "Southeast",
+                code = "SE",
+                country = "Brazil",
+            )
+            system = ElectricitySystem(;
+                submarkets = [submarket],
+                base_date = Date(2024, 1, 1),
+            )
+
+            cb = get_cost_breakdown(result, system)
+            @test cb isa CostBreakdown
+            @test cb.thermal_fuel == 0.0
+            @test cb.thermal_startup == 0.0
+            @test cb.thermal_shutdown == 0.0
+            @test cb.deficit_penalty == 0.0
+            @test cb.hydro_water_value == 0.0
+            @test cb.total == 0.0
+        end
+
+        @testset "Calculates thermal fuel cost from generation values" begin
+            using OpenDESSEM:
+                ElectricitySystem,
+                ConventionalThermal,
+                Submarket,
+                Bus,
+                NATURAL_GAS
+            using Dates
+
+            # Create minimal required entities
+            submarket = Submarket(;
+                id = "SE",
+                name = "Southeast",
+                code = "SE",
+                country = "Brazil",
+            )
+            bus = Bus(;
+                id = "B001",
+                name = "Test Bus",
+                voltage_kv = 138.0,
+                base_kv = 138.0,
+            )
+            thermal = ConventionalThermal(;
+                id = "T001",
+                name = "Test Plant",
+                bus_id = "B001",
+                submarket_id = "SE",
+                fuel_type = NATURAL_GAS,
+                capacity_mw = 500.0,
+                min_generation_mw = 100.0,
+                max_generation_mw = 500.0,
+                ramp_up_mw_per_min = 10.0,
+                ramp_down_mw_per_min = 10.0,
+                min_up_time_hours = 1,
+                min_down_time_hours = 1,
+                fuel_cost_rsj_per_mwh = 150.0,
+                startup_cost_rs = 10000.0,
+                shutdown_cost_rs = 5000.0,
+                commissioning_date = DateTime(2020, 1, 1),
+            )
+            system = ElectricitySystem(;
+                submarkets = [submarket],
+                buses = [bus],
+                thermal_plants = [thermal],
+                base_date = Date(2024, 1, 1),
+            )
+
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_values = true,
+                variables = Dict{Symbol,Any}(
+                    :thermal_generation => Dict{Tuple{String,Int},Float64}(
+                        ("T001", 1) => 200.0,  # 200 MW for 1 hour = 200 MWh
+                        ("T001", 2) => 300.0,  # 300 MW for 1 hour = 300 MWh
+                    ),
+                ),
+            )
+
+            cb = get_cost_breakdown(result, system)
+            # Expected: (200 + 300) * 150 = 500 * 150 = 75000 R$
+            @test cb.thermal_fuel == 75000.0
+            @test cb.total == 75000.0  # Total should equal thermal_fuel (no other costs)
+        end
+
+        @testset "Calculates startup and shutdown costs" begin
+            using OpenDESSEM:
+                ElectricitySystem,
+                ConventionalThermal,
+                Submarket,
+                Bus,
+                NATURAL_GAS
+            using Dates
+
+            submarket = Submarket(;
+                id = "SE",
+                name = "Southeast",
+                code = "SE",
+                country = "Brazil",
+            )
+            bus = Bus(;
+                id = "B001",
+                name = "Test Bus",
+                voltage_kv = 138.0,
+                base_kv = 138.0,
+            )
+            thermal = ConventionalThermal(;
+                id = "T001",
+                name = "Test Plant",
+                bus_id = "B001",
+                submarket_id = "SE",
+                fuel_type = NATURAL_GAS,
+                capacity_mw = 500.0,
+                min_generation_mw = 100.0,
+                max_generation_mw = 500.0,
+                ramp_up_mw_per_min = 10.0,
+                ramp_down_mw_per_min = 10.0,
+                min_up_time_hours = 1,
+                min_down_time_hours = 1,
+                fuel_cost_rsj_per_mwh = 150.0,
+                startup_cost_rs = 10000.0,
+                shutdown_cost_rs = 5000.0,
+                commissioning_date = DateTime(2020, 1, 1),
+            )
+            system = ElectricitySystem(;
+                submarkets = [submarket],
+                buses = [bus],
+                thermal_plants = [thermal],
+                base_date = Date(2024, 1, 1),
+            )
+
+            result = SolverResult(;
+                status = MOI.OPTIMAL,
+                solve_status = OPTIMAL,
+                has_values = true,
+                variables = Dict{Symbol,Any}(
+                    :thermal_generation => Dict{Tuple{String,Int},Float64}(
+                        ("T001", 1) => 200.0,
+                        ("T001", 2) => 150.0,  # Add gen for t=2
+                    ),
+                    :thermal_startup => Dict{Tuple{String,Int},Float64}(
+                        ("T001", 1) => 1.0,  # Startup at t=1
+                    ),
+                    :thermal_shutdown => Dict{Tuple{String,Int},Float64}(
+                        ("T001", 2) => 1.0,  # Shutdown at t=2
+                    ),
+                ),
+            )
+
+            cb = get_cost_breakdown(result, system)
+            # Expected: fuel (200+150)*150=52500, startup 10000, shutdown 5000
+            @test cb.thermal_fuel == 52500.0
+            @test cb.thermal_startup == 10000.0
+            @test cb.thermal_shutdown == 5000.0
+            @test cb.total == 67500.0  # 52500 + 10000 + 5000
         end
     end
 

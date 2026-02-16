@@ -207,7 +207,7 @@ Convert MathOptInterface termination status to user-friendly SolveStatus enum.
 |------------|-------------|
 | OPTIMAL, LOCALLY_SOLVED | OPTIMAL |
 | INFEASIBLE, LOCALLY_INFEASIBLE, INFEASIBLE_OR_UNBOUNDED | INFEASIBLE |
-| UNBOUNDED, DUAL_INFEASIBLE | UNBOUNDED |
+| DUAL_INFEASIBLE | UNBOUNDED |
 | TIME_LIMIT | TIME_LIMIT |
 | ITERATION_LIMIT | ITERATION_LIMIT |
 | NUMERICAL_ERROR, SLOW_PROGRESS | NUMERICAL_ERROR |
@@ -229,7 +229,8 @@ function map_to_solve_status(moi_status::MOI.TerminationStatusCode)::SolveStatus
            moi_status == MOI.LOCALLY_INFEASIBLE ||
            moi_status == MOI.INFEASIBLE_OR_UNBOUNDED
         return INFEASIBLE
-    elseif moi_status == MOI.UNBOUNDED || moi_status == MOI.DUAL_INFEASIBLE
+    elseif moi_status == MOI.DUAL_INFEASIBLE
+        # DUAL_INFEASIBLE indicates unboundedness in minimization
         return UNBOUNDED
     elseif moi_status == MOI.TIME_LIMIT
         return TIME_LIMIT
@@ -291,7 +292,7 @@ end
 ```
 """
 function is_infeasible(result::SolverResult)::Bool
-    return result.status == MOI.INFEASIBLE
+    return result.status == MOI.INFEASIBLE || result.status == MOI.LOCALLY_INFEASIBLE
 end
 
 """
@@ -394,8 +395,9 @@ end
 
 # Notes
 - Not all solvers support IIS computation (Gurobi does, HiGHS has limited support)
-- If solver doesn't support IIS, status will be `MOI.COMPUTE_CONFLICT_NOT_SUPPORTED`
+- If solver doesn't support IIS, status will be `MOI.NO_CONFLICT_FOUND`
 - The IIS is computed using the conflict refinement algorithm
+- Possible status values: `CONFLICT_FOUND`, `NO_CONFLICT_EXISTS`, `NO_CONFLICT_FOUND`
 """
 Base.@kwdef struct IISResult
     status::MathOptInterface.ConflictStatusCode
