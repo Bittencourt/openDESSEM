@@ -195,6 +195,8 @@ export DatabaseLoader,
 include("analysis/Analysis.jl")
 using .Analysis
 export export_csv, export_json, export_database, ExportResult
+export ConstraintViolation, ViolationReport
+export check_constraint_violations, write_violation_report
 
 # More modules will be added as we implement them:
 # include("core/Model.jl")
