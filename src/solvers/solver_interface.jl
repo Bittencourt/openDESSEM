@@ -4,17 +4,171 @@
 Main solver interface functions for OpenDESSEM optimization.
 """
 
+# ============================================================================
+# Lazy Loading Infrastructure for Optional Solvers
+# ============================================================================
+
+# Track loading attempts and availability
+const _GUROBI_LOADED = Ref{Bool}(false)
+const _GUROBI_AVAILABLE = Ref{Bool}(false)
+
+const _CPLEX_LOADED = Ref{Bool}(false)
+const _CPLEX_AVAILABLE = Ref{Bool}(false)
+
+const _GLPK_LOADED = Ref{Bool}(false)
+const _GLPK_AVAILABLE = Ref{Bool}(false)
+
+"""
+    _try_load_gurobi() -> Bool
+
+Attempt to load Gurobi.jl on demand.
+
+Returns true if Gurobi is available, false otherwise.
+Caches result to avoid repeated attempts.
+
+# Example
+```julia
+if _try_load_gurobi()
+    optimizer = Gurobi.Optimizer
+end
+```
+"""
+function _try_load_gurobi()
+    _GUROBI_LOADED[] && return _GUROBI_AVAILABLE[]
+
+    try
+        @eval import Gurobi
+        _GUROBI_AVAILABLE[] = true
+        @debug "Gurobi.jl loaded successfully"
+    catch e
+        @warn "Gurobi.jl not available" exception = (e, catch_backtrace())
+        @info "Install Gurobi with: import Pkg; Pkg.add(\"Gurobi\")"
+        _GUROBI_AVAILABLE[] = false
+    end
+
+    _GUROBI_LOADED[] = true
+    return _GUROBI_AVAILABLE[]
+end
+
+"""
+    _try_load_cplex() -> Bool
+
+Attempt to load CPLEX.jl on demand.
+
+Returns true if CPLEX is available, false otherwise.
+Caches result to avoid repeated attempts.
+
+# Example
+```julia
+if _try_load_cplex()
+    optimizer = CPLEX.Optimizer
+end
+```
+"""
+function _try_load_cplex()
+    _CPLEX_LOADED[] && return _CPLEX_AVAILABLE[]
+
+    try
+        @eval import CPLEX
+        _CPLEX_AVAILABLE[] = true
+        @debug "CPLEX.jl loaded successfully"
+    catch e
+        @warn "CPLEX.jl not available" exception = (e, catch_backtrace())
+        @info "Install CPLEX with: import Pkg; Pkg.add(\"CPLEX\")"
+        _CPLEX_AVAILABLE[] = false
+    end
+
+    _CPLEX_LOADED[] = true
+    return _CPLEX_AVAILABLE[]
+end
+
+"""
+    _try_load_glpk() -> Bool
+
+Attempt to load GLPK.jl on demand.
+
+Returns true if GLPK is available, false otherwise.
+Caches result to avoid repeated attempts.
+
+# Example
+```julia
+if _try_load_glpk()
+    optimizer = GLPK.Optimizer
+end
+```
+"""
+function _try_load_glpk()
+    _GLPK_LOADED[] && return _GLPK_AVAILABLE[]
+
+    try
+        @eval import GLPK
+        _GLPK_AVAILABLE[] = true
+        @debug "GLPK.jl loaded successfully"
+    catch e
+        @warn "GLPK.jl not available" exception = (e, catch_backtrace())
+        @info "Install GLPK with: import Pkg; Pkg.add(\"GLPK\")"
+        _GLPK_AVAILABLE[] = false
+    end
+
+    _GLPK_LOADED[] = true
+    return _GLPK_AVAILABLE[]
+end
+
+"""
+    solver_available(solver_type::SolverType) -> Bool
+
+Check if a solver is available without attempting to load it.
+
+For optional solvers (GUROBI, CPLEX, GLPK), attempts lazy loading.
+For HIGHS, always returns true (required dependency).
+
+# Arguments
+- `solver_type::SolverType`: Solver type to check
+
+# Returns
+- `Bool`: true if solver is available
+
+# Example
+```julia
+if solver_available(GUROBI)
+    optimizer = get_solver_optimizer(GUROBI)
+else
+    @warn "Gurobi not available, using HiGHS"
+    optimizer = get_solver_optimizer(HIGHS)
+end
+```
+"""
+function solver_available(solver_type::SolverType)::Bool
+    if solver_type == HIGHS
+        return true  # HiGHS is always available (required dependency)
+    elseif solver_type == GUROBI
+        return _try_load_gurobi()
+    elseif solver_type == CPLEX
+        return _try_load_cplex()
+    elseif solver_type == GLPK
+        return _try_load_glpk()
+    else
+        return false
+    end
+end
+
 """
     get_solver_optimizer(solver_type::SolverType; options::SolverOptions=SolverOptions())
 
 Create a JuMP-compatible optimizer factory for the specified solver.
 
+Uses lazy loading for optional solvers (Gurobi, CPLEX, GLPK).
+Returns an error if the solver is not available.
+
 # Arguments
 - `solver_type::SolverType`: Solver type to create
-- `options::SolverOptions`: Solver options (optional)
+- `options::SolverOptions`: Solver options (optional, currently unused)
 
 # Returns
 - Optimizer factory for use with `Model()`
+
+# Throws
+- `ErrorException`: If the solver is not available
 
 # Example
 ```julia
@@ -30,22 +184,22 @@ function get_solver_optimizer(
     if solver_type == HIGHS
         return HiGHS.Optimizer
     elseif solver_type == GUROBI
-        try
+        if _try_load_gurobi()
             return Gurobi.Optimizer
-        catch
-            error("Gurobi.jl not installed. Install with: import Pkg; Pkg.add(\"Gurobi\")")
+        else
+            error("Gurobi not available. Install with: import Pkg; Pkg.add(\"Gurobi\")")
         end
     elseif solver_type == CPLEX
-        try
+        if _try_load_cplex()
             return CPLEX.Optimizer
-        catch
-            error("CPLEX.jl not installed. Install with: import Pkg; Pkg.add(\"CPLEX\")")
+        else
+            error("CPLEX not available. Install with: import Pkg; Pkg.add(\"CPLEX\")")
         end
     elseif solver_type == GLPK
-        try
+        if _try_load_glpk()
             return GLPK.Optimizer
-        catch
-            error("GLPK.jl not installed. Install with: import Pkg; Pkg.add(\"GLPK\")")
+        else
+            error("GLPK not available. Install with: import Pkg; Pkg.add(\"GLPK\")")
         end
     else
         error("Unsupported solver type: $solver_type")
@@ -744,5 +898,9 @@ export solve_model!,
     solve_lp_relaxation,
     get_solver_optimizer,
     apply_solver_options!,
+    solver_available,
+    _try_load_gurobi,
+    _try_load_cplex,
+    _try_load_glpk,
     _infer_time_periods,
     _is_lp_model
