@@ -36,6 +36,7 @@ Uses lazy extraction - only computes values when first requested.
 - `:hydro_outflow`: Dict[(plant_id, t) => value_m3_per_s]
 - `:renewable_generation`: Dict[(plant_id, t) => value_mw]
 - `:renewable_curtailment`: Dict[(plant_id, t) => value_mw]
+- `:deficit`: Dict[(submarket_code, t) => value_mw]
 """
 function extract_solution_values!(
     result::SolverResult,
@@ -253,6 +254,27 @@ function extract_solution_values!(
             end
         end
         result.variables[:renewable_curtailment] = renewable_curtail
+    end
+
+    # Extract deficit variables
+    if haskey(model, :deficit)
+        deficit = model[:deficit]
+        deficit_values = Dict{Tuple{String,Int},Float64}()
+        submarket_indices = get_submarket_indices(system)
+        for submarket in system.submarkets
+            if haskey(submarket_indices, submarket.code)
+                idx = submarket_indices[submarket.code]
+                for t in time_periods
+                    try
+                        val = value(deficit[idx, t])
+                        deficit_values[(submarket.code, t)] = val
+                    catch
+                        @warn "Could not extract deficit value for deficit[$idx, $t]"
+                    end
+                end
+            end
+        end
+        result.variables[:deficit] = deficit_values
     end
 
     result.has_values = true

@@ -66,7 +66,8 @@ using ..OpenDESSEM:
 
 # Import variable manager
 using ..OpenDESSEM.Variables:
-    get_thermal_plant_indices, get_hydro_plant_indices, get_renewable_plant_indices
+    get_thermal_plant_indices, get_hydro_plant_indices, get_renewable_plant_indices,
+    get_submarket_indices
 
 # Include all solver modules
 include("solver_types.jl")

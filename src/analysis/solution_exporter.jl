@@ -292,12 +292,8 @@ function export_json(
     # Write JSON file
     if pretty
         open(filepath, "w") do io
-            JSON3.write(io, json_data)
+            JSON3.pretty(io, JSON3.write(json_data))
         end
-        # Re-format with pretty printing
-        content = read(filepath, String)
-        pretty_content = JSON3.pretty(content)
-        write(filepath, pretty_content)
     else
         open(filepath, "w") do io
             JSON3.write(io, json_data)
