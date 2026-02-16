@@ -56,4 +56,7 @@ using Test
     # Infeasibility diagnostics tests
     include("unit/test_infeasibility.jl")
 
+    # End-to-end integration tests
+    include("integration/test_solver_end_to_end.jl")
+
 end
