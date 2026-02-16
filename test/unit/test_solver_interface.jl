@@ -5,10 +5,21 @@ Tests solver types, status enum, and unified solve API.
 """
 
 using Test
-using OpenDESSEM.Solvers
 using MathOptInterface
 using Dates
 using DataFrames
+using OpenDESSEM.Solvers: SolveStatus, OPTIMAL, INFEASIBLE, UNBOUNDED, TIME_LIMIT,
+    ITERATION_LIMIT, NUMERICAL_ERROR, OTHER_LIMIT, NOT_SOLVED,
+    SolverType, HIGHS, GUROBI, CPLEX, GLPK,
+    SolverOptions, SolverResult, IISConflict, IISResult,
+    solve_model!, optimize!, solver_available, get_solver_optimizer,
+    get_pld_dataframe, CostBreakdown, get_cost_breakdown,
+    map_to_solve_status, is_optimal, is_infeasible
+
+# Import OpenDESSEM for accessing internal functions via qualified path
+import OpenDESSEM
+
+const MOI = MathOptInterface
 
 const MOI = MathOptInterface
 

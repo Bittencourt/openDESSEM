@@ -4,10 +4,9 @@
 Runs all tests for the OpenDESSEM project.
 """
 
-# Import OpenDESSEM without polluting Main with re-exported DESSEM2Julia names.
-# Individual test files import from specific submodules (Entities, Constraints, etc.)
-# to avoid name ambiguity between OpenDESSEM and DESSEM2Julia.
-import OpenDESSEM
+# Import OpenDESSEM and Solvers to make exports available for included test files
+using OpenDESSEM
+using OpenDESSEM.Solvers
 using Test
 
 # Run all test files
