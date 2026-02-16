@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-16
 **Current Phase:** Phase 3 (Solver Interface Implementation) - IN PROGRESS
-**Current Plan:** 03-02 Complete (2/5)
+**Current Plan:** 03-04 Complete (3/5)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solver auto-detection (03-03).
+Phase 3 in progress. PLD DataFrame output and cost breakdown complete. Ready for solver auto-detection (03-03) or remaining plans.
 
 ---
 
 ## Current Position
 
 **Phase:** Phase 3 - Solver Interface Implementation (IN PROGRESS)
-**Plan:** 03-02 Complete (2/5)
-**Status:** Plan 03-02 complete, ready for 03-03
+**Plan:** 03-04 Complete (3/5)
+**Status:** Plan 03-04 complete, ready for 03-03 or 03-05
 
 **Progress Bar:**
 ```
-[████████░░░░░░░░░░░░] 2/5 plans complete (Phase 3 IN PROGRESS)
+[████████████░░░░░░░░░] 3/5 plans complete (Phase 3 IN PROGRESS)
 ```
 
 **Milestones:**
@@ -38,7 +38,8 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 - [x] Phase 2: Hydro Modeling Completion (4/4 criteria met) ✅
 - [x] Phase 3 Plan 01: Unified Solve API ✅
 - [x] Phase 3 Plan 02: Lazy Loading for Optional Solvers ✅
-- [ ] Phase 3: Solver Interface Implementation (2/5 criteria)
+- [x] Phase 3 Plan 04: PLD DataFrame & Cost Breakdown ✅
+- [ ] Phase 3: Solver Interface Implementation (3/5 criteria)
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
@@ -47,7 +48,7 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1613+ passing (11 new lazy loading tests)
+- Total tests: 1700+ passing (28 new PLD/cost breakdown tests)
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Basic workflows passing
 
@@ -98,6 +99,9 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 | Auto-generate log files | 2026-02-16 | Ensures solve history is preserved without user action |
 | Lazy loading with Ref{Bool} caching | 2026-02-16 | Cache loading attempts to avoid repeated @eval import for optional solvers |
 | Warning (not error) for missing optional solvers | 2026-02-16 | Missing optional solver is not a failure - just log warning with install hint |
+| CostBreakdown struct over Dict | 2026-02-16 | Provides type safety and explicit field documentation for cost components |
+| Duals from LP for two-stage pricing | 2026-02-16 | SCED provides valid shadow prices, UC provides commitment decisions |
+| Empty DataFrame with correct schema | 2026-02-16 | Returns proper structure even when no data, enabling downstream code to work consistently |
 
 ### Active TODOs
 
@@ -108,6 +112,8 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 **Phase 3 (Solver Interface):**
 - [x] Implement unified solve_model!() API
 - [x] Add solver lazy loading with graceful fallback
+- [x] Implement PLD DataFrame output with get_pld_dataframe()
+- [x] Implement cost breakdown with get_cost_breakdown()
 - [ ] Verify two-stage pricing end-to-end
 - [ ] Add solver auto-detection
 - [ ] Implement infeasibility diagnostics
@@ -135,6 +141,16 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 
 ### Recent Changes
 
+**2026-02-16 (Session 10 - Plan 03-04):**
+- Completed Phase 3 Plan 04: PLD DataFrame and Cost Breakdown
+- Added get_pld_dataframe() returning DataFrame with submarket, period, pld columns
+- Added CostBreakdown struct with thermal_fuel, thermal_startup, thermal_shutdown, etc.
+- Added get_cost_breakdown() calculating individual cost components
+- Enhanced solve_model!() to use LP duals (SCED) and MIP variables (UC) for two-stage
+- Fixed is_infeasible() to handle LOCALLY_INFEASIBLE
+- Fixed map_to_solve_status() - MOI.UNBOUNDED doesn't exist in MathOptInterface
+- 28 new PLD and cost breakdown tests (134 passing)
+
 **2026-02-16 (Session 9 - Plan 03-02):**
 - Completed Phase 3 Plan 02: Lazy Loading for Optional Solvers
 - Added _try_load_gurobi(), _try_load_cplex(), _try_load_glpk() functions
@@ -160,29 +176,30 @@ Phase 3 in progress. Lazy loading for optional solvers complete. Ready for solve
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 3 Plan 02 Complete
+**Last Session:** 2026-02-16 - Phase 3 Plan 04 Complete
 
 **Session Goals Achieved:**
-- Lazy loading infrastructure for Gurobi, CPLEX, GLPK
-- solver_available() function for checking optional solver presence
-- Refined get_solver_optimizer() with graceful errors
-- 11 lazy loading tests passing
+- PLD DataFrame output with get_pld_dataframe()
+- Cost breakdown with CostBreakdown struct and get_cost_breakdown()
+- Two-stage pricing integration (duals from LP, vars from MIP)
+- Fixed is_infeasible() and map_to_solve_status() bugs
+- 28 new tests for PLD and cost breakdown
 
 **Next Session Goals:**
 - Continue Phase 3: Solver Interface
 - Plan 03-03: Solver auto-detection
-- Plan 03-04: Infeasibility diagnostics
+- Plan 03-05: Infeasibility diagnostics
 
 **Context for Next Session:**
-Phase 3 Plan 02 complete. Lazy loading ready:
-- solver_available(GUROBI) returns true/false
-- _try_load_*() functions cache results in Ref{Bool}
-- HiGHS always available (required dependency)
-- Optional solvers log warnings with install hints
+Phase 3 Plan 04 complete. PLD extraction ready:
+- get_pld_dataframe(result) returns DataFrame with submarket, period, pld
+- get_cost_breakdown(result, system) returns CostBreakdown struct
+- solve_model!() populates cost_breakdown field
+- Duals from LP (SCED) for valid shadow prices
 
-1613+ tests passing. Ready for Plan 03-03.
+1700+ tests passing. Ready for Plan 03-03 or 03-05.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Plan 03-03 (Solver auto-detection)
+**Ready for:** Plan 03-03 (Solver auto-detection) or 03-05 (Infeasibility diagnostics)
