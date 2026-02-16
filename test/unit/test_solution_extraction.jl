@@ -18,6 +18,8 @@ using DataFrames
 using MathOptInterface
 
 using OpenDESSEM
+using OpenDESSEM:
+    ConventionalThermal, ReservoirHydro, Bus, Submarket, Load, ElectricitySystem
 using OpenDESSEM.Solvers
 using OpenDESSEM.Solvers:
     SolverResult, SolverOptions,
@@ -213,11 +215,11 @@ using .SmallSystemFactory: create_small_test_system
     @testset "get_cost_breakdown returns zeros without values" begin
         result = SolverResult()
         breakdown = get_cost_breakdown(result, ElectricitySystem(;
-            thermal_plants = [],
-            hydro_plants = [],
-            buses = [],
-            submarkets = [],
-            loads = [],
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = Bus[],
+            submarkets = Submarket[],
+            loads = Load[],
             base_date = Date(2025, 1, 1),
         ))
         @test breakdown isa CostBreakdown
