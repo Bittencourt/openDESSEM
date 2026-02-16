@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-16
 **Current Phase:** Phase 2 (Hydro Modeling Completion) - In Progress
-**Current Plan:** 02-01 and 02-02 Complete (2/4)
+**Current Plan:** 02-03 Complete (3/4)
 
 ---
 
@@ -12,19 +12,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Cascade topology utility complete with cycle detection. ElectricitySystem now validates cascade topology at construction time and throws on circular dependencies.
+Water balance constraints now integrate cascade topology and inflow data, enabling realistic multi-reservoir hydro modeling.
 
 ---
 
 ## Current Position
 
 **Phase:** Phase 2 - Hydro Modeling Completion (In Progress)
-**Plan:** 02-01 and 02-02 Complete (Cascade Topology + Inflow Data)
-**Status:** Cascade topology and inflow loading implemented
+**Plan:** 02-03 Complete (Cascade & Inflow Integration in Constraints)
+**Status:** Water balance constraints with cascade delays and loaded inflows
 
 **Progress Bar:**
 ```
-[████████░░░░░░░░░░░░] 2/4 plans complete (Phase 2 In Progress)
+[████████████░░░░░░░░░] 3/4 plans complete (Phase 2 In Progress)
 ```
 
 **Milestones:**
@@ -34,7 +34,8 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 - [x] Phase 1: Objective Function Completion (5/5 criteria met) ✅
 - [x] Phase 2 Plan 01: Cascade Topology Utility ✅
 - [x] Phase 2 Plan 02: Inflow Data Loading ✅
-- [ ] Phase 2: Hydro Modeling Completion (2/4 criteria)
+- [x] Phase 2 Plan 03: Water Balance Cascade & Inflow Integration ✅
+- [ ] Phase 2: Hydro Modeling Completion (3/4 criteria)
 - [ ] Phase 3: Solver Interface Implementation (0/5 criteria)
 - [ ] Phase 4: Solution Extraction & Export (0/5 criteria)
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
@@ -44,7 +45,7 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 1488+ passing (including 103 cascade topology + 34 inflow loading tests)
+- Total tests: 1541+ passing (including 103 cascade + 34 inflow + 46 water balance tests)
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Basic workflows passing
 
@@ -58,7 +59,7 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 - ~~Add load shedding variables to VariableManager~~ ✅ DONE
 - ~~Hydro inflows hardcoded to zero (blocker for validation)~~ ✅ DONE - Now loading from dadvaz.dat
 - ~~Cascade topology missing~~ ✅ DONE - CascadeTopologyUtils module created
-- Cascade delays commented out (blocker for multi-reservoir systems) - ready to uncomment
+- ~~Cascade delays commented out (blocker for multi-reservoir systems)~~ ✅ DONE - Now integrated in water balance
 - PowerModels in validate-only mode (not actively constraining)
 - ~~Objective function scaffold incomplete (water value integration pending)~~ ✅ DONE
 
@@ -86,6 +87,8 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 | Unknown downstream references log warnings | 2026-02-16 | Allows partial cascade definition during development, not hard errors |
 | DFS for cycle detection with path reconstruction | 2026-02-16 | Efficient cycle detection with full error path like "H001 → H002 → H003 → H001" |
 | PumpedStorageHydro as cascade terminals | 2026-02-16 | No downstream_plant_id field, doesn't participate in cascade topology |
+| AffExpr construction via add_to_expression!() | 2026-02-16 | Proper JuMP variable handling, avoids type conversion errors |
+| Optional inflow parameters for backward compatibility | 2026-02-16 | Existing code works without changes, new code can pass inflow data |
 
 ### Active TODOs
 
@@ -94,8 +97,8 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 **Phase 2 (Hydro Modeling):**
 - ~~Parse dadvaz.dat for inflow data~~ ✅ DONE (02-02)
 - ~~Build cascade topology: DAG construction, depth computation, cycle detection~~ ✅ DONE (02-01)
-- Integrate inflows into HydroWaterBalanceConstraint
-- Complete cascade delay logic (uncomment lines 224-228 in hydro_water_balance.jl)
+- ~~Integrate inflows into HydroWaterBalanceConstraint~~ ✅ DONE (02-03)
+- ~~Complete cascade delay logic~~ ✅ DONE (02-03)
 - Add production coefficient constraints
 
 **Phase 3 (Solver Interface):**
@@ -119,14 +122,23 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 ### Known Blockers
 
 **Current:**
-- None - Cascade topology and inflow data loading complete
+- None - Water balance cascade and inflow integration complete
 
 **Anticipated:**
-- Cascade delay integration (Phase 2) - need to connect with inflow data and cascade topology
 - DESSEM binary output parsing (Phase 5) - may need reverse-engineering FORTRAN format
 - PowerModels variable linking (deferred to v2) - coupling pattern unclear
 
 ### Recent Changes
+
+**2026-02-16 (Session 7 - Plan 02-03):**
+- Completed Phase 2 Plan 03: Water Balance Cascade & Inflow Integration
+- Integrated cascade topology via build_cascade_topology() in constraint builder
+- Added upstream outflows with travel time delays (t - round(Int, delay_hours))
+- Replaced hardcoded inflow=0.0 with loaded inflow data via InflowData
+- Added get_inflow_for_period() helper function with safe fallback
+- Fixed AffExpr construction using add_to_expression!() for JuMP compatibility
+- Reordered module includes (DessemLoader before Constraints)
+- 46 new water balance tests (cascade, inflow, edge cases, integration)
 
 **2026-02-16 (Session 6):**
 - Completed Phase 2 Plan 01: Cascade Topology Utility
@@ -152,25 +164,23 @@ Cascade topology utility complete with cycle detection. ElectricitySystem now va
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 2 Plans 01 and 02 Complete
+**Last Session:** 2026-02-16 - Phase 2 Plan 03 Complete
 
 **Session Goals Achieved:**
-- CascadeTopologyUtils module created with cycle detection
-- ElectricitySystem validates cascade topology at construction
-- InflowData struct created and tested
-- load_inflow_data() parses dadvaz.dat using DESSEM2Julia
-- 137 new tests (103 cascade + 34 inflow)
+- Integrated cascade topology into HydroWaterBalanceConstraint
+- Replaced hardcoded inflows with loaded data
+- Added comprehensive tests (46 new tests)
+- Fixed AffExpr construction for JuMP compatibility
 
 **Next Session Goals:**
 - Continue Phase 2: Hydro Modeling Completion
-- Integrate inflows into HydroWaterBalanceConstraint
-- Complete cascade delay logic (uncomment and connect with topology)
-- Add production coefficient constraints
+- Add production coefficient constraints (Plan 02-04)
+- Or proceed to Phase 3: Solver Interface
 
 **Context for Next Session:**
-Cascade topology is now available via build_cascade_topology(hydro_plants) which returns a CascadeTopology struct with upstream_map, depths, topological_order, headwaters, and terminals. ElectricitySystem constructor validates cascade and throws on circular dependencies. InflowData provides hourly inflows via get_inflow(inflow_data, plant_num, hour). Ready to integrate both into hydro constraints.
+Water balance constraints now support cascade topology with travel time delays and inflow data loading. The build!() function accepts optional inflow_data and hydro_plant_numbers parameters. The cascade logic adds upstream turbine outflow and spillage to downstream plants' water balance at time t-delay. 1541+ tests passing. Ready to add production coefficient constraints or move to solver interface.
 
 ---
 
 **State saved:** 2026-02-16
-**Ready for:** Phase 2 continued (Hydro constraint integration with cascade topology and inflows)
+**Ready for:** Phase 2 continued (production coefficient constraints) or Phase 3 (solver interface)
