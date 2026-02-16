@@ -95,7 +95,7 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
     # Check if model is in an infeasible or unbounded state
     term_status = termination_status(model)
     
-    if term_status ∉ [MOI.INFEASIBLE, MOI.LOCALLY_INFEASIBLE, MOI.INFEASIBLE_OR_UNBOUNDED, MOI.UNBOUNDED, MOI.DUAL_INFEASIBLE]
+    if term_status ∉ [MOI.INFEASIBLE, MOI.LOCALLY_INFEASIBLE, MOI.INFEASIBLE_OR_UNBOUNDED, MOI.DUAL_INFEASIBLE]
         @warn "compute_iis!() called on model that may not be infeasible. " *
               "Termination status: $term_status. " *
               "For best results, call compute_iis!() after detecting INFEASIBLE status."
@@ -103,13 +103,18 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
     
     # Try to compute conflict using JuMP's conflict API
     conflicts = IISConflict[]
-    conflict_status = MOI.COMPUTE_CONFLICT_NOT_SUPPORTED
+    conflict_status = MOI.NO_CONFLICT_FOUND
     
     try
         # Use JuMP's compute_conflict! function
-        conflict_status = compute_conflict!(model)
+        raw_status = compute_conflict!(model)
         
-        if conflict_status == MOI.COMPUTE_CONFLICT_SUCCESS
+        # Handle case where compute_conflict! returns nothing
+        if raw_status !== nothing
+            conflict_status = raw_status
+        end
+        
+        if conflict_status == MOI.CONFLICT_FOUND
             # Extract all constraints that are in the conflict set
             conflicts = _extract_conflicts(model)
         end
@@ -117,7 +122,7 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
         if e isa MethodError || (isa(e, ErrorException) && occursin("conflict", lowercase(e.msg)))
             @warn "IIS computation not supported by $solver_name. " *
                   "Consider using Gurobi or CPLEX for full IIS support."
-            conflict_status = MOI.COMPUTE_CONFLICT_NOT_SUPPORTED
+            conflict_status = MOI.NO_CONFLICT_FOUND
         else
             rethrow(e)
         end
@@ -135,7 +140,7 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
     )
     
     # Auto-generate report if requested and conflicts were found
-    if auto_report && conflict_status == MOI.COMPUTE_CONFLICT_SUCCESS && !isempty(conflicts)
+    if auto_report && conflict_status == MOI.CONFLICT_FOUND && !isempty(conflicts)
         report_path = write_iis_report(result)
         result = IISResult(
             status = result.status,
@@ -478,11 +483,15 @@ function write_iis_report(
     push!(lines, "SUMMARY")
     push!(lines, "-" ^ 70)
     
-    if result.status == MOI.COMPUTE_CONFLICT_SUCCESS
+    if result.status == MOI.CONFLICT_FOUND
         push!(lines, "IIS computation SUCCESSFUL")
         push!(lines, "Number of conflicting elements: $(length(result.conflicts))")
-    elseif result.status == MOI.COMPUTE_CONFLICT_NOT_SUPPORTED
-        push!(lines, "IIS computation NOT SUPPORTED by solver")
+    elseif result.status == MOI.NO_CONFLICT_EXISTS
+        push!(lines, "NO CONFLICT EXISTS - model is feasible")
+        push!(lines, "")
+        push!(lines, "Note: The model was determined to be feasible.")
+    elseif result.status == MOI.NO_CONFLICT_FOUND
+        push!(lines, "IIS computation did not find a conflict")
         push!(lines, "")
         push!(lines, "Recommendations:")
         push!(lines, "  1. Try using Gurobi or CPLEX for full IIS support")

@@ -53,4 +53,7 @@ using Test
     # Solver interface tests
     include("unit/test_solver_interface.jl")
 
+    # Infeasibility diagnostics tests
+    include("unit/test_infeasibility.jl")
+
 end
