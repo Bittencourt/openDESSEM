@@ -42,6 +42,7 @@ using Test
 
     # Constraint tests
     include("unit/test_constraints.jl")
+    include("unit/test_hydro_water_balance.jl")
 
     # Integration tests for constraints
     include("integration/test_constraint_system.jl")
