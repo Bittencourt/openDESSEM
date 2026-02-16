@@ -38,6 +38,9 @@ include("integration/Integration.jl")
 include("variables/variable_manager.jl")
 include("constraints/Constraints.jl")
 
+# Include utility modules
+include("utils/cascade_topology.jl")
+
 # Export main functionality
 using .Entities
 export AbstractEntity, PhysicalEntity, EntityMetadata
@@ -56,6 +59,14 @@ export DETERMINISTIC, STOCHASTIC, SCENARIO_BASED
 export ElectricitySystem
 export get_thermal_plant, get_hydro_plant, get_bus, get_submarket
 export count_generators, total_capacity, validate_system, validate_bus_submarket_consistency
+
+# Export cascade topology functionality
+using .CascadeTopologyUtils
+export CascadeTopology,
+    build_cascade_topology,
+    find_headwaters,
+    find_terminal_plants,
+    get_upstream_plants
 
 # Export integration functionality
 using .Integration
@@ -161,7 +172,10 @@ export load_dessem_case,
     convert_dessem_thermal,
     convert_dessem_hydro,
     convert_dessem_bus,
-    convert_dessem_renewable
+    convert_dessem_renewable,
+    InflowData,
+    load_inflow_data,
+    get_inflow
 
 # Include database loader for PostgreSQL data loading
 include("data/loaders/database_loader.jl")

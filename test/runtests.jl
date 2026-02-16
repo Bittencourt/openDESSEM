@@ -4,7 +4,10 @@
 Runs all tests for the OpenDESSEM project.
 """
 
-using OpenDESSEM
+# Import OpenDESSEM without polluting Main with re-exported DESSEM2Julia names.
+# Individual test files import from specific submodules (Entities, Constraints, etc.)
+# to avoid name ambiguity between OpenDESSEM and DESSEM2Julia.
+import OpenDESSEM
 using Test
 
 # Run all test files
@@ -20,6 +23,9 @@ using Test
 
     # Core tests
     include("unit/test_electricity_system.jl")
+
+    # Utility tests
+    include("unit/test_cascade_topology.jl")
 
     # Integration tests
     include("unit/test_powermodels_adapter.jl")
