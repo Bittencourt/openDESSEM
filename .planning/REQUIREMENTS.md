@@ -9,10 +9,10 @@ Requirements for Phase 3 completion. Each maps to roadmap phases.
 
 ### Objective Function
 
-- [ ] **OBJ-01**: Complete production cost objective with fuel cost, startup cost, and shutdown cost terms for all thermal plants
-- [ ] **OBJ-02**: Implement water value / future cost function (FCF) loading from infofcf.dat and integration into objective as terminal period water value
-- [ ] **OBJ-03**: Implement load shedding penalty variables and costs with proper variable creation in VariableManager
-- [ ] **OBJ-04**: Apply numerical scaling to objective coefficients for solver stability across different cost magnitudes
+- [x] **OBJ-01**: Complete production cost objective with fuel cost, startup cost, and shutdown cost terms for all thermal plants
+- [x] **OBJ-02**: Implement water value / future cost function (FCF) loading from infofcf.dat and integration into objective as terminal period water value
+- [x] **OBJ-03**: Implement load shedding penalty variables and costs with proper variable creation in VariableManager
+- [x] **OBJ-04**: Apply numerical scaling to objective coefficients for solver stability across different cost magnitudes
 
 ### Solver Interface
 
@@ -23,9 +23,9 @@ Requirements for Phase 3 completion. Each maps to roadmap phases.
 
 ### Hydro Modeling
 
-- [ ] **HYDR-01**: Load real hydrological inflow data from DESSEM files (vazaolateral.csv) replacing hardcoded zero inflows
-- [ ] **HYDR-02**: Implement cascade water delay logic: upstream outflows propagate to downstream plants with travel time delay
-- [ ] **HYDR-03**: Build cascade topology utility: construct plant dependency DAG, compute depths, detect cycles
+- [x] **HYDR-01**: Load real hydrological inflow data from DESSEM files (dadvaz.dat) replacing hardcoded zero inflows
+- [x] **HYDR-02**: Implement cascade water delay logic: upstream outflows propagate to downstream plants with travel time delay
+- [x] **HYDR-03**: Build cascade topology utility: construct plant dependency DAG, compute depths, detect cycles
 
 ### Solution Extraction
 
@@ -90,13 +90,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OBJ-01 | Phase 1 | Pending |
-| OBJ-02 | Phase 1 | Pending |
-| OBJ-03 | Phase 1 | Pending |
-| OBJ-04 | Phase 1 | Pending |
-| HYDR-01 | Phase 2 | Pending |
-| HYDR-02 | Phase 2 | Pending |
-| HYDR-03 | Phase 2 | Pending |
+| OBJ-01 | Phase 1 | Complete |
+| OBJ-02 | Phase 1 | Complete |
+| OBJ-03 | Phase 1 | Complete |
+| OBJ-04 | Phase 1 | Complete |
+| HYDR-01 | Phase 2 | Complete |
+| HYDR-02 | Phase 2 | Complete |
+| HYDR-03 | Phase 2 | Complete |
 | SOLV-01 | Phase 3 | Pending |
 | SOLV-02 | Phase 3 | Pending |
 | SOLV-03 | Phase 3 | Pending |
@@ -113,8 +113,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 **Coverage:**
 - v1 requirements: 19 total
 - Mapped to phases: 19/19 (100% coverage)
+- Complete: 7/19 (OBJ-01 to OBJ-04, HYDR-01 to HYDR-03)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-15*
-*Last updated: 2026-02-15 after roadmap creation*
+*Last updated: 2026-02-16 - Phase 2 complete*
