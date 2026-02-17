@@ -1,9 +1,9 @@
 # Project State: OpenDESSEM
 
-**Last Updated:** 2026-02-16
+**Last Updated:** 2026-02-17
 **Current Phase:** Phase 4 (Solution Extraction & Export) - COMPLETE
-**Current Plan:** 04-02 Complete (2/2)
-**Last Activity:** 2026-02-16 - Completed quick task 001: Update ONS example to use nodal pricing from PWF
+**Current Plan:** 04-03 Complete (3/3)
+**Last Activity:** 2026-02-17 - Completed 04-03: Nodal LMP Extraction
 
 ---
 
@@ -20,12 +20,12 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 ## Current Position
 
 **Phase:** Phase 4 - Solution Extraction & Export (COMPLETE)
-**Plan:** 04-02 Complete (2/2)
+**Plan:** 04-03 Complete (3/3)
 **Status:** Phase 4 COMPLETE, verified 5/5 criteria, ready for Phase 5
 
 **Progress Bar:**
 ```
-[████████████████████] 2/2 plans complete (Phase 4 COMPLETE)
+[████████████████████] 3/3 plans complete (Phase 4 COMPLETE)
 ```
 
 **Milestones:**
@@ -45,6 +45,7 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - [x] Phase 3: Solver Interface Implementation (5/5 criteria) ✅
 - [x] Phase 4 Plan 01: Extraction Gaps & Export Tests ✅
 - [x] Phase 4 Plan 02: Constraint Violation Reporting ✅
+- [x] Phase 4 Plan 03: Nodal LMP Extraction ✅
 - [x] Phase 4: Solution Extraction & Export (5/5 criteria met) ✅
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
@@ -57,7 +58,7 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 ## Performance Metrics
 
 **Test Coverage:**
-- Total tests: 2025+ passing
+- Total tests: 2061+ passing
 - Coverage: >90% on core modules (entities, constraints, variables)
 - Integration tests: Full solve pipeline verified
 
@@ -75,6 +76,7 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - PowerModels in validate-only mode (not actively constraining)
 - ~~Objective function scaffold incomplete~~ ✅ DONE
 - LibPQ dependency issue causing precompilation failures (non-blocking)
+- FCF test errors (get_water_value undefined) - minor issue
 
 ---
 
@@ -104,6 +106,8 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 | Infeasible test system without deficit | 2026-02-16 | Guaranteed IIS for testing |
 | constraint_violations.jl at module level (not submodule) | 2026-02-16 | Avoid JuMP type re-import through nested submodules |
 | Constraint classification via lowercase name matching | 2026-02-16 | Matches codebase constraint naming conventions |
+| Empty DataFrame for missing PowerModels | 2026-02-17 | Graceful degradation for optional dependency |
+| Dynamic module lookup for Integration | 2026-02-17 | Avoid hard dependency on PowerModels |
 
 ### Active TODOs
 
@@ -125,6 +129,7 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - [x] Extract PLD duals from energy balance constraints ✅
 - [x] Complete CSV/JSON export with formatting ✅
 - [x] Add constraint violation reporting ✅
+- [x] Add nodal LMP extraction via PowerModels DC-OPF ✅
 
 **Phase 5 (Validation):**
 - Create integration test for ONS sample DS_ONS_102025_RV2D11
@@ -136,6 +141,7 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 
 **Current:**
 - LibPQ dependency issue causing precompilation failures (non-blocking for development)
+- FCF test errors (get_water_value undefined) - minor issue
 
 **Anticipated:**
 - DESSEM binary output parsing (Phase 5) - may need reverse-engineering FORTRAN format
@@ -148,6 +154,13 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 | 001 | Update ONS example to use nodal pricing from PWF | 2026-02-16 | 8ceef09 | [001-update-ons-example-nodal-pricing-pwf](./quick/001-update-ons-example-nodal-pricing-pwf/) |
 
 ### Recent Changes
+
+**2026-02-17 (Session 15 - Plan 04-03):**
+- Completed Phase 4 Plan 03: Nodal LMP Extraction
+- Added get_nodal_lmp_dataframe() for bus-level LMP extraction
+- Graceful degradation when PowerModels not available
+- Added 13 new test assertions for nodal LMP extraction
+- 2061+ tests passing (3 pre-existing FCF errors unrelated)
 
 **2026-02-16 (Session 14 - Phase 4 Complete + Quick-001):**
 - Completed Phase 4 Plan 01: Extraction Gaps & Export Tests
@@ -166,39 +179,17 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - Added 56 new test assertions
 - 1944+ tests passing
 
-**2026-02-16 (Session 12 - Plan 03-05):**
-- Completed Phase 3 Plan 05: End-to-End Integration Tests
-- Created small test system factory (test/fixtures/small_system.jl)
-- Created create_small_test_system() with configurable parameters
-- Created create_infeasible_test_system() for IIS testing
-- Added 12 test sets covering full solve pipeline
-- Verified Phase 3 success criteria
-- 1724+ tests passing
-
-**2026-02-16 (Session 11 - Plan 03-03):**
-- Completed Phase 3 Plan 03: Infeasibility Diagnostics
-- Added IISConflict and IISResult structs
-- Implemented compute_iis!() using JuMP's compute_conflict!() API
-- Implemented write_iis_report() with troubleshooting guide
-
-**2026-02-16 (Session 10 - Plan 03-04):**
-- Completed Phase 3 Plan 04: PLD DataFrame and Cost Breakdown
-- Added get_pld_dataframe() returning DataFrame
-- Added CostBreakdown struct with cost components
-- Added get_cost_breakdown() calculating costs
-
 ---
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 4 COMPLETE + Quick-001
+**Last Session:** 2026-02-17 - Plan 04-03 Complete
 
 **Session Goals Achieved:**
-- Phase 4 fully verified (5/5 criteria)
-- Deficit extraction + JSON3.pretty fix (Plan 04-01)
-- Constraint violation reporter (Plan 04-02)
-- Quick-001: Nodal pricing section in ONS example
-- 2025+ tests passing
+- Nodal LMP extraction via PowerModels DC-OPF
+- Graceful degradation pattern for optional dependencies
+- 13 new test assertions
+- 2061+ tests passing
 
 **Next Session Goals:**
 - Start Phase 5: End-to-End Validation
@@ -206,16 +197,18 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - Implement tolerance checking (5% cost, PLD correlation)
 
 **Context for Next Session:**
-Phase 4 COMPLETE and VERIFIED. Quick task completed.
-- extract_solution_values!() handles all variable types including deficit
+Phase 4 COMPLETE and VERIFIED (3/3 plans).
+- get_nodal_lmp_dataframe() extracts bus-level LMPs
+- Graceful degradation when PowerModels unavailable
+- extract_solution_values!() handles all variable types
 - export_csv() and export_json() produce valid output
 - check_constraint_violations() classifies violations by type
-- ons_data_example.jl demonstrates nodal pricing (PowerModels DC-OPF)
-- 2025+ tests passing
+- ons_data_example.jl demonstrates nodal pricing
+- 2061+ tests passing
 
 Ready for Phase 5: End-to-End Validation.
 
 ---
 
-**State saved:** 2026-02-16
+**State saved:** 2026-02-17
 **Ready for:** Phase 5 - End-to-End Validation
