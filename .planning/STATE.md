@@ -47,6 +47,10 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - [x] Phase 4: Solution Extraction & Export (5/5 criteria met) ✅
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
+### Quick Tasks
+
+- [x] Quick-001: Add Nodal Pricing to ONS Example ✅ (2026-02-16)
+
 ---
 
 ## Performance Metrics
@@ -138,9 +142,10 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 
 ### Recent Changes
 
-**2026-02-16 (Session 14 - Phase 4 Complete):**
+**2026-02-16 (Session 14 - Phase 4 Complete + Quick-001):**
 - Completed Phase 4 Plan 01: Extraction Gaps & Export Tests
-- Added deficit variable extraction to extract_solution_values!()
+- Completed Quick Task 001: Add Nodal Pricing to ONS Example
+- Added optional DC-OPF nodal LMP section to ons_data_example.jl
 - Fixed JSON3.pretty bug (two-argument form)
 - Added 81 test assertions for extraction/export
 - Phase 4 verified: 5/5 criteria met
@@ -179,12 +184,13 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 
 ## Session Continuity
 
-**Last Session:** 2026-02-16 - Phase 4 COMPLETE
+**Last Session:** 2026-02-16 - Phase 4 COMPLETE + Quick-001
 
 **Session Goals Achieved:**
 - Phase 4 fully verified (5/5 criteria)
 - Deficit extraction + JSON3.pretty fix (Plan 04-01)
 - Constraint violation reporter (Plan 04-02)
+- Quick-001: Nodal pricing section in ONS example
 - 2025+ tests passing
 
 **Next Session Goals:**
@@ -193,10 +199,11 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 - Implement tolerance checking (5% cost, PLD correlation)
 
 **Context for Next Session:**
-Phase 4 COMPLETE and VERIFIED. All extraction and export working:
+Phase 4 COMPLETE and VERIFIED. Quick task completed.
 - extract_solution_values!() handles all variable types including deficit
 - export_csv() and export_json() produce valid output
 - check_constraint_violations() classifies violations by type
+- ons_data_example.jl demonstrates nodal pricing (PowerModels DC-OPF)
 - 2025+ tests passing
 
 Ready for Phase 5: End-to-End Validation.
