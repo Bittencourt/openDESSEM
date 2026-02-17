@@ -413,7 +413,7 @@ function parse_infofcf_file(filepath::String)::FCFCurveData
 end
 
 """
-    parse_fcf_line(line::String, line_num::Int) -> Union{FCFCurve, Nothing}
+    parse_fcf_line(line::AbstractString, line_num::Int) -> Union{FCFCurve, Nothing}
 
 Parse a single FCF record line from infofcf.dat.
 
@@ -429,14 +429,14 @@ Where:
 - v1..vn: Water values (R\$/hm³)
 
 # Arguments
-- `line::String`: Single line from infofcf.dat
+- `line::AbstractString`: Single line from infofcf.dat (accepts String or SubString)
 - `line_num::Int`: Line number for error messages
 
 # Returns
 - `FCFCurve` if parsing successful
 - `nothing` if line cannot be parsed (not an error, may be header/comment)
 """
-function parse_fcf_line(line::String, line_num::Int)::Union{FCFCurve,Nothing}
+function parse_fcf_line(line::AbstractString, line_num::Int)::Union{FCFCurve,Nothing}
     # Replace multiple spaces with single space for easier parsing
     normalized = strip(replace(line, r"\s+" => " "))
 
