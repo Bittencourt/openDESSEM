@@ -3,6 +3,7 @@
 **Last Updated:** 2026-02-16
 **Current Phase:** Phase 4 (Solution Extraction & Export) - COMPLETE
 **Current Plan:** 04-02 Complete (2/2)
+**Last Activity:** 2026-02-16 - Completed quick task 001: Update ONS example to use nodal pricing from PWF
 
 ---
 
@@ -139,6 +140,12 @@ Phase 4 COMPLETE. All extraction/export verified (5/5 criteria). Ready for Phase
 **Anticipated:**
 - DESSEM binary output parsing (Phase 5) - may need reverse-engineering FORTRAN format
 - PowerModels variable linking (deferred to v2) - coupling pattern unclear
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Update ONS example to use nodal pricing from PWF | 2026-02-16 | 8ceef09 | [001-update-ons-example-nodal-pricing-pwf](./quick/001-update-ons-example-nodal-pricing-pwf/) |
 
 ### Recent Changes
 
