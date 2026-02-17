@@ -922,6 +922,346 @@ function get_cost_breakdown(
     )
 end
 
+"""
+    get_nodal_lmp_dataframe(
+        result::SolverResult,
+        system::ElectricitySystem;
+        time_periods::Union{UnitRange{Int}, Nothing}=nothing,
+        solver_factory=nothing
+    ) -> DataFrame
+
+Extract nodal locational marginal prices (LMPs) per bus using PowerModels DC-OPF.
+
+Calculates bus-level prices by:
+1. Converting system network data to PowerModels format
+2. Solving DC-OPF with the dispatch from the result
+3. Extracting duals of bus balance constraints (nodal LMPs)
+
+# Arguments
+- `result::SolverResult`: Solved result with dispatch values
+- `system::ElectricitySystem`: System with buses, lines, and generators
+- `time_periods::Union{UnitRange{Int}, Nothing}`: Time periods to extract (default: all available)
+- `solver_factory`: Optimizer factory for DC-OPF (default: HiGHS.Optimizer)
+
+# Returns
+- `DataFrame` with columns:
+  - `bus_id`: Bus identifier
+  - `bus_name`: Bus name (if available)
+  - `period`: Time period index
+  - `lmp`: Nodal LMP value (R\$/MWh)
+
+# Example
+```julia
+# After solving the main model
+result = solve_model!(model, system)
+if result.solve_status == OPTIMAL
+    # Get nodal LMPs per bus
+    nodal_lmps = get_nodal_lmp_dataframe(result, system)
+    println(first(nodal_lmps, 5))
+end
+```
+
+# Notes
+- Requires PowerModels.jl and a solver (HiGHS recommended)
+- Returns empty DataFrame if PowerModels not available or network data missing
+- LMPs are calculated independently for each time period
+- Uses DC power flow approximation (linearized)
+"""
+function get_nodal_lmp_dataframe(
+    result::SolverResult,
+    system::ElectricitySystem;
+    time_periods::Union{UnitRange{Int},Nothing} = nothing,
+    solver_factory = nothing,
+)
+    # Create empty DataFrame with correct schema
+    empty_df =
+        DataFrame(; bus_id = String[], bus_name = String[], period = Int[], lmp = Float64[])
+
+    # Early return if no network data (buses)
+    if isempty(system.buses)
+        @debug "System has no buses - returning empty nodal LMP DataFrame"
+        return empty_df
+    end
+
+    # Check for AC lines
+    if isempty(system.ac_lines) && isempty(system.dc_lines)
+        @debug "System has no transmission lines - returning empty nodal LMP DataFrame"
+        return empty_df
+    end
+
+    # Check if result has values
+    if !result.has_values
+        @warn "Result does not have variable values. Cannot compute nodal LMPs."
+        return empty_df
+    end
+
+    # Determine time periods from thermal generation or hydro generation
+    if time_periods === nothing
+        periods_seen = Set{Int}()
+        if haskey(result.variables, :thermal_generation) &&
+           !isempty(result.variables[:thermal_generation])
+            for ((_, t), _) in result.variables[:thermal_generation]
+                push!(periods_seen, t)
+            end
+        elseif haskey(result.variables, :hydro_generation) &&
+               !isempty(result.variables[:hydro_generation])
+            for ((_, t), _) in result.variables[:hydro_generation]
+                push!(periods_seen, t)
+            end
+        end
+
+        if isempty(periods_seen)
+            @warn "Cannot infer time periods from result - returning empty DataFrame"
+            return empty_df
+        end
+
+        time_periods = minimum(periods_seen):maximum(periods_seen)
+    end
+
+    # Default solver
+    if solver_factory === nothing
+        solver_factory = HiGHS.Optimizer
+    end
+
+    # Try to use PowerModels for nodal LMP calculation
+    rows = []
+
+    try
+        # Import Integration module functions dynamically to avoid hard dependency
+        integration_module = getfield(Main, :OpenDESSEM) |> m -> getfield(m, :Integration)
+
+        convert_fn = getfield(integration_module, :convert_to_powermodel)
+        solve_fn = getfield(integration_module, :solve_dc_opf_nodal_lmps)
+
+        # Build bus lookup for name resolution
+        bus_name_lookup = Dict(bus.id => bus.name for bus in system.buses)
+
+        # Process each time period
+        for t in time_periods
+            # Build PowerModels data for this period
+            pm_data = _build_nodal_opf_data(result, system, t, convert_fn)
+
+            if pm_data === nothing
+                continue
+            end
+
+            # Solve DC-OPF and get nodal LMPs
+            nodal_result = solve_fn(pm_data, solver_factory)
+
+            # Check for successful solve
+            status = get(nodal_result, "status", "error")
+            if status != "OPTIMAL" && status != "LOCALLY_SOLVED"
+                @debug "DC-OPF not optimal for period $t" status = status
+                continue
+            end
+
+            # Extract nodal LMPs
+            nodal_lmps = get(nodal_result, "nodal_lmps", Dict{String,Float64}())
+
+            # Convert to DataFrame rows
+            for (bus_idx_str, lmp_value) in nodal_lmps
+                bus_idx = parse(Int, bus_idx_str)
+                if 1 <= bus_idx <= length(system.buses)
+                    bus = system.buses[bus_idx]
+                    bus_name = get(bus_name_lookup, bus.id, bus.name)
+                    push!(
+                        rows,
+                        (bus_id = bus.id, bus_name = bus_name, period = t, lmp = lmp_value),
+                    )
+                end
+            end
+        end
+
+    catch e
+        # PowerModels not available or other error
+        if e isa UndefVarError ||
+           (e isa ErrorException && contains(string(e), "PowerModels"))
+            @debug "PowerModels not available for nodal LMP calculation"
+        else
+            @warn "Error computing nodal LMPs" exception = e
+        end
+        return empty_df
+    end
+
+    # Return empty DataFrame if no results
+    if isempty(rows)
+        return empty_df
+    end
+
+    # Create DataFrame and sort
+    df = DataFrame(rows)
+    sort!(df, [:period, :bus_id])
+
+    return df
+end
+
+"""
+    _build_nodal_opf_data(
+        result::SolverResult,
+        system::ElectricitySystem,
+        t::Int,
+        convert_fn
+    ) -> Union{Dict{String,Any}, Nothing}
+
+Build PowerModels data dict for a single time period with fixed dispatch.
+
+# Arguments
+- `result::SolverResult`: Solved result with dispatch values
+- `system::ElectricitySystem`: System with network data
+- `t::Int`: Time period index
+- `convert_fn`: convert_to_powermodel function from Integration module
+
+# Returns
+- PowerModels data dict with fixed generator dispatch, or nothing if conversion fails
+
+# Notes
+- Generator pg values are fixed to dispatch from result
+- Costs set to zero (dispatch is fixed, optimization just solves power flow)
+"""
+function _build_nodal_opf_data(
+    result::SolverResult,
+    system::ElectricitySystem,
+    t::Int,
+    convert_fn::Function,
+)::Union{Dict{String,Any},Nothing}
+    # Collect generators with their dispatch for this period
+    # Build lists of generators that have dispatch values
+
+    thermals_with_dispatch = ConventionalThermal[]
+    hydros_with_dispatch = ReservoirHydro[]
+    renewables_with_dispatch = Union{WindPlant,SolarPlant}[]
+
+    # Get thermal dispatch
+    if haskey(result.variables, :thermal_generation)
+        thermal_gen = result.variables[:thermal_generation]
+        for plant in system.thermal_plants
+            key = (plant.id, t)
+            if haskey(thermal_gen, key)
+                push!(thermals_with_dispatch, plant)
+            end
+        end
+    end
+
+    # Get hydro dispatch
+    if haskey(result.variables, :hydro_generation)
+        hydro_gen = result.variables[:hydro_generation]
+        for plant in system.hydro_plants
+            key = (plant.id, t)
+            if haskey(hydro_gen, key)
+                push!(hydros_with_dispatch, plant)
+            end
+        end
+    end
+
+    # Get renewable dispatch
+    if haskey(result.variables, :renewable_generation)
+        renewable_gen = result.variables[:renewable_generation]
+        for farm in system.wind_farms
+            key = (farm.id, t)
+            if haskey(renewable_gen, key)
+                push!(renewables_with_dispatch, farm)
+            end
+        end
+        for farm in system.solar_farms
+            key = (farm.id, t)
+            if haskey(renewable_gen, key)
+                push!(renewables_with_dispatch, farm)
+            end
+        end
+    end
+
+    # Convert to PowerModels format
+    try
+        pm_data = convert_fn(;
+            buses = system.buses,
+            lines = system.ac_lines,
+            thermals = thermals_with_dispatch,
+            hydros = hydros_with_dispatch,
+            renewables = renewables_with_dispatch,
+            loads = NetworkLoad[],  # Will add loads below
+            base_mva = 100.0,
+        )
+
+        # Add bus loads from system.loads for period t
+        # Map loads to buses
+        bus_loads = Dict{String,Float64}()
+        for load in system.loads
+            if load.bus_id !== nothing && 1 <= t <= length(load.load_profile_mw)
+                load_mw = load.load_profile_mw[t]
+                bus_loads[load.bus_id] = get(bus_loads, load.bus_id, 0.0) + load_mw
+            end
+        end
+
+        # Add loads to PowerModels data
+        if !isempty(bus_loads)
+            bus_lookup = Dict(bus.id => i for (i, bus) in enumerate(system.buses))
+            pm_loads = Dict{String,Any}()
+            load_idx = 1
+            for (bus_id, pd_mw) in bus_loads
+                bus_idx = get(bus_lookup, bus_id, nothing)
+                if bus_idx !== nothing
+                    pm_loads[string(load_idx)] = Dict{String,Any}(
+                        "load_bus" => bus_idx,
+                        "pd" => pd_mw,
+                        "qd" => 0.1 * pd_mw,  # Assume pf ≈ 0.95
+                        "status" => 1,
+                    )
+                    load_idx += 1
+                end
+            end
+            pm_data["load"] = pm_loads
+        end
+
+        # Set generator costs to zero (dispatch is fixed)
+        # and fix pg to dispatch values
+        if haskey(pm_data, "gen")
+            gen_idx = 1
+
+            # Thermal generators
+            for plant in thermals_with_dispatch
+                gen_key = string(gen_idx)
+                if haskey(pm_data["gen"], gen_key)
+                    key = (plant.id, t)
+                    dispatch_mw = get(result.variables[:thermal_generation], key, 0.0)
+                    pm_data["gen"][gen_key]["cost"] = [0.0, 0.0, 0.0]  # Zero cost
+                    pm_data["gen"][gen_key]["pg"] = dispatch_mw / 100.0  # Convert to per-unit
+                end
+                gen_idx += 1
+            end
+
+            # Hydro generators
+            for plant in hydros_with_dispatch
+                gen_key = string(gen_idx)
+                if haskey(pm_data["gen"], gen_key)
+                    key = (plant.id, t)
+                    dispatch_mw = get(result.variables[:hydro_generation], key, 0.0)
+                    pm_data["gen"][gen_key]["cost"] = [0.0, 0.0, 0.0]
+                    pm_data["gen"][gen_key]["pg"] = dispatch_mw / 100.0
+                end
+                gen_idx += 1
+            end
+
+            # Renewable generators
+            for farm in renewables_with_dispatch
+                gen_key = string(gen_idx)
+                if haskey(pm_data["gen"], gen_key)
+                    key = (farm.id, t)
+                    dispatch_mw = get(result.variables[:renewable_generation], key, 0.0)
+                    pm_data["gen"][gen_key]["cost"] = [0.0, 0.0, 0.0]
+                    pm_data["gen"][gen_key]["pg"] = dispatch_mw / 100.0
+                end
+                gen_idx += 1
+            end
+        end
+
+        return pm_data
+
+    catch e
+        @debug "Failed to build PowerModels data for period $t" exception = e
+        return nothing
+    end
+end
+
 # Export public functions
 export extract_solution_values!,
     extract_dual_values!,
@@ -931,5 +1271,6 @@ export extract_solution_values!,
     get_hydro_storage,
     get_renewable_generation,
     get_pld_dataframe,
+    get_nodal_lmp_dataframe,
     CostBreakdown,
     get_cost_breakdown
