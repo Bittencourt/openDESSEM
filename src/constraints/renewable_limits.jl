@@ -63,9 +63,9 @@ function build!(
 
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="RenewableLimitConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "RenewableLimitConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
@@ -81,9 +81,9 @@ function build!(
 
     if isempty(plants)
         return ConstraintBuildResult(;
-            constraint_type="RenewableLimitConstraint",
-            success=false,
-            message="No renewable plants found",
+            constraint_type = "RenewableLimitConstraint",
+            success = false,
+            message = "No renewable plants found",
         )
     end
 
@@ -133,11 +133,11 @@ function build!(
     build_time = time() - start_time
 
     return ConstraintBuildResult(;
-        constraint_type="RenewableLimitConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints renewable limit constraints",
+        constraint_type = "RenewableLimitConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints renewable limit constraints",
     )
 end
 

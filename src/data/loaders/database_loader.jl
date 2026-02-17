@@ -586,12 +586,12 @@ function row_to_thermal_plant(row)::ConventionalThermal
     shutdown_cost_rs = coalesce(row.shutdown_cost_rs, 0.0)
 
     # Extract commissioning date
-    commissioning_date = if hasproperty(row, :commissioning_date) &&
-                            row.commissioning_date !== nothing
-        row.commissioning_date
-    else
-        DateTime(2000, 1, 1)
-    end
+    commissioning_date =
+        if hasproperty(row, :commissioning_date) && row.commissioning_date !== nothing
+            row.commissioning_date
+        else
+            DateTime(2000, 1, 1)
+        end
 
     # Extract other fields
     num_units = coalesce(row.num_units, 1)
@@ -910,7 +910,10 @@ Load all thermal plants from database.
 # Returns
 - `Vector{ConventionalThermal}`: All thermal plants
 """
-function load_thermal_plants(conn::LibPQ.Connection, schema::String)::Vector{ConventionalThermal}
+function load_thermal_plants(
+    conn::LibPQ.Connection,
+    schema::String,
+)::Vector{ConventionalThermal}
     query = generate_thermal_plants_query(schema)
 
     results = execute(conn, query)
@@ -994,8 +997,11 @@ function load_renewable_plants(
                     bus_id = coalesce(row.bus_id, ""),
                     submarket_id = coalesce(row.submarket_id, ""),
                     installed_capacity_mw = coalesce(row.installed_capacity_mw, 0.0),
-                    capacity_forecast_mw = fill(coalesce(row.installed_capacity_mw, 0.0) *
-                                               coalesce(row.capacity_factor, 1.0), 168),
+                    capacity_forecast_mw = fill(
+                        coalesce(row.installed_capacity_mw, 0.0) *
+                        coalesce(row.capacity_factor, 1.0),
+                        168,
+                    ),
                     forecast_type = DETERMINISTIC,
                     min_generation_mw = coalesce(row.min_generation_mw, 0.0),
                     max_generation_mw = coalesce(row.max_generation_mw, 0.0),
@@ -1005,7 +1011,7 @@ function load_renewable_plants(
                     forced_outage_rate = coalesce(row.forced_outage_rate, 0.0),
                     is_dispatchable = coalesce(row.is_dispatchable, true),
                     commissioning_date = if hasproperty(row, :commissioning_date) &&
-                                           row.commissioning_date !== nothing
+                                            row.commissioning_date !== nothing
                         row.commissioning_date
                     else
                         DateTime(2020, 1, 1)
@@ -1036,8 +1042,11 @@ function load_renewable_plants(
                     bus_id = coalesce(row.bus_id, ""),
                     submarket_id = coalesce(row.submarket_id, ""),
                     installed_capacity_mw = coalesce(row.installed_capacity_mw, 0.0),
-                    capacity_forecast_mw = fill(coalesce(row.installed_capacity_mw, 0.0) *
-                                               coalesce(row.capacity_factor, 1.0), 168),
+                    capacity_forecast_mw = fill(
+                        coalesce(row.installed_capacity_mw, 0.0) *
+                        coalesce(row.capacity_factor, 1.0),
+                        168,
+                    ),
                     forecast_type = DETERMINISTIC,
                     min_generation_mw = coalesce(row.min_generation_mw, 0.0),
                     max_generation_mw = coalesce(row.max_generation_mw, 0.0),
@@ -1047,7 +1056,7 @@ function load_renewable_plants(
                     forced_outage_rate = coalesce(row.forced_outage_rate, 0.0),
                     is_dispatchable = coalesce(row.is_dispatchable, true),
                     commissioning_date = if hasproperty(row, :commissioning_date) &&
-                                           row.commissioning_date !== nothing
+                                            row.commissioning_date !== nothing
                         row.commissioning_date
                     else
                         DateTime(2020, 1, 1)
@@ -1267,13 +1276,14 @@ function load_from_database(
     conn_str = get_connection_string(loader)
 
     if loader.verbose
-        @info "Connecting to database:" host=loader.host port=loader.port dbname=loader.dbname
+        @info "Connecting to database:" host = loader.host port = loader.port dbname =
+            loader.dbname
     end
 
     conn = try
         LibPQ.Connection(conn_str)
     catch e
-        @error "Failed to connect to database" exception=e
+        @error "Failed to connect to database" exception = e
         error("Database connection failed: $e")
     end
 
@@ -1290,10 +1300,9 @@ function load_from_database(
         submarkets, loads = load_market(conn, loader.schema)
 
         if loader.verbose
-            @info "Entity loading complete" thermal=length(thermal_plants) hydro=
-                length(hydro_plants) wind=length(wind_farms) solar=
-                length(solar_farms) buses=length(buses) loads=
-                length(loads)
+            @info "Entity loading complete" thermal = length(thermal_plants) hydro =
+                length(hydro_plants) wind = length(wind_farms) solar = length(solar_farms) buses =
+                length(buses) loads = length(loads)
         end
 
         # Create ElectricitySystem

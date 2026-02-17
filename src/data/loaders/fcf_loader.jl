@@ -112,7 +112,11 @@ struct FCFCurve
 
         # Validate minimum pieces
         if num_pieces < 2
-            throw(ArgumentError("FCF curve must have at least 2 breakpoints, got $num_pieces"))
+            throw(
+                ArgumentError(
+                    "FCF curve must have at least 2 breakpoints, got $num_pieces",
+                ),
+            )
         end
 
         # Validate storage values are non-negative
@@ -127,7 +131,9 @@ struct FCFCurve
 
         # Validate storage breakpoints are sorted (non-decreasing)
         if !issorted(storage_breakpoints)
-            throw(ArgumentError("Storage breakpoints must be sorted in non-decreasing order"))
+            throw(
+                ArgumentError("Storage breakpoints must be sorted in non-decreasing order"),
+            )
         end
 
         new(plant_id, num_pieces, storage_breakpoints, water_values)
@@ -242,7 +248,7 @@ function interpolate_water_value(curve::FCFCurve, storage::Float64)::Float64
     end
 
     # Find the segment containing this storage value
-    for i in 1:(curve.num_pieces-1)
+    for i = 1:(curve.num_pieces-1)
         s_low = curve.storage_breakpoints[i]
         s_high = curve.storage_breakpoints[i+1]
 
@@ -487,7 +493,7 @@ function parse_fcf_line(line::AbstractString, line_num::Int)::Union{FCFCurve,Not
         storage_breakpoints = Float64[]
         water_values = Float64[]
 
-        for i in 1:num_pieces
+        for i = 1:num_pieces
             s_idx = 2 + 2 * (i - 1) + 1  # Storage index
             v_idx = s_idx + 1             # Value index
 

@@ -722,7 +722,12 @@ using Dates
             time_periods = 1:12
             load_ids = ["L1", "L3"]  # Only create for these loads
 
-            create_load_shedding_variables!(model, system, time_periods; load_ids = load_ids)
+            create_load_shedding_variables!(
+                model,
+                system,
+                time_periods;
+                load_ids = load_ids,
+            )
 
             # Should have 2 loads, 12 time periods
             @test size(model[:shed]) == (2, 12)
@@ -802,7 +807,12 @@ using Dates
             time_periods = 1:12
             submarket_ids = ["SE"]  # Only create for SE
 
-            create_deficit_variables!(model, system, time_periods; submarket_ids = submarket_ids)
+            create_deficit_variables!(
+                model,
+                system,
+                time_periods;
+                submarket_ids = submarket_ids,
+            )
 
             # Should have 1 submarket, 12 time periods
             @test size(model[:deficit]) == (1, 12)

@@ -112,9 +112,9 @@ function build!(
     # Validate system
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="HydroGenerationConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "HydroGenerationConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
@@ -122,9 +122,9 @@ function build!(
     if !haskey(object_dictionary(model), :gh) || !haskey(object_dictionary(model), :q)
         @warn "Hydro variables (gh, q) not found in model. Run create_hydro_variables! first."
         return ConstraintBuildResult(;
-            constraint_type="HydroGenerationConstraint",
-            success=false,
-            message="Required variables not found",
+            constraint_type = "HydroGenerationConstraint",
+            success = false,
+            message = "Required variables not found",
         )
     end
 
@@ -147,9 +147,9 @@ function build!(
     if isempty(plants)
         @warn "No hydro plants found for constraint building"
         return ConstraintBuildResult(;
-            constraint_type="HydroGenerationConstraint",
-            success=false,
-            message="No hydro plants found",
+            constraint_type = "HydroGenerationConstraint",
+            success = false,
+            message = "No hydro plants found",
         )
     end
 
@@ -163,7 +163,8 @@ function build!(
         constraint.use_time_periods
     end
 
-    @info "Building hydro generation constraints" num_plants=length(plants) num_periods=length(time_periods)
+    @info "Building hydro generation constraints" num_plants = length(plants) num_periods =
+        length(time_periods)
 
     for plant in plants
         plant_idx = plant_indices[plant.id]
@@ -215,15 +216,16 @@ function build!(
 
     build_time = time() - start_time
 
-    @info "Hydro generation constraints built successfully" num_constraints=num_constraints build_time=build_time
+    @info "Hydro generation constraints built successfully" num_constraints =
+        num_constraints build_time = build_time
 
     return ConstraintBuildResult(;
-        constraint_type="HydroGenerationConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints hydro generation constraints",
-        warnings=warnings,
+        constraint_type = "HydroGenerationConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints hydro generation constraints",
+        warnings = warnings,
     )
 end
 

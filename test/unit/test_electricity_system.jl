@@ -5,8 +5,15 @@ Tests for the unified ElectricitySystem container that holds all power system en
 """
 
 using OpenDESSEM.Entities
-using OpenDESSEM: ElectricitySystem, get_thermal_plant, get_hydro_plant, get_bus,
-                  get_submarket, count_generators, total_capacity, validate_system
+using OpenDESSEM:
+    ElectricitySystem,
+    get_thermal_plant,
+    get_hydro_plant,
+    get_bus,
+    get_submarket,
+    count_generators,
+    total_capacity,
+    validate_system
 using Test
 using Dates
 
@@ -399,34 +406,16 @@ using Dates
 
     @testset "Constructor - With Interconnections" begin
         # Create submarkets with different codes
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil",
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
-        submarket2 = Submarket(;
-            id = "SM_002",
-            name = "South",
-            code = "S",
-            country = "Brazil",
-        )
+        submarket2 =
+            Submarket(; id = "SM_002", name = "South", code = "S", country = "Brazil")
 
         # Create buses
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        bus2 = Bus(;
-            id = "B002",
-            name = "Bus 2",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus2 = Bus(; id = "B002", name = "Bus 2", voltage_kv = 230.0, base_kv = 230.0)
 
         # Create interconnection
         ic1 = Interconnection(;
@@ -936,26 +925,13 @@ using Dates
     end
 
     @testset "Validation - Interconnection with Non-existent Bus" begin
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil",
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
-        submarket2 = Submarket(;
-            id = "SM_002",
-            name = "South",
-            code = "S",
-            country = "Brazil",
-        )
+        submarket2 =
+            Submarket(; id = "SM_002", name = "South", code = "S", country = "Brazil")
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
         ic1 = Interconnection(;
             id = "IC_001",
@@ -977,26 +953,12 @@ using Dates
     end
 
     @testset "Validation - Interconnection with Non-existent Submarket" begin
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil",
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        bus2 = Bus(;
-            id = "B002",
-            name = "Bus 2",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus2 = Bus(; id = "B002", name = "Bus 2", voltage_kv = 230.0, base_kv = 230.0)
 
         ic1 = Interconnection(;
             id = "IC_001",
@@ -1018,33 +980,15 @@ using Dates
     end
 
     @testset "Validation - Duplicate Interconnection IDs" begin
-        submarket1 = Submarket(;
-            id = "SM_001",
-            name = "Southeast",
-            code = "SE",
-            country = "Brazil",
-        )
+        submarket1 =
+            Submarket(; id = "SM_001", name = "Southeast", code = "SE", country = "Brazil")
 
-        submarket2 = Submarket(;
-            id = "SM_002",
-            name = "South",
-            code = "S",
-            country = "Brazil",
-        )
+        submarket2 =
+            Submarket(; id = "SM_002", name = "South", code = "S", country = "Brazil")
 
-        bus1 = Bus(;
-            id = "B001",
-            name = "Bus 1",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus1 = Bus(; id = "B001", name = "Bus 1", voltage_kv = 230.0, base_kv = 230.0)
 
-        bus2 = Bus(;
-            id = "B002",
-            name = "Bus 2",
-            voltage_kv = 230.0,
-            base_kv = 230.0,
-        )
+        bus2 = Bus(; id = "B002", name = "Bus 2", voltage_kv = 230.0, base_kv = 230.0)
 
         ic1 = Interconnection(;
             id = "IC_001",
@@ -1112,8 +1056,10 @@ using Dates
         submarket1 = create_test_submarket()
 
         @testset "Valid linear cascade" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 2.0)
-            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 3.0)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 2.0)
+            hydro2 =
+                create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 3.0)
             hydro3 = create_test_hydro(id = "H003")
 
             # Should NOT throw - valid cascade
@@ -1128,8 +1074,10 @@ using Dates
         end
 
         @testset "Valid confluence (two upstream to one downstream)" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H003", travel_time = 1.0)
-            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.5)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H003", travel_time = 1.0)
+            hydro2 =
+                create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.5)
             hydro3 = create_test_hydro(id = "H003")
 
             system = ElectricitySystem(;
@@ -1143,9 +1091,11 @@ using Dates
         end
 
         @testset "Valid disconnected cascades" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
             hydro2 = create_test_hydro(id = "H002")
-            hydro3 = create_test_hydro(id = "H003", downstream_id = "H004", travel_time = 1.0)
+            hydro3 =
+                create_test_hydro(id = "H003", downstream_id = "H004", travel_time = 1.0)
             hydro4 = create_test_hydro(id = "H004")
 
             system = ElectricitySystem(;
@@ -1159,7 +1109,8 @@ using Dates
         end
 
         @testset "Self-loop cycle" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H001", travel_time = 1.0)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H001", travel_time = 1.0)
 
             @test_throws ArgumentError ElectricitySystem(;
                 buses = [bus1],
@@ -1170,8 +1121,10 @@ using Dates
         end
 
         @testset "Simple cycle (H001 -> H002 -> H001)" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
-            hydro2 = create_test_hydro(id = "H002", downstream_id = "H001", travel_time = 1.0)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro2 =
+                create_test_hydro(id = "H002", downstream_id = "H001", travel_time = 1.0)
 
             @test_throws ArgumentError ElectricitySystem(;
                 buses = [bus1],
@@ -1182,9 +1135,12 @@ using Dates
         end
 
         @testset "Longer cycle (H001 -> H002 -> H003 -> H001)" begin
-            hydro1 = create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
-            hydro2 = create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.0)
-            hydro3 = create_test_hydro(id = "H003", downstream_id = "H001", travel_time = 1.0)
+            hydro1 =
+                create_test_hydro(id = "H001", downstream_id = "H002", travel_time = 1.0)
+            hydro2 =
+                create_test_hydro(id = "H002", downstream_id = "H003", travel_time = 1.0)
+            hydro3 =
+                create_test_hydro(id = "H003", downstream_id = "H001", travel_time = 1.0)
 
             @test_throws ArgumentError ElectricitySystem(;
                 buses = [bus1],

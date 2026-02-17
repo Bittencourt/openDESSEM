@@ -18,19 +18,29 @@ This example demonstrates:
 using OpenDESSEM
 using OpenDESSEM.Entities
 using OpenDESSEM.Variables
-using OpenDESSEM.Constraints: build!, ThermalCommitmentConstraint, HydroWaterBalanceConstraint,
-    RenewableLimitConstraint, SubmarketBalanceConstraint, ConstraintMetadata
-using OpenDESSEM.Objective: ProductionCostObjective, ObjectiveMetadata, build! as build_objective!
-using OpenDESSEM.Solvers: compute_two_stage_lmps, SolverOptions, is_optimal,
-    get_submarket_lmps, get_thermal_generation
+using OpenDESSEM.Constraints:
+    build!,
+    ThermalCommitmentConstraint,
+    HydroWaterBalanceConstraint,
+    RenewableLimitConstraint,
+    SubmarketBalanceConstraint,
+    ConstraintMetadata
+using OpenDESSEM.Objective:
+    ProductionCostObjective, ObjectiveMetadata, build! as build_objective!
+using OpenDESSEM.Solvers:
+    compute_two_stage_lmps,
+    SolverOptions,
+    is_optimal,
+    get_submarket_lmps,
+    get_thermal_generation
 using JuMP
 using HiGHS
 using Printf
 using Dates
 
-println("=" ^ 70)
+println("="^70)
 println("OpenDESSEM Complete Workflow Example - Minimal 3-Bus System")
-println("=" ^ 70)
+println("="^70)
 
 # ============================================================================
 # STEP 1: Create Electricity System
@@ -46,7 +56,7 @@ buses = Bus[
         voltage_kv = 230.0,
         base_kv = 230.0,
         latitude = -23.5,
-        longitude = -46.6
+        longitude = -46.6,
     ),
     Bus(;
         id = "BUS_2",
@@ -54,7 +64,7 @@ buses = Bus[
         voltage_kv = 230.0,
         base_kv = 230.0,
         latitude = -22.9,
-        longitude = -47.1
+        longitude = -47.1,
     ),
     Bus(;
         id = "BUS_3",
@@ -62,30 +72,15 @@ buses = Bus[
         voltage_kv = 230.0,
         base_kv = 230.0,
         latitude = -22.5,
-        longitude = -47.8
-    )
+        longitude = -47.8,
+    ),
 ]
 
 # Create 3 submarkets (one per bus/region)
 submarkets = Submarket[
-    Submarket(;
-        id = "SUB_1",
-        code = "N",
-        name = "North Region",
-        country = "BR"
-    ),
-    Submarket(;
-        id = "SUB_2",
-        code = "C",
-        name = "Center Region",
-        country = "BR"
-    ),
-    Submarket(;
-        id = "SUB_3",
-        code = "S",
-        name = "South Region",
-        country = "BR"
-    )
+    Submarket(; id = "SUB_1", code = "N", name = "North Region", country = "BR"),
+    Submarket(; id = "SUB_2", code = "C", name = "Center Region", country = "BR"),
+    Submarket(; id = "SUB_3", code = "S", name = "South Region", country = "BR"),
 ]
 
 # Create 3 thermal plants with different cost characteristics
@@ -110,7 +105,7 @@ thermal_plants = ConventionalThermal[
         fuel_cost_rsj_per_mwh = 80.0,
         startup_cost_rs = 50000.0,
         shutdown_cost_rs = 20000.0,
-        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0)
+        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0),
     ),
     # Gas plant - medium cost (120 R$/MWh)
     ConventionalThermal(;
@@ -129,7 +124,7 @@ thermal_plants = ConventionalThermal[
         fuel_cost_rsj_per_mwh = 120.0,
         startup_cost_rs = 15000.0,
         shutdown_cost_rs = 5000.0,
-        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0)
+        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0),
     ),
     # Peaker plant - expensive (200 R$/MWh)
     ConventionalThermal(;
@@ -148,30 +143,28 @@ thermal_plants = ConventionalThermal[
         fuel_cost_rsj_per_mwh = 200.0,
         startup_cost_rs = 5000.0,
         shutdown_cost_rs = 1000.0,
-        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0)
-    )
+        commissioning_date = Dates.DateTime(2010, 6, 1, 0, 0, 0),
+    ),
 ]
 
 # Create 1 hydro plant for flexibility
-hydro_plants = ReservoirHydro[
-    ReservoirHydro(;
-        id = "H_1",
-        name = "Hydro Plant 1",
-        bus_id = "BUS_2",
-        submarket_id = "C",
-        max_volume_hm3 = 5000.0,
-        initial_volume_hm3 = 2500.0,
-        min_volume_hm3 = 500.0,
-        min_outflow_m3_per_s = 0.0,
-        max_outflow_m3_per_s = 500.0,
-        efficiency = 0.9,
-        max_generation_mw = 200.0,
-        min_generation_mw = 50.0,
-        water_value_rs_per_hm3 = 50.0,
-        subsystem_code = 1,
-        initial_volume_percent = 50.0
-    )
-]
+hydro_plants = ReservoirHydro[ReservoirHydro(;
+    id = "H_1",
+    name = "Hydro Plant 1",
+    bus_id = "BUS_2",
+    submarket_id = "C",
+    max_volume_hm3 = 5000.0,
+    initial_volume_hm3 = 2500.0,
+    min_volume_hm3 = 500.0,
+    min_outflow_m3_per_s = 0.0,
+    max_outflow_m3_per_s = 500.0,
+    efficiency = 0.9,
+    max_generation_mw = 200.0,
+    min_generation_mw = 50.0,
+    water_value_rs_per_hm3 = 50.0,
+    subsystem_code = 1,
+    initial_volume_percent = 50.0,
+)]
 
 # Create 3 loads with different demand patterns
 # Time-varying demand over 24 hours
@@ -182,29 +175,27 @@ n_hours = length(time_periods)
 wind_forecast = vcat(
     fill(50.0, 6),   # Night: low wind
     fill(120.0, 12),  # Day: high wind
-    fill(80.0, 6)     # Evening: medium wind
+    fill(80.0, 6),     # Evening: medium wind
 )
 
 # Create 1 wind farm
-wind_farms = WindPlant[
-    WindPlant(;
-        id = "W_1",
-        name = "Wind Farm 1",
-        bus_id = "BUS_3",
-        submarket_id = "S",
-        installed_capacity_mw = 150.0,
-        capacity_forecast_mw = wind_forecast,
-        forecast_type = DETERMINISTIC,
-        min_generation_mw = 0.0,
-        max_generation_mw = 150.0,
-        ramp_up_mw_per_min = 10.0,
-        ramp_down_mw_per_min = 10.0,
-        curtailment_allowed = false,
-        forced_outage_rate = 0.05,
-        is_dispatchable = false,
-        commissioning_date = DateTime(2020, 1, 1)
-    )
-]
+wind_farms = WindPlant[WindPlant(;
+    id = "W_1",
+    name = "Wind Farm 1",
+    bus_id = "BUS_3",
+    submarket_id = "S",
+    installed_capacity_mw = 150.0,
+    capacity_forecast_mw = wind_forecast,
+    forecast_type = DETERMINISTIC,
+    min_generation_mw = 0.0,
+    max_generation_mw = 150.0,
+    ramp_up_mw_per_min = 10.0,
+    ramp_down_mw_per_min = 10.0,
+    curtailment_allowed = false,
+    forced_outage_rate = 0.05,
+    is_dispatchable = false,
+    commissioning_date = DateTime(2020, 1, 1),
+)]
 
 # Base demand patterns (MW)
 # North: steady industrial load
@@ -221,7 +212,7 @@ loads = Load[
         bus_id = "BUS_1",
         submarket_id = "N",
         base_mw = 1.0,
-        load_profile = load_north
+        load_profile = load_north,
     ),
     Load(;
         id = "L_2",
@@ -229,7 +220,7 @@ loads = Load[
         bus_id = "BUS_2",
         submarket_id = "C",
         base_mw = 1.0,
-        load_profile = load_center
+        load_profile = load_center,
     ),
     Load(;
         id = "L_3",
@@ -237,8 +228,8 @@ loads = Load[
         bus_id = "BUS_3",
         submarket_id = "S",
         base_mw = 1.0,
-        load_profile = load_south
-    )
+        load_profile = load_south,
+    ),
 ]
 
 # Create interconnections between regions
@@ -251,7 +242,7 @@ interconnections = Interconnection[
         from_submarket_id = "N",
         to_submarket_id = "C",
         capacity_mw = 100.0,
-        loss_percent = 1.0
+        loss_percent = 1.0,
     ),
     Interconnection(;
         id = "IC_C_S",
@@ -261,9 +252,9 @@ interconnections = Interconnection[
         from_submarket_id = "C",
         to_submarket_id = "S",
         capacity_mw = 100.0,
-        loss_percent = 1.0
+        loss_percent = 1.0,
     ),
-        Interconnection(;
+    Interconnection(;
         id = "IC_N_S",
         name = "North to South",
         from_bus_id = "BUS_1",
@@ -271,8 +262,8 @@ interconnections = Interconnection[
         from_submarket_id = "N",
         to_submarket_id = "S",
         capacity_mw = 500.0,
-        loss_percent = 1.0
-    )
+        loss_percent = 1.0,
+    ),
 ]
 
 # Create the electricity system
@@ -285,7 +276,7 @@ system = ElectricitySystem(;
     solar_farms = SolarPlant[],
     loads = loads,
     interconnections = interconnections,
-    base_date = Dates.Date(2025, 1, 15)
+    base_date = Dates.Date(2025, 1, 15),
 )
 
 println("✓ Created 3-bus system:")
@@ -327,15 +318,11 @@ thermal_uc_constraint = ThermalCommitmentConstraint(;
     metadata = ConstraintMetadata(;
         name = "Thermal Unit Commitment",
         description = "UC constraints for thermal plants",
-        priority = 10
+        priority = 10,
     ),
     include_ramp_rates = false,
     include_min_up_down = false,
-    initial_commitment = Dict(
-        "T_COAL_1" => true,
-        "T_GAS_1" => true,
-        "T_PEAK_1" => true
-    )
+    initial_commitment = Dict("T_COAL_1" => true, "T_GAS_1" => true, "T_PEAK_1" => true),
 )
 build!(model, system, thermal_uc_constraint)
 
@@ -344,8 +331,8 @@ hydro_constraint = HydroWaterBalanceConstraint(;
     metadata = ConstraintMetadata(;
         name = "Hydro Water Balance",
         description = "Water balance for hydro plants",
-        priority = 10
-    )
+        priority = 10,
+    ),
 )
 build!(model, system, hydro_constraint)
 
@@ -354,8 +341,8 @@ renewable_constraint = RenewableLimitConstraint(;
     metadata = ConstraintMetadata(;
         name = "Renewable Limits",
         description = "Wind/solar generation limits",
-        priority = 10
-    )
+        priority = 10,
+    ),
 )
 build!(model, system, renewable_constraint)
 
@@ -364,8 +351,8 @@ balance_constraint = SubmarketBalanceConstraint(;
     metadata = ConstraintMetadata(;
         name = "Submarket Energy Balance",
         description = "Energy balance for LMP calculation",
-        priority = 10
-    )
+        priority = 10,
+    ),
 )
 build!(model, system, balance_constraint)
 
@@ -387,13 +374,13 @@ fuel_costs["T_PEAK_1"] = vcat(fill(200.0, 12), fill(250.0, 12))  # Higher in eve
 objective = ProductionCostObjective(;
     metadata = ObjectiveMetadata(;
         name = "Production Cost Minimization",
-        description = "Minimize total system operating cost"
+        description = "Minimize total system operating cost",
     ),
     thermal_fuel_cost = true,
     thermal_startup_cost = true,
     thermal_shutdown_cost = true,
     hydro_water_value = true,
-    time_varying_fuel_costs = fuel_costs
+    time_varying_fuel_costs = fuel_costs,
 )
 build_objective!(model, system, objective)
 
@@ -411,20 +398,24 @@ solver_options = SolverOptions(;
     time_limit_seconds = 300.0,
     mip_gap = 0.01,
     threads = 1,
-    verbose = false
+    verbose = false,
 )
 
-uc_result, sced_result = compute_two_stage_lmps(
-    model, system, HiGHS.Optimizer;
-    options = solver_options
-)
+uc_result, sced_result =
+    compute_two_stage_lmps(model, system, HiGHS.Optimizer; options = solver_options)
 
 if sced_result !== nothing && is_optimal(sced_result)
     println("\n✓ Two-stage pricing completed!")
     println("  Stage 1 (UC) Objective: R\$ $(round(uc_result.objective_value, digits=2))")
-    println("  Stage 1 Solve Time: $(round(uc_result.solve_time_seconds, digits=2)) seconds")
-    println("  Stage 2 (SCED) Objective: R\$ $(round(sced_result.objective_value, digits=2))")
-    println("  Stage 2 Solve Time: $(round(sced_result.solve_time_seconds, digits=2)) seconds")
+    println(
+        "  Stage 1 Solve Time: $(round(uc_result.solve_time_seconds, digits=2)) seconds",
+    )
+    println(
+        "  Stage 2 (SCED) Objective: R\$ $(round(sced_result.objective_value, digits=2))",
+    )
+    println(
+        "  Stage 2 Solve Time: $(round(sced_result.solve_time_seconds, digits=2)) seconds",
+    )
 else
     println("\n✗ Optimization failed")
     exit(1)
@@ -434,16 +425,16 @@ end
 # STEP 7: Display Locational Marginal Prices (LMPs)
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("LOCATIONAL MARGINAL PRICES (LMP)")
-println("=" ^ 70)
+println("="^70)
 println("LMPs represent the marginal cost of supplying additional load at each bus.")
 println("Different prices reflect transmission constraints and generation costs.")
 
 for submarket in system.submarkets
     println("\n$(submarket.name) ($(submarket.code))")
     @printf("  Hour | LMP (R\$/MWh) |   Status\n")
-    println("  " * "-" ^ 40)
+    println("  " * "-"^40)
 
     lmps = get_submarket_lmps(sced_result, submarket.code, time_periods)
 
@@ -474,9 +465,9 @@ end
 # STEP 8: Display Generation Schedule
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("THERMAL GENERATION SCHEDULE")
-println("=" ^ 70)
+println("="^70)
 
 for plant in system.thermal_plants
     println("\n$(plant.name) ($(plant.id))")
@@ -502,13 +493,13 @@ end
 # STEP 9: Cost Breakdown
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("COST BREAKDOWN (24-hour total)")
-println("=" ^ 70)
+println("="^70)
 
 total_gen = sum(
-    sum(get_thermal_generation(uc_result, p.id, time_periods))
-    for p in system.thermal_plants
+    sum(get_thermal_generation(uc_result, p.id, time_periods)) for
+    p in system.thermal_plants
 )
 
 # Calculate fuel cost using a let block to avoid soft scope issues
@@ -530,9 +521,9 @@ end
 # SUMMARY
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("SUMMARY")
-println("=" ^ 70)
+println("="^70)
 
 println("\nKey Results:")
 println("  ✓ Successfully solved unit commitment problem")
@@ -543,6 +534,6 @@ println("  - Price differences reflect marginal generation costs")
 println("  - Transmission constraints may create price separation")
 println("  - Renewable generation can reduce prices during availability")
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("End of Example")
-println("=" ^ 70)
+println("="^70)

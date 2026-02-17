@@ -46,15 +46,22 @@ using HiGHS
 
 using OpenDESSEM
 using OpenDESSEM:
-    ConventionalThermal, NATURAL_GAS, ReservoirHydro, Bus, Submarket, Load,
+    ConventionalThermal,
+    NATURAL_GAS,
+    ReservoirHydro,
+    Bus,
+    Submarket,
+    Load,
     ElectricitySystem
 using OpenDESSEM.Variables:
     create_thermal_variables!, create_hydro_variables!, create_deficit_variables!
 using OpenDESSEM.Constraints:
-    ThermalCommitmentConstraint, HydroGenerationConstraint, HydroWaterBalanceConstraint,
-    SubmarketBalanceConstraint, ConstraintMetadata
-using OpenDESSEM.Objective:
-    ProductionCostObjective, ObjectiveMetadata
+    ThermalCommitmentConstraint,
+    HydroGenerationConstraint,
+    HydroWaterBalanceConstraint,
+    SubmarketBalanceConstraint,
+    ConstraintMetadata
+using OpenDESSEM.Objective: ProductionCostObjective, ObjectiveMetadata
 
 # Import build! from both modules with qualification
 import OpenDESSEM.Constraints: build!
@@ -150,12 +157,8 @@ function create_small_test_system(;
     )
 
     # Create submarket
-    submarket = Submarket(;
-        id = "SM_SE",
-        name = "Southeast Test",
-        code = "SE",
-        country = "Brazil",
-    )
+    submarket =
+        Submarket(; id = "SM_SE", name = "Southeast Test", code = "SE", country = "Brazil")
 
     # Create thermal plants
     thermal_plants = ConventionalThermal[]
@@ -304,7 +307,8 @@ function create_small_test_system(;
     # Extend or trim profile to num_periods
     if length(load_profile) < num_periods
         # Repeat the last value
-        load_profile = vcat(load_profile, fill(load_profile[end], num_periods - length(load_profile)))
+        load_profile =
+            vcat(load_profile, fill(load_profile[end], num_periods - length(load_profile)))
     elseif length(load_profile) > num_periods
         load_profile = load_profile[1:num_periods]
     end
@@ -406,12 +410,12 @@ function create_small_test_system(;
             description = "Minimize total operating cost",
         ),
         thermal_fuel_cost = true,
-         thermal_startup_cost = true,
-         thermal_shutdown_cost = true,
-         hydro_water_value = false,  # No FCF curves in test system
-         deficit_cost = include_deficit,
-         deficit_penalty = 5000.0,  # High penalty for deficit
-     )
+        thermal_startup_cost = true,
+        thermal_shutdown_cost = true,
+        hydro_water_value = false,  # No FCF curves in test system
+        deficit_cost = include_deficit,
+        deficit_penalty = 5000.0,  # High penalty for deficit
+    )
     build_objective!(model, system, objective)
 
     return model, system
@@ -469,12 +473,8 @@ function create_infeasible_test_system()
     )
 
     # Create submarket
-    submarket = Submarket(;
-        id = "SM_SE",
-        name = "Southeast Test",
-        code = "SE",
-        country = "Brazil",
-    )
+    submarket =
+        Submarket(; id = "SM_SE", name = "Southeast Test", code = "SE", country = "Brazil")
 
     # Create single thermal plant (150 MW capacity)
     thermal_plant = ConventionalThermal(;

@@ -112,12 +112,12 @@ function fix_commitment!(model::Model, system::ElectricitySystem, uc_result::Sol
     for ((plant_id, t), val) in u_values
         # Convert plant_id string to integer index
         if !haskey(thermal_indices, plant_id)
-            @warn "Plant ID not found in indices, skipping" plant_id=plant_id
+            @warn "Plant ID not found in indices, skipping" plant_id = plant_id
             continue
         end
         idx = thermal_indices[plant_id]
         u_fixed = round_binary(val)
-        fix(u[idx, t], u_fixed; force=true)
+        fix(u[idx, t], u_fixed; force = true)
         unset_binary(u[idx, t])
         push!(modified_vars, u[idx, t])
     end
@@ -130,7 +130,7 @@ function fix_commitment!(model::Model, system::ElectricitySystem, uc_result::Sol
             end
             idx = thermal_indices[plant_id]
             v_fixed = round_binary(val)
-            fix(v[idx, t], v_fixed; force=true)
+            fix(v[idx, t], v_fixed; force = true)
             unset_binary(v[idx, t])
             push!(modified_vars, v[idx, t])
         end
@@ -144,7 +144,7 @@ function fix_commitment!(model::Model, system::ElectricitySystem, uc_result::Sol
             end
             idx = thermal_indices[plant_id]
             w_fixed = round_binary(val)
-            fix(w[idx, t], w_fixed; force=true)
+            fix(w[idx, t], w_fixed; force = true)
             unset_binary(w[idx, t])
             push!(modified_vars, w[idx, t])
         end
@@ -208,7 +208,7 @@ function solve_sced_for_pricing(
     system::ElectricitySystem,
     uc_result::SolverResult,
     optimizer_factory;
-    options::SolverOptions=SolverOptions(),
+    options::SolverOptions = SolverOptions(),
 )
     @info "Starting Stage 2: SCED for pricing"
 
@@ -216,12 +216,12 @@ function solve_sced_for_pricing(
 
     # Check UC result validity
     if !is_optimal(uc_result)
-        @error "Stage 1 UC result is not optimal" status=uc_result.status
+        @error "Stage 1 UC result is not optimal" status = uc_result.status
         return SolverResult(;
-            status=uc_result.status,
-            solve_time_seconds=0.0,
-            has_values=false,
-            has_duals=false
+            status = uc_result.status,
+            solve_time_seconds = 0.0,
+            has_values = false,
+            has_duals = false,
         )
     end
 
@@ -233,12 +233,12 @@ function solve_sced_for_pricing(
     try
         sced_model, ref_map = JuMP.copy_model(model)
     catch e
-        @error "Failed to copy model" error=e
+        @error "Failed to copy model" error = e
         return SolverResult(;
-            status=MOI.INTERNAL_ERROR,
-            solve_time_seconds=0.0,
-            has_values=false,
-            has_duals=false
+            status = MOI.INTERNAL_ERROR,
+            solve_time_seconds = 0.0,
+            has_values = false,
+            has_duals = false,
         )
     end
 
@@ -246,10 +246,10 @@ function solve_sced_for_pricing(
     if sced_model === nothing
         @error "Model copy failed - sced_model is nothing"
         return SolverResult(;
-            status=MOI.INTERNAL_ERROR,
-            solve_time_seconds=0.0,
-            has_values=false,
-            has_duals=false
+            status = MOI.INTERNAL_ERROR,
+            solve_time_seconds = 0.0,
+            has_values = false,
+            has_duals = false,
         )
     end
 
@@ -292,11 +292,11 @@ function solve_sced_for_pricing(
 
         # Create result object
         result = SolverResult(;
-            status=sced_status,
-            objective_value=objective_value(sced_model),
-            solve_time_seconds=solve_time,
-            has_values=false,
-            has_duals=false
+            status = sced_status,
+            objective_value = objective_value(sced_model),
+            solve_time_seconds = solve_time,
+            has_values = false,
+            has_duals = false,
         )
 
         # Extract solution values
@@ -305,16 +305,17 @@ function solve_sced_for_pricing(
         # Extract dual values (these are now valid!)
         extract_dual_values!(result, sced_model, system, time_periods)
 
-        @info "SCED pricing complete" objective_value=result.objective_value has_duals=result.has_duals
+        @info "SCED pricing complete" objective_value = result.objective_value has_duals =
+            result.has_duals
 
         result
     else
-        @warn "SCED solve failed" status=sced_status
+        @warn "SCED solve failed" status = sced_status
         SolverResult(;
-            status=sced_status,
-            solve_time_seconds=solve_time,
-            has_values=false,
-            has_duals=false
+            status = sced_status,
+            solve_time_seconds = solve_time,
+            has_values = false,
+            has_duals = false,
         )
     end
 
@@ -382,30 +383,33 @@ function compute_two_stage_lmps(
     model::Model,
     system::ElectricitySystem,
     optimizer_factory;
-    options::SolverOptions=SolverOptions(),
+    options::SolverOptions = SolverOptions(),
 )
     @info "Starting two-stage LMP calculation"
 
     # Stage 1: Solve Unit Commitment (MIP)
     @info "Stage 1: Solving Unit Commitment (MIP)"
-    uc_result = optimize!(model, system, optimizer_factory; options=options)
+    uc_result = optimize!(model, system, optimizer_factory; options = options)
 
     if !is_optimal(uc_result)
-        @error "Stage 1 UC failed to solve optimally" status=uc_result.status
+        @error "Stage 1 UC failed to solve optimally" status = uc_result.status
         return uc_result, nothing
     end
 
-    @info "Stage 1 complete" objective_value=uc_result.objective_value solve_time=uc_result.solve_time_seconds
+    @info "Stage 1 complete" objective_value = uc_result.objective_value solve_time =
+        uc_result.solve_time_seconds
 
     # Stage 2: Solve SCED for pricing
     sced_result = solve_sced_for_pricing(
-        model, system, uc_result, optimizer_factory; options=options
+        model,
+        system,
+        uc_result,
+        optimizer_factory;
+        options = options,
     )
 
     return uc_result, sced_result
 end
 
 # Export public functions
-export fix_commitment!,
-    solve_sced_for_pricing,
-    compute_two_stage_lmps
+export fix_commitment!, solve_sced_for_pricing, compute_two_stage_lmps

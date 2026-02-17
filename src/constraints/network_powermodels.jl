@@ -99,31 +99,31 @@ function build!(
 
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="NetworkPowerModelsConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "NetworkPowerModelsConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
-    @info "Building PowerModels network constraints" formulation=constraint.formulation
+    @info "Building PowerModels network constraints" formulation = constraint.formulation
 
     # Convert to PowerModels format
     try
         pm_data = convert_to_powermodel(;
-            buses=system.buses,
-            lines=system.ac_lines,
-            thermals=system.thermal_plants,
-            hydros=system.hydro_plants,
-            renewables=vcat(system.wind_farms, system.solar_farms),
-            base_mva=constraint.base_mva
+            buses = system.buses,
+            lines = system.ac_lines,
+            thermals = system.thermal_plants,
+            hydros = system.hydro_plants,
+            renewables = vcat(system.wind_farms, system.solar_farms),
+            base_mva = constraint.base_mva,
         )
 
         # Validate conversion
         if !validate_powermodel_conversion(pm_data)
             return ConstraintBuildResult(;
-                constraint_type="NetworkPowerModelsConstraint",
-                success=false,
-                message="PowerModels data validation failed",
+                constraint_type = "NetworkPowerModelsConstraint",
+                success = false,
+                message = "PowerModels data validation failed",
             )
         end
 
@@ -135,28 +135,28 @@ function build!(
 
         push!(
             warnings,
-            "PowerModels integration not yet implemented. Data validated successfully."
+            "PowerModels integration not yet implemented. Data validated successfully.",
         )
 
-        @info "PowerModels data validated" formulation=constraint.formulation
+        @info "PowerModels data validated" formulation = constraint.formulation
 
     catch e
         return ConstraintBuildResult(;
-            constraint_type="NetworkPowerModelsConstraint",
-            success=false,
-            message="PowerModels conversion failed: $(e.msg)",
+            constraint_type = "NetworkPowerModelsConstraint",
+            success = false,
+            message = "PowerModels conversion failed: $(e.msg)",
         )
     end
 
     build_time = time() - start_time
 
     return ConstraintBuildResult(;
-        constraint_type="NetworkPowerModelsConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="PowerModels network data validated (full integration pending)",
-        warnings=warnings,
+        constraint_type = "NetworkPowerModelsConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "PowerModels network data validated (full integration pending)",
+        warnings = warnings,
     )
 end
 

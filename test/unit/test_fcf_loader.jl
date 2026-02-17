@@ -167,7 +167,8 @@ using .FCFCurveLoader
                 water_values = [180.0, 140.0, 100.0, 60.0],
             )
 
-            fcf_data = FCFCurveData(; curves = Dict("H_SE_001" => curve1, "H_SE_002" => curve2))
+            fcf_data =
+                FCFCurveData(; curves = Dict("H_SE_001" => curve1, "H_SE_002" => curve2))
 
             @test has_fcf_curve(fcf_data, "H_SE_001")
             @test has_fcf_curve(fcf_data, "H_SE_002")
@@ -228,9 +229,7 @@ using .FCFCurveLoader
             water_values = [180.0, 120.0],
         )
 
-        fcf_data = FCFCurveData(;
-            curves = Dict("H_SE_001" => curve1, "H_NE_001" => curve2),
-        )
+        fcf_data = FCFCurveData(; curves = Dict("H_SE_001" => curve1, "H_NE_001" => curve2))
 
         @testset "Get water value for existing plant" begin
             @test get_water_value(fcf_data, "H_SE_001", 0.0) == 200.0
@@ -259,9 +258,7 @@ using .FCFCurveLoader
             water_values = [180.0, 120.0],
         )
 
-        fcf_data = FCFCurveData(;
-            curves = Dict("H_SE_001" => curve1, "H_NE_001" => curve2),
-        )
+        fcf_data = FCFCurveData(; curves = Dict("H_SE_001" => curve1, "H_NE_001" => curve2))
 
         @testset "has_fcf_curve" begin
             @test has_fcf_curve(fcf_data, "H_SE_001") == true
@@ -471,7 +468,7 @@ using .FCFCurveLoader
             fcf_content = """
             & Header comment
             # Another comment
-            
+
             & More comments
             """
             write(temp_file, fcf_content)

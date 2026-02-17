@@ -148,7 +148,8 @@ using ..OpenDESSEM:
     Bus,
     ACLine,
     Submarket,
-    Load
+    Load,
+    Interconnection
 
 # Import integration layer
 using ..OpenDESSEM.Integration: convert_to_powermodel, validate_powermodel_conversion
@@ -157,10 +158,12 @@ using ..OpenDESSEM.Integration: convert_to_powermodel, validate_powermodel_conve
 using ..OpenDESSEM.Variables:
     get_thermal_plant_indices,
     get_hydro_plant_indices,
-    get_renewable_plant_indices
+    get_renewable_plant_indices,
+    get_submarket_indices
 
 # Import cascade topology utilities
-using ..OpenDESSEM.CascadeTopologyUtils: build_cascade_topology, CascadeTopology, get_upstream_plants
+using ..OpenDESSEM.CascadeTopologyUtils:
+    build_cascade_topology, CascadeTopology, get_upstream_plants
 
 # Import inflow data types
 using ..OpenDESSEM.DessemLoader: InflowData, get_inflow

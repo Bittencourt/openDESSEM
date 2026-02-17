@@ -6,12 +6,23 @@ terms, and complete objective building.
 """
 
 using OpenDESSEM.Entities:
-    ConventionalThermal, ReservoirHydro, HydroPlant, WindPlant, SolarPlant,
-    Bus, Submarket, Load, NATURAL_GAS
+    ConventionalThermal,
+    ReservoirHydro,
+    HydroPlant,
+    WindPlant,
+    SolarPlant,
+    Bus,
+    Submarket,
+    Load,
+    NATURAL_GAS
 using OpenDESSEM: ElectricitySystem
 using OpenDESSEM.Objective:
-    ProductionCostObjective, ObjectiveMetadata, ObjectiveBuildResult,
-    validate_objective_system, get_fuel_cost, COST_SCALE
+    ProductionCostObjective,
+    ObjectiveMetadata,
+    ObjectiveBuildResult,
+    validate_objective_system,
+    get_fuel_cost,
+    COST_SCALE
 using OpenDESSEM.Variables
 using OpenDESSEM.FCFCurveLoader
 using Test
@@ -106,7 +117,11 @@ const obj_build! = OpenDESSEM.Objective.build!
         Submarket(; id = id, name = "Submarket $code", code = code, country = "Brazil")
     end
 
-    function create_test_load(; id::String, submarket_id::String = "SE", base_mw::Float64 = 1000.0)
+    function create_test_load(;
+        id::String,
+        submarket_id::String = "SE",
+        base_mw::Float64 = 1000.0,
+    )
         Load(;
             id = id,
             name = "Load $id",
@@ -124,10 +139,13 @@ const obj_build! = OpenDESSEM.Objective.build!
         wind_count::Int = 0,
         load_count::Int = 0,
     )
-        thermals = ConventionalThermal[create_test_thermal(id = "T$i") for i in 1:thermal_count]
-        hydros = OpenDESSEM.Entities.HydroPlant[create_test_hydro(id = "H$i") for i in 1:hydro_count]
-        winds = WindPlant[create_test_wind(id = "W$i") for i in 1:wind_count]
-        loads = Load[create_test_load(id = "L$i") for i in 1:load_count]
+        thermals =
+            ConventionalThermal[create_test_thermal(id = "T$i") for i = 1:thermal_count]
+        hydros = OpenDESSEM.Entities.HydroPlant[
+            create_test_hydro(id = "H$i") for i = 1:hydro_count
+        ]
+        winds = WindPlant[create_test_wind(id = "W$i") for i = 1:wind_count]
+        loads = Load[create_test_load(id = "L$i") for i = 1:load_count]
 
         buses = [create_test_bus(id = "B1", is_reference = true)]
         submarkets = [
@@ -176,7 +194,9 @@ const obj_build! = OpenDESSEM.Objective.build!
         )
     end
 
-    function setup_model_with_variables(system, time_periods;
+    function setup_model_with_variables(
+        system,
+        time_periods;
         include_shed::Bool = false,
         include_deficit::Bool = false,
     )
@@ -347,7 +367,7 @@ const obj_build! = OpenDESSEM.Objective.build!
             s = model[:s]
             base_water_value = 50.0
             expected_coeff = base_water_value * COST_SCALE
-            for t in 1:4
+            for t = 1:4
                 @test coefficient(obj, s[1, t]) == expected_coeff
             end
         end
@@ -374,7 +394,7 @@ const obj_build! = OpenDESSEM.Objective.build!
             s = model[:s]
             base_water_value = 50.0
             expected_coeff = base_water_value * COST_SCALE
-            for t in 1:4
+            for t = 1:4
                 @test coefficient(obj, s[1, t]) == expected_coeff
             end
         end
@@ -400,7 +420,7 @@ const obj_build! = OpenDESSEM.Objective.build!
             s = model[:s]
             base_water_value = 50.0
             expected_coeff = base_water_value * COST_SCALE
-            for t in 1:4
+            for t = 1:4
                 @test coefficient(obj, s[1, t]) == expected_coeff
             end
         end
@@ -439,15 +459,9 @@ const obj_build! = OpenDESSEM.Objective.build!
 
     @testset "Load shedding cost" begin
         @testset "Load shedding term with shed variables" begin
-            system = create_test_system(
-                thermal_count = 1,
-                hydro_count = 0,
-                load_count = 2,
-            )
+            system = create_test_system(thermal_count = 1, hydro_count = 0, load_count = 2)
             time_periods = 1:4
-            model = setup_model_with_variables(system, time_periods;
-                include_shed = true,
-            )
+            model = setup_model_with_variables(system, time_periods; include_shed = true)
 
             objective = create_default_objective(
                 load_shedding_cost = true,
@@ -468,15 +482,9 @@ const obj_build! = OpenDESSEM.Objective.build!
         end
 
         @testset "Load shedding warning when variables missing" begin
-            system = create_test_system(
-                thermal_count = 1,
-                hydro_count = 0,
-                load_count = 2,
-            )
+            system = create_test_system(thermal_count = 1, hydro_count = 0, load_count = 2)
             time_periods = 1:4
-            model = setup_model_with_variables(system, time_periods;
-                include_shed = false,
-            )
+            model = setup_model_with_variables(system, time_periods; include_shed = false)
 
             objective = create_default_objective(
                 load_shedding_cost = true,
@@ -487,7 +495,9 @@ const obj_build! = OpenDESSEM.Objective.build!
             @test result.success
             @test !isempty(result.warnings)
             @test any(contains(w, "shed") for w in result.warnings)
-            @test any(contains(w, "create_load_shedding_variables!") for w in result.warnings)
+            @test any(
+                contains(w, "create_load_shedding_variables!") for w in result.warnings
+            )
             @test !haskey(result.cost_component_summary, "load_shedding")
         end
 
@@ -509,20 +519,12 @@ const obj_build! = OpenDESSEM.Objective.build!
 
     @testset "Deficit cost" begin
         @testset "Deficit term with deficit variables" begin
-            system = create_test_system(
-                thermal_count = 1,
-                hydro_count = 0,
-                load_count = 1,
-            )
+            system = create_test_system(thermal_count = 1, hydro_count = 0, load_count = 1)
             time_periods = 1:4
-            model = setup_model_with_variables(system, time_periods;
-                include_deficit = true,
-            )
+            model = setup_model_with_variables(system, time_periods; include_deficit = true)
 
-            objective = create_default_objective(
-                deficit_cost = true,
-                deficit_penalty = 10000.0,
-            )
+            objective =
+                create_default_objective(deficit_cost = true, deficit_penalty = 10000.0)
 
             result = obj_build!(model, system, objective)
             @test result.success
@@ -537,20 +539,13 @@ const obj_build! = OpenDESSEM.Objective.build!
         end
 
         @testset "Deficit warning when variables missing" begin
-            system = create_test_system(
-                thermal_count = 1,
-                hydro_count = 0,
-                load_count = 1,
-            )
+            system = create_test_system(thermal_count = 1, hydro_count = 0, load_count = 1)
             time_periods = 1:4
-            model = setup_model_with_variables(system, time_periods;
-                include_deficit = false,
-            )
+            model =
+                setup_model_with_variables(system, time_periods; include_deficit = false)
 
-            objective = create_default_objective(
-                deficit_cost = true,
-                deficit_penalty = 10000.0,
-            )
+            objective =
+                create_default_objective(deficit_cost = true, deficit_penalty = 10000.0)
 
             result = obj_build!(model, system, objective)
             @test result.success
@@ -584,7 +579,9 @@ const obj_build! = OpenDESSEM.Objective.build!
             load_count = 2,
         )
         time_periods = 1:4
-        model = setup_model_with_variables(system, time_periods;
+        model = setup_model_with_variables(
+            system,
+            time_periods;
             include_shed = true,
             include_deficit = true,
         )
@@ -755,10 +752,8 @@ const obj_build! = OpenDESSEM.Objective.build!
         model = setup_model_with_variables(system, time_periods)
 
         # Only include T1 and T3
-        objective = create_default_objective(
-            plant_filter = ["T1", "T3"],
-            hydro_water_value = false,
-        )
+        objective =
+            create_default_objective(plant_filter = ["T1", "T3"], hydro_water_value = false)
 
         result = obj_build!(model, system, objective)
         @test result.success
@@ -835,11 +830,7 @@ const obj_build! = OpenDESSEM.Objective.build!
         end
 
         @testset "Valid system with wind plants" begin
-            system = create_test_system(
-                thermal_count = 0,
-                hydro_count = 0,
-                wind_count = 1,
-            )
+            system = create_test_system(thermal_count = 0, hydro_count = 0, wind_count = 1)
             @test validate_objective_system(system)
         end
 

@@ -127,7 +127,8 @@ function get_fuel_cost(
     period::Int,
     time_varying_costs::Dict{String,Vector{Float64}},
 )::Float64
-    if haskey(time_varying_costs, plant.id) && period <= length(time_varying_costs[plant.id])
+    if haskey(time_varying_costs, plant.id) &&
+       period <= length(time_varying_costs[plant.id])
         return time_varying_costs[plant.id][period]
     end
     return plant.fuel_cost_rsj_per_mwh
@@ -193,12 +194,12 @@ function build!(
     # Validate system
     if !validate_objective_system(system)
         return ObjectiveBuildResult(;
-            objective_type="ProductionCostObjective",
-            build_time_seconds=time() - start_time,
-            success=false,
-            message="System validation failed: no generation sources",
-            cost_component_summary=Dict{String,Float64}(),
-            warnings=warnings
+            objective_type = "ProductionCostObjective",
+            build_time_seconds = time() - start_time,
+            success = false,
+            message = "System validation failed: no generation sources",
+            cost_component_summary = Dict{String,Float64}(),
+            warnings = warnings,
         )
     end
 
@@ -302,7 +303,8 @@ function build!(
                 if haskey(thermal_indices, plant.id)
                     idx = thermal_indices[plant.id]
                     for t in time_periods
-                        shutdown_cost_expr += plant.shutdown_cost_rs * COST_SCALE * w[idx, t]
+                        shutdown_cost_expr +=
+                            plant.shutdown_cost_rs * COST_SCALE * w[idx, t]
                         total_shutdown_cost += plant.shutdown_cost_rs
                     end
                 end
@@ -332,23 +334,28 @@ function build!(
                     idx = hydro_indices[plant.id]
                     for t in time_periods
                         # Determine water value: use FCF for terminal period if available
-                        water_value = if t == T && use_fcf && haskey(fcf_data.curves, plant.id)
-                            # Use FCF curve to get water value at initial storage level.
-                            # This linearizes the piecewise FCF around the current
-                            # operating point. Full piecewise treatment requires
-                            # additional constraints (handled separately).
-                            try
-                                get_water_value(fcf_data, plant.id, plant.initial_volume_hm3)
-                            catch e
-                                push!(
-                                    warnings,
-                                    "FCF lookup failed for $(plant.id): $e, using base water value",
-                                )
+                        water_value =
+                            if t == T && use_fcf && haskey(fcf_data.curves, plant.id)
+                                # Use FCF curve to get water value at initial storage level.
+                                # This linearizes the piecewise FCF around the current
+                                # operating point. Full piecewise treatment requires
+                                # additional constraints (handled separately).
+                                try
+                                    get_water_value(
+                                        fcf_data,
+                                        plant.id,
+                                        plant.initial_volume_hm3,
+                                    )
+                                catch e
+                                    push!(
+                                        warnings,
+                                        "FCF lookup failed for $(plant.id): $e, using base water value",
+                                    )
+                                    plant.water_value_rs_per_hm3
+                                end
+                            else
                                 plant.water_value_rs_per_hm3
                             end
-                        else
-                            plant.water_value_rs_per_hm3
-                        end
 
                         water_value_expr += water_value * COST_SCALE * s[idx, t]
                         total_water_value += water_value * plant.initial_volume_hm3
@@ -383,8 +390,10 @@ function build!(
                 if haskey(renewable_indices, farm.id)
                     idx = renewable_indices[farm.id]
                     for t in time_periods
-                        curtail_cost_expr += objective.curtailment_penalty * COST_SCALE * curtail[idx, t]
-                        total_curtail_cost += objective.curtailment_penalty * farm.installed_capacity_mw
+                        curtail_cost_expr +=
+                            objective.curtailment_penalty * COST_SCALE * curtail[idx, t]
+                        total_curtail_cost +=
+                            objective.curtailment_penalty * farm.installed_capacity_mw
                     end
                 end
             end
@@ -394,8 +403,10 @@ function build!(
                     if haskey(renewable_indices, farm.id)
                         idx = renewable_indices[farm.id]
                         for t in time_periods
-                            curtail_cost_expr += objective.curtailment_penalty * COST_SCALE * curtail[idx, t]
-                            total_curtail_cost += objective.curtailment_penalty * farm.installed_capacity_mw
+                            curtail_cost_expr +=
+                                objective.curtailment_penalty * COST_SCALE * curtail[idx, t]
+                            total_curtail_cost +=
+                                objective.curtailment_penalty * farm.installed_capacity_mw
                         end
                     end
                 end
@@ -423,7 +434,8 @@ function build!(
                 if haskey(load_indices, load.id)
                     load_idx = load_indices[load.id]
                     for t in time_periods
-                        shed_cost_expr += objective.shedding_penalty * COST_SCALE * shed[load_idx, t]
+                        shed_cost_expr +=
+                            objective.shedding_penalty * COST_SCALE * shed[load_idx, t]
                         total_shed_cost += objective.shedding_penalty * load.base_mw
                     end
                 end
@@ -451,7 +463,8 @@ function build!(
                 if haskey(submarket_indices, submarket.code)
                     sm_idx = submarket_indices[submarket.code]
                     for t in time_periods
-                        deficit_cost_expr += objective.deficit_penalty * COST_SCALE * deficit[sm_idx, t]
+                        deficit_cost_expr +=
+                            objective.deficit_penalty * COST_SCALE * deficit[sm_idx, t]
                         # Estimate max deficit as submarket demand for summary
                         sm_demand = sum(
                             load.base_mw for
@@ -471,12 +484,12 @@ function build!(
     # Check if objective expression is empty
     if isempty(cost_components)
         return ObjectiveBuildResult(;
-            objective_type="ProductionCostObjective",
-            build_time_seconds=time() - start_time,
-            success=false,
-            message="No valid cost components found - check variable availability",
-            cost_component_summary=Dict{String,Float64}(),
-            warnings=warnings
+            objective_type = "ProductionCostObjective",
+            build_time_seconds = time() - start_time,
+            success = false,
+            message = "No valid cost components found - check variable availability",
+            cost_component_summary = Dict{String,Float64}(),
+            warnings = warnings,
         )
     end
 
@@ -490,12 +503,12 @@ function build!(
     build_time = time() - start_time
 
     return ObjectiveBuildResult(;
-        objective_type="ProductionCostObjective",
-        build_time_seconds=build_time,
-        success=true,
-        message="Built production cost objective with $(length(cost_components)) components",
-        cost_component_summary=cost_components,
-        warnings=warnings
+        objective_type = "ProductionCostObjective",
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built production cost objective with $(length(cost_components)) components",
+        cost_component_summary = cost_components,
+        warnings = warnings,
     )
 end
 
@@ -682,7 +695,4 @@ function calculate_cost_breakdown(
 end
 
 # Export public types and functions
-export ProductionCostObjective,
-    COST_SCALE,
-    get_fuel_cost,
-    calculate_cost_breakdown
+export ProductionCostObjective, COST_SCALE, get_fuel_cost, calculate_cost_breakdown

@@ -134,8 +134,10 @@ using .SmallSystemFactory: create_small_test_system, create_infeasible_test_syst
         @test report.violations[1].constraint_name == "large"
         @test report.violations[2].constraint_name == "medium"
         @test report.violations[3].constraint_name == "small"
-        @test report.violations[1].violation_magnitude >= report.violations[2].violation_magnitude
-        @test report.violations[2].violation_magnitude >= report.violations[3].violation_magnitude
+        @test report.violations[1].violation_magnitude >=
+              report.violations[2].violation_magnitude
+        @test report.violations[2].violation_magnitude >=
+              report.violations[3].violation_magnitude
     end
 
     @testset "Constraint type classification" begin

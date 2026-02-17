@@ -119,20 +119,19 @@ function build!(
     # Validate system
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="ThermalCommitmentConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "ThermalCommitmentConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
     # Check if variables exist
-    if !haskey(object_dictionary(model), :u) ||
-       !haskey(object_dictionary(model), :g)
+    if !haskey(object_dictionary(model), :u) || !haskey(object_dictionary(model), :g)
         @warn "Thermal variables (u, g) not found in model. Run create_thermal_variables! first."
         return ConstraintBuildResult(;
-            constraint_type="ThermalCommitmentConstraint",
-            success=false,
-            message="Required variables not found",
+            constraint_type = "ThermalCommitmentConstraint",
+            success = false,
+            message = "Required variables not found",
         )
     end
 
@@ -153,9 +152,9 @@ function build!(
     if isempty(plants)
         @warn "No thermal plants found for constraint building"
         return ConstraintBuildResult(;
-            constraint_type="ThermalCommitmentConstraint",
-            success=false,
-            message="No thermal plants found",
+            constraint_type = "ThermalCommitmentConstraint",
+            success = false,
+            message = "No thermal plants found",
         )
     end
 
@@ -171,7 +170,8 @@ function build!(
 
     n_periods = length(time_periods)
 
-    @info "Building thermal commitment constraints" num_plants=length(plants) num_periods=n_periods
+    @info "Building thermal commitment constraints" num_plants = length(plants) num_periods =
+        n_periods
 
     # Set initial conditions (first period commitment)
     if !isempty(constraint.initial_commitment)
@@ -193,14 +193,8 @@ function build!(
 
         for (t_idx, t) in enumerate(time_periods)
             # Capacity limits: g_min * u <= g <= g_max * u
-            @constraint(
-                model,
-                g[plant_idx, t] >= plant.min_generation_mw * u[plant_idx, t]
-            )
-            @constraint(
-                model,
-                g[plant_idx, t] <= plant.max_generation_mw * u[plant_idx, t]
-            )
+            @constraint(model, g[plant_idx, t] >= plant.min_generation_mw * u[plant_idx, t])
+            @constraint(model, g[plant_idx, t] <= plant.max_generation_mw * u[plant_idx, t])
             num_constraints += 2
 
             # Ramp rate constraints
@@ -210,11 +204,11 @@ function build!(
 
                 @constraint(
                     model,
-                    g[plant_idx, t] - g[plant_idx, t - 1] <= ramp_up_mw_per_hour
+                    g[plant_idx, t] - g[plant_idx, t-1] <= ramp_up_mw_per_hour
                 )
                 @constraint(
                     model,
-                    g[plant_idx, t - 1] - g[plant_idx, t] <= ramp_down_mw_per_hour
+                    g[plant_idx, t-1] - g[plant_idx, t] <= ramp_down_mw_per_hour
                 )
                 num_constraints += 2
             end
@@ -223,7 +217,8 @@ function build!(
             if v !== nothing && w !== nothing && t > 1
                 @constraint(
                     model,
-                    u[plant_idx, t] - u[plant_idx, t - 1] == v[plant_idx, t] - w[plant_idx, t]
+                    u[plant_idx, t] - u[plant_idx, t-1] ==
+                    v[plant_idx, t] - w[plant_idx, t]
                 )
                 @constraint(model, v[plant_idx, t] + w[plant_idx, t] <= 1)
                 num_constraints += 2
@@ -241,8 +236,7 @@ function build!(
                     up_window = max(1, t - min_up + 1):t
                     @constraint(
                         model,
-                        sum(u[plant_idx, τ] for τ in up_window) >=
-                        min_up * v[plant_idx, t]
+                        sum(u[plant_idx, τ] for τ in up_window) >= min_up * v[plant_idx, t]
                     )
                     num_constraints += 1
                 end
@@ -265,15 +259,16 @@ function build!(
 
     build_time = time() - start_time
 
-    @info "Thermal commitment constraints built successfully" num_constraints=num_constraints build_time=build_time
+    @info "Thermal commitment constraints built successfully" num_constraints =
+        num_constraints build_time = build_time
 
     return ConstraintBuildResult(;
-        constraint_type="ThermalCommitmentConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints thermal UC constraints",
-        warnings=warnings,
+        constraint_type = "ThermalCommitmentConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints thermal UC constraints",
+        warnings = warnings,
     )
 end
 

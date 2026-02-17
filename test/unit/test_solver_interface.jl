@@ -8,13 +8,35 @@ using Test
 using MathOptInterface
 using Dates
 using DataFrames
-using OpenDESSEM.Solvers: SolveStatus, OPTIMAL, INFEASIBLE, UNBOUNDED, TIME_LIMIT,
-    ITERATION_LIMIT, NUMERICAL_ERROR, OTHER_LIMIT, NOT_SOLVED,
-    SolverType, HIGHS, GUROBI, CPLEX, GLPK,
-    SolverOptions, SolverResult, IISConflict, IISResult,
-    solve_model!, optimize!, solver_available, get_solver_optimizer,
-    get_pld_dataframe, CostBreakdown, get_cost_breakdown,
-    map_to_solve_status, is_optimal, is_infeasible
+using OpenDESSEM.Solvers:
+    SolveStatus,
+    OPTIMAL,
+    INFEASIBLE,
+    UNBOUNDED,
+    TIME_LIMIT,
+    ITERATION_LIMIT,
+    NUMERICAL_ERROR,
+    OTHER_LIMIT,
+    NOT_SOLVED,
+    SolverType,
+    HIGHS,
+    GUROBI,
+    CPLEX,
+    GLPK,
+    SolverOptions,
+    SolverResult,
+    IISConflict,
+    IISResult,
+    solve_model!,
+    optimize!,
+    solver_available,
+    get_solver_optimizer,
+    get_pld_dataframe,
+    CostBreakdown,
+    get_cost_breakdown,
+    map_to_solve_status,
+    is_optimal,
+    is_infeasible
 
 # Import OpenDESSEM for accessing internal functions via qualified path
 import OpenDESSEM
@@ -474,20 +496,12 @@ const MOI = MathOptInterface
             # Create a minimal mock system using Dict for testing
             # Note: Full system creation requires many required fields,
             # so we test the function exists and returns correct type
-            using OpenDESSEM:
-                ElectricitySystem,
-                Submarket
+            using OpenDESSEM: ElectricitySystem, Submarket
 
-            submarket = Submarket(;
-                id = "SE",
-                name = "Southeast",
-                code = "SE",
-                country = "Brazil",
-            )
-            system = ElectricitySystem(;
-                submarkets = [submarket],
-                base_date = Date(2024, 1, 1),
-            )
+            submarket =
+                Submarket(; id = "SE", name = "Southeast", code = "SE", country = "Brazil")
+            system =
+                ElectricitySystem(; submarkets = [submarket], base_date = Date(2024, 1, 1))
 
             cb = get_cost_breakdown(result, system)
             @test cb isa CostBreakdown
@@ -501,26 +515,13 @@ const MOI = MathOptInterface
 
         @testset "Calculates thermal fuel cost from generation values" begin
             using OpenDESSEM:
-                ElectricitySystem,
-                ConventionalThermal,
-                Submarket,
-                Bus,
-                NATURAL_GAS
+                ElectricitySystem, ConventionalThermal, Submarket, Bus, NATURAL_GAS
             using Dates
 
             # Create minimal required entities
-            submarket = Submarket(;
-                id = "SE",
-                name = "Southeast",
-                code = "SE",
-                country = "Brazil",
-            )
-            bus = Bus(;
-                id = "B001",
-                name = "Test Bus",
-                voltage_kv = 138.0,
-                base_kv = 138.0,
-            )
+            submarket =
+                Submarket(; id = "SE", name = "Southeast", code = "SE", country = "Brazil")
+            bus = Bus(; id = "B001", name = "Test Bus", voltage_kv = 138.0, base_kv = 138.0)
             thermal = ConventionalThermal(;
                 id = "T001",
                 name = "Test Plant",
@@ -566,25 +567,12 @@ const MOI = MathOptInterface
 
         @testset "Calculates startup and shutdown costs" begin
             using OpenDESSEM:
-                ElectricitySystem,
-                ConventionalThermal,
-                Submarket,
-                Bus,
-                NATURAL_GAS
+                ElectricitySystem, ConventionalThermal, Submarket, Bus, NATURAL_GAS
             using Dates
 
-            submarket = Submarket(;
-                id = "SE",
-                name = "Southeast",
-                code = "SE",
-                country = "Brazil",
-            )
-            bus = Bus(;
-                id = "B001",
-                name = "Test Bus",
-                voltage_kv = 138.0,
-                base_kv = 138.0,
-            )
+            submarket =
+                Submarket(; id = "SE", name = "Southeast", code = "SE", country = "Brazil")
+            bus = Bus(; id = "B001", name = "Test Bus", voltage_kv = 138.0, base_kv = 138.0)
             thermal = ConventionalThermal(;
                 id = "T001",
                 name = "Test Plant",

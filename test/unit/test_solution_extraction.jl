@@ -22,13 +22,22 @@ using OpenDESSEM:
     ConventionalThermal, ReservoirHydro, Bus, Submarket, Load, ElectricitySystem
 using OpenDESSEM.Solvers
 using OpenDESSEM.Solvers:
-    SolverResult, SolverOptions,
-    OPTIMAL, INFEASIBLE, NOT_SOLVED,
+    SolverResult,
+    SolverOptions,
+    OPTIMAL,
+    INFEASIBLE,
+    NOT_SOLVED,
     solve_model!,
-    get_pld_dataframe, get_cost_breakdown, CostBreakdown,
-    get_thermal_generation, get_hydro_generation, get_hydro_storage,
-    get_submarket_lmps, get_renewable_generation,
-    extract_solution_values!, extract_dual_values!
+    get_pld_dataframe,
+    get_cost_breakdown,
+    CostBreakdown,
+    get_thermal_generation,
+    get_hydro_generation,
+    get_hydro_storage,
+    get_submarket_lmps,
+    get_renewable_generation,
+    extract_solution_values!,
+    extract_dual_values!
 
 const MOI = MathOptInterface
 
@@ -161,8 +170,10 @@ using .SmallSystemFactory: create_small_test_system
         @test breakdown.total >= 0
         @test breakdown.thermal_fuel >= 0
         @test breakdown.total ==
-              breakdown.thermal_fuel + breakdown.thermal_startup +
-              breakdown.thermal_shutdown + breakdown.deficit_penalty +
+              breakdown.thermal_fuel +
+              breakdown.thermal_startup +
+              breakdown.thermal_shutdown +
+              breakdown.deficit_penalty +
               breakdown.hydro_water_value
     end
 
@@ -214,14 +225,17 @@ using .SmallSystemFactory: create_small_test_system
 
     @testset "get_cost_breakdown returns zeros without values" begin
         result = SolverResult()
-        breakdown = get_cost_breakdown(result, ElectricitySystem(;
-            thermal_plants = ConventionalThermal[],
-            hydro_plants = ReservoirHydro[],
-            buses = Bus[],
-            submarkets = Submarket[],
-            loads = Load[],
-            base_date = Date(2025, 1, 1),
-        ))
+        breakdown = get_cost_breakdown(
+            result,
+            ElectricitySystem(;
+                thermal_plants = ConventionalThermal[],
+                hydro_plants = ReservoirHydro[],
+                buses = Bus[],
+                submarkets = Submarket[],
+                loads = Load[],
+                base_date = Date(2025, 1, 1),
+            ),
+        )
         @test breakdown isa CostBreakdown
         @test breakdown.total == 0.0
     end

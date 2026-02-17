@@ -131,10 +131,8 @@ end
 
             @testset "InflowData struct" begin
                 # Test InflowData construction
-                test_inflows = Dict{Int,Vector{Float64}}(
-                    1 => [10.0, 11.0, 12.0],
-                    2 => [5.0, 6.0, 7.0],
-                )
+                test_inflows =
+                    Dict{Int,Vector{Float64}}(1 => [10.0, 11.0, 12.0], 2 => [5.0, 6.0, 7.0])
                 test_start = Date(2025, 10, 11)
                 test_plants = [1, 2]
 

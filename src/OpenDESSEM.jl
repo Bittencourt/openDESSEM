@@ -65,10 +65,7 @@ export count_generators, total_capacity, validate_system, validate_bus_submarket
 # Export cascade topology functionality
 using .CascadeTopologyUtils
 export CascadeTopology,
-    build_cascade_topology,
-    find_headwaters,
-    find_terminal_plants,
-    get_upstream_plants
+    build_cascade_topology, find_headwaters, find_terminal_plants, get_upstream_plants
 
 # Export integration functionality
 using .Integration

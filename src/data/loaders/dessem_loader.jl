@@ -208,7 +208,11 @@ struct InflowData
         # Validate that all plant_numbers have entries in inflows
         for plant_num in plant_numbers
             if !haskey(inflows, plant_num)
-                throw(ArgumentError("Plant $plant_num in plant_numbers but not in inflows dict"))
+                throw(
+                    ArgumentError(
+                        "Plant $plant_num in plant_numbers but not in inflows dict",
+                    ),
+                )
             end
         end
         new(inflows, num_periods, start_date, plant_numbers)
@@ -478,7 +482,7 @@ function load_inflow_data(path::String)::InflowData
             # Fill all 24 hours for this day
             start_hour = (day_index - 1) * 24 + 1
             end_hour = day_index * 24
-            for h in start_hour:end_hour
+            for h = start_hour:end_hour
                 hourly_inflows[h] = hourly_inflow
             end
         end
@@ -565,7 +569,8 @@ end
         cadusit::CADUSIT,
         units::Vector{CADUNIDT},
         subsystem_code::String;
-        bus_id::String = "B_DEFAULT"
+        bus_id::String = "B_DEFAULT",
+        operating_cost::Union{Float64,Nothing} = nothing
     ) -> ConventionalThermal
 
 Convert a DESSEM thermal plant (CADUSIT) and its units to OpenDESSEM ConventionalThermal.
@@ -575,6 +580,7 @@ Convert a DESSEM thermal plant (CADUSIT) and its units to OpenDESSEM Conventiona
 - `units::Vector{CADUNIDT}`: DESSEM unit records for this plant
 - `subsystem_code::String`: Converted subsystem code (SE, S, NE, N)
 - `bus_id::String`: Bus ID to assign (default placeholder)
+- `operating_cost::Union{Float64,Nothing}`: Operating cost from operut.dat (takes precedence)
 
 # Returns
 - OpenDESSEM ConventionalThermal entity
@@ -584,6 +590,7 @@ function convert_dessem_thermal(
     units::Vector{CADUNIDT},
     subsystem_code::String;
     bus_id::String = "B_DEFAULT",
+    operating_cost::Union{Float64,Nothing} = nothing,
 )
     # Calculate aggregate capacity from units
     total_capacity = sum(u.unit_capacity for u in units; init = 0.0)
@@ -634,6 +641,9 @@ function convert_dessem_thermal(
     # Access FuelType enum via Main module
     fuel_type_enum = getfield(Main, fuel_type_sym)
 
+    # Use operating cost from operut.dat if available, otherwise fall back to cadusit.fuel_cost
+    fuel_cost = something(operating_cost, cadusit.fuel_cost)
+
     # Create ConventionalThermal entity
     return ConventionalThermal(;
         id = plant_id,
@@ -648,7 +658,7 @@ function convert_dessem_thermal(
         ramp_down_mw_per_min = ramp_down_per_min,
         min_up_time_hours = max(min_up, 0),
         min_down_time_hours = max(min_down, 0),
-        fuel_cost_rsj_per_mwh = cadusit.fuel_cost,
+        fuel_cost_rsj_per_mwh = fuel_cost,
         startup_cost_rs = startup_cost,
         shutdown_cost_rs = shutdown_cost,
         commissioning_date = commission_date,
@@ -731,14 +741,16 @@ function convert_dessem_hydro(
     efficiency = 0.90  # Default efficiency, could be computed from productivity
 
     # Subsystem numeric code (reverse mapping from SUBSYSTEM_CODE_MAP)
-    subsystem_num = get(Dict("SE" => 1, "SU" => 2, "NE" => 3, "NO" => 4, "FC" => 5), subsystem_code, 1)
+    subsystem_num =
+        get(Dict("SE" => 1, "SU" => 2, "NE" => 3, "NO" => 4, "FC" => 5), subsystem_code, 1)
 
     # Water value (default, could be from FCF data)
     water_value = 50.0  # R$/hm³
 
     # Downstream plant - both downstream_plant_id and water_travel_time_hours
     # must be set or both be nothing (validation requirement)
-    downstream_id = if hidr.jusante > 0
+    # Filter self-references (plant pointing to itself as downstream)
+    downstream_id = if hidr.jusante > 0 && hidr.jusante != plant_num
         "H_$(subsystem_code)_$(lpad(hidr.jusante, 3, '0'))"
     else
         nothing
@@ -1059,14 +1071,28 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
             push!(units_by_plant[unit.plant_num], unit)
         end
 
+        # Build lookup for operating costs from operut.dat
+        operating_cost_by_plant = Dict{Int,Float64}()
+        if case_data.operut_data !== nothing
+            for oper_rec in case_data.operut_data.oper_records
+                operating_cost_by_plant[oper_rec.plant_num] = oper_rec.operating_cost
+            end
+        end
+
         for cadusit in case_data.thermal_registry.plants
             try
                 subsystem_code = get(SUBSYSTEM_CODE_MAP, cadusit.subsystem, "SE")
                 units = get(units_by_plant, cadusit.plant_num, CADUNIDT[])
                 bus_id = "B_$(subsystem_code)_0001"  # Use submarket main bus
+                operating_cost = get(operating_cost_by_plant, cadusit.plant_num, nothing)
 
-                plant =
-                    convert_dessem_thermal(cadusit, units, subsystem_code; bus_id = bus_id)
+                plant = convert_dessem_thermal(
+                    cadusit,
+                    units,
+                    subsystem_code;
+                    bus_id = bus_id,
+                    operating_cost = operating_cost,
+                )
                 push!(thermal_plants, plant)
             catch e
                 @warn "Failed to convert thermal plant $(cadusit.plant_num): $e"
@@ -1153,23 +1179,38 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
 
     # Step 6: Create loads from demand data
     if case_data.general_data !== nothing
-        # Aggregate demands by subsystem
-        demand_by_subsystem = Dict{Int,Float64}()
+        # Group demands by subsystem
+        demands_by_subsystem = Dict{Int,Vector{Float64}}()
         for dp in case_data.general_data.demands
-            current = get(demand_by_subsystem, dp.subsystem, 0.0)
-            demand_by_subsystem[dp.subsystem] = current + dp.demand
+            if !haskey(demands_by_subsystem, dp.subsystem)
+                demands_by_subsystem[dp.subsystem] = Float64[]
+            end
+            push!(demands_by_subsystem[dp.subsystem], dp.demand)
         end
 
-        for (subsys_num, total_demand) in demand_by_subsystem
+        for (subsys_num, period_demands) in demands_by_subsystem
+            if isempty(period_demands)
+                continue
+            end
+
+            avg_demand = sum(period_demands) / length(period_demands)
+            if avg_demand <= 0.0
+                @warn "Skipping subsystem $subsys_num with zero/negative average demand ($avg_demand MW)"
+                continue
+            end
             subsystem_code = get(SUBSYSTEM_CODE_MAP, subsys_num, "SE")
-            # Use subsystem number in ID to ensure uniqueness (e.g., for FC which has multiple entries)
+
+            # Create load profile normalized by average demand
+            # The load_profile will be extended/repeated to match the optimization horizon
+            load_profile = period_demands ./ avg_demand
+
             load = Load(;
                 id = "L_$(subsystem_code)_$(subsys_num)",
                 name = "$(subsystem_code) System Load",
                 submarket_id = subsystem_code,
                 bus_id = "B_$(subsystem_code)_0001",
-                base_mw = total_demand,
-                load_profile = ones(168),  # Flat profile
+                base_mw = avg_demand,
+                load_profile = load_profile,
                 is_elastic = false,
             )
             push!(loads, load)

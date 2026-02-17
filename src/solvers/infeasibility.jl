@@ -88,38 +88,44 @@ end
 """
 function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
     start_time = time()
-    
+
     # Get solver name from model
     solver_name = _get_solver_name(model)
-    
+
     # Check if model is in an infeasible or unbounded state
     term_status = termination_status(model)
-    
-    if term_status ∉ [MOI.INFEASIBLE, MOI.LOCALLY_INFEASIBLE, MOI.INFEASIBLE_OR_UNBOUNDED, MOI.DUAL_INFEASIBLE]
+
+    if term_status ∉ [
+        MOI.INFEASIBLE,
+        MOI.LOCALLY_INFEASIBLE,
+        MOI.INFEASIBLE_OR_UNBOUNDED,
+        MOI.DUAL_INFEASIBLE,
+    ]
         @warn "compute_iis!() called on model that may not be infeasible. " *
               "Termination status: $term_status. " *
               "For best results, call compute_iis!() after detecting INFEASIBLE status."
     end
-    
+
     # Try to compute conflict using JuMP's conflict API
     conflicts = IISConflict[]
     conflict_status = MOI.NO_CONFLICT_FOUND
-    
+
     try
         # Use JuMP's compute_conflict! function
         raw_status = compute_conflict!(model)
-        
+
         # Handle case where compute_conflict! returns nothing
         if raw_status !== nothing
             conflict_status = raw_status
         end
-        
+
         if conflict_status == MOI.CONFLICT_FOUND
             # Extract all constraints that are in the conflict set
             conflicts = _extract_conflicts(model)
         end
     catch e
-        if e isa MethodError || (isa(e, ErrorException) && occursin("conflict", lowercase(e.msg)))
+        if e isa MethodError ||
+           (isa(e, ErrorException) && occursin("conflict", lowercase(e.msg)))
             @warn "IIS computation not supported by $solver_name. " *
                   "Consider using Gurobi or CPLEX for full IIS support."
             conflict_status = MOI.NO_CONFLICT_FOUND
@@ -127,18 +133,18 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
             rethrow(e)
         end
     end
-    
+
     computation_time = time() - start_time
-    
+
     # Build result
     result = IISResult(
         status = conflict_status,
         conflicts = conflicts,
         computation_time = computation_time,
         solver_used = solver_name,
-        report_file = nothing
+        report_file = nothing,
     )
-    
+
     # Auto-generate report if requested and conflicts were found
     if auto_report && conflict_status == MOI.CONFLICT_FOUND && !isempty(conflicts)
         report_path = write_iis_report(result)
@@ -147,10 +153,10 @@ function compute_iis!(model::JuMP.Model; auto_report::Bool = true)::IISResult
             conflicts = result.conflicts,
             computation_time = result.computation_time,
             solver_used = result.solver_used,
-            report_file = report_path
+            report_file = report_path,
         )
     end
-    
+
     return result
 end
 
@@ -189,16 +195,16 @@ Extract all constraints that participate in the conflict set.
 """
 function _extract_conflicts(model::JuMP.Model)::Vector{IISConflict}
     conflicts = IISConflict[]
-    
+
     # Get all constraints in the model
     constraint_types = list_of_constraint_types(model)
-    
+
     for (F, S) in constraint_types
         try
             for constraint_ref in all_constraints(model, F, S)
                 # Check if this constraint is in the conflict
                 conflict_status = MOI.get(constraint_ref, MOI.ConstraintConflictStatus())
-                
+
                 if conflict_status == MOI.IN_CONFLICT
                     conflict = _build_conflict_from_constraint(constraint_ref, F, S)
                     if conflict !== nothing
@@ -209,11 +215,12 @@ function _extract_conflicts(model::JuMP.Model)::Vector{IISConflict}
         catch e
             # Skip constraint types that don't support conflict status
             if !(e isa MethodError)
-                @debug "Could not check conflict status for constraint type ($F, $S)" exception = e
+                @debug "Could not check conflict status for constraint type ($F, $S)" exception =
+                    e
             end
         end
     end
-    
+
     # Also check variable bounds
     try
         for var in all_variables(model)
@@ -225,7 +232,7 @@ function _extract_conflicts(model::JuMP.Model)::Vector{IISConflict}
     catch e
         @debug "Could not check variable bound conflicts" exception = e
     end
-    
+
     return conflicts
 end
 
@@ -249,16 +256,16 @@ function _build_conflict_from_constraint(constraint_ref, F, S)::Union{IISConflic
         if isempty(name)
             name = "unnamed_$(F)_$(S)"
         end
-        
+
         # Get constraint expression as string
         expr_str = _constraint_to_string(constraint_ref)
-        
+
         # Try to extract bounds based on constraint set type
         lower_bound = nothing
         upper_bound = nothing
-        
+
         set = JuMP.constraint_object(constraint_ref).set
-        
+
         if hasfield(typeof(set), :lower)
             lower_bound = getfield(set, :lower)
         end
@@ -271,13 +278,13 @@ function _build_conflict_from_constraint(constraint_ref, F, S)::Union{IISConflic
             lower_bound = val
             upper_bound = val
         end
-        
+
         return IISConflict(
             constraint_ref = constraint_ref,
             constraint_name = name,
             expression = expr_str,
             lower_bound = lower_bound isa Number ? Float64(lower_bound) : nothing,
-            upper_bound = upper_bound isa Number ? Float64(upper_bound) : nothing
+            upper_bound = upper_bound isa Number ? Float64(upper_bound) : nothing,
         )
     catch e
         @debug "Could not build conflict from constraint" exception = e
@@ -302,10 +309,10 @@ function _constraint_to_string(constraint_ref)::String
         con_obj = JuMP.constraint_object(constraint_ref)
         func = con_obj.func
         set = con_obj.set
-        
+
         # Build expression string
         func_str = _jump_function_to_string(func)
-        
+
         # Build set string
         if typeof(set) <: MOI.LessThan
             return "$(func_str) <= $(set.upper)"
@@ -377,20 +384,23 @@ Check if a variable's bounds are in conflict.
 # Returns
 - `IISConflict` if bounds are in conflict, `nothing` otherwise
 """
-function _check_variable_bound_conflict(model::JuMP.Model, var::JuMP.VariableRef)::Union{IISConflict,Nothing}
+function _check_variable_bound_conflict(
+    model::JuMP.Model,
+    var::JuMP.VariableRef,
+)::Union{IISConflict,Nothing}
     try
         var_name = JuMP.name(var)
         if isempty(var_name)
             var_name = "unnamed_var"
         end
-        
+
         # Check lower bound conflict
         has_lower = has_lower_bound(var)
         has_upper = has_upper_bound(var)
-        
+
         lower_conflict = false
         upper_conflict = false
-        
+
         # Check if variable bounds are in conflict
         # This is a simplified check - actual IIS detection is more sophisticated
         if has_lower && has_upper
@@ -403,11 +413,11 @@ function _check_variable_bound_conflict(model::JuMP.Model, var::JuMP.VariableRef
                     constraint_name = "variable_bounds[$(var_name)]",
                     expression = "$(lb) <= $(var_name) <= $(ub)",
                     lower_bound = lb,
-                    upper_bound = ub
+                    upper_bound = ub,
                 )
             end
         end
-        
+
         return nothing
     catch e
         @debug "Could not check variable bound conflict" exception = e
@@ -446,43 +456,43 @@ println("Report saved to: \$report_path")
 function write_iis_report(
     result::IISResult;
     output_dir::String = "logs",
-    filename::Union{String,Nothing} = nothing
+    filename::Union{String,Nothing} = nothing,
 )::String
     # Create output directory if needed
     if !isdir(output_dir)
         mkpath(output_dir)
     end
-    
+
     # Generate filename with timestamp
     if filename === nothing
         timestamp = Dates.format(Dates.now(), "yyyymmdd_HHMMSS")
         filename = "iis_report_$(timestamp).txt"
     end
-    
+
     filepath = joinpath(output_dir, filename)
-    
+
     # Build report content
     lines = String[]
-    
+
     # Header
-    push!(lines, "=" ^ 70)
+    push!(lines, "="^70)
     push!(lines, "IIS (Irreducible Inconsistent Subsystem) Report")
     push!(lines, "OpenDESSEM Infeasibility Diagnostics")
-    push!(lines, "=" ^ 70)
+    push!(lines, "="^70)
     push!(lines, "")
-    
+
     # Metadata
     push!(lines, "Generated: $(Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS"))")
     push!(lines, "Solver Used: $(result.solver_used)")
     push!(lines, "Computation Time: $(round(result.computation_time; digits=3)) seconds")
     push!(lines, "Status: $(result.status)")
     push!(lines, "")
-    
+
     # Summary
-    push!(lines, "-" ^ 70)
+    push!(lines, "-"^70)
     push!(lines, "SUMMARY")
-    push!(lines, "-" ^ 70)
-    
+    push!(lines, "-"^70)
+
     if result.status == MOI.CONFLICT_FOUND
         push!(lines, "IIS computation SUCCESSFUL")
         push!(lines, "Number of conflicting elements: $(length(result.conflicts))")
@@ -504,18 +514,18 @@ function write_iis_report(
         push!(lines, "IIS computation status: $(result.status)")
     end
     push!(lines, "")
-    
+
     # Detailed conflicts
     if !isempty(result.conflicts)
-        push!(lines, "-" ^ 70)
+        push!(lines, "-"^70)
         push!(lines, "CONFLICTING CONSTRAINTS/BOUNDS")
-        push!(lines, "-" ^ 70)
+        push!(lines, "-"^70)
         push!(lines, "")
-        
+
         for (i, conflict) in enumerate(result.conflicts)
             push!(lines, "[$(i)] $(conflict.constraint_name)")
             push!(lines, "    Expression: $(conflict.expression)")
-            
+
             if conflict.lower_bound !== nothing || conflict.upper_bound !== nothing
                 bounds_str = "    Bounds: "
                 if conflict.lower_bound !== nothing
@@ -532,11 +542,11 @@ function write_iis_report(
             push!(lines, "")
         end
     end
-    
+
     # Troubleshooting section
-    push!(lines, "-" ^ 70)
+    push!(lines, "-"^70)
     push!(lines, "TROUBLESHOOTING GUIDE")
-    push!(lines, "-" ^ 70)
+    push!(lines, "-"^70)
     push!(lines, "")
     push!(lines, "Common causes of infeasibility in DESSEM models:")
     push!(lines, "")
@@ -565,18 +575,18 @@ function write_iis_report(
     push!(lines, "   - Initial state incompatible with requirements")
     push!(lines, "   - Ramp constraints too restrictive")
     push!(lines, "")
-    push!(lines, "=" ^ 70)
+    push!(lines, "="^70)
     push!(lines, "End of IIS Report")
-    push!(lines, "=" ^ 70)
-    
+    push!(lines, "="^70)
+
     # Write to file
     content = join(lines, "\n")
     open(filepath, "w") do f
         write(f, content)
     end
-    
+
     @info "IIS report written to: $filepath"
-    
+
     return filepath
 end
 

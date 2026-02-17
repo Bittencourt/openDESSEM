@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.7"
+julia_version = "1.11.9"
 manifest_format = "2.0"
-project_hash = "4f0a3b6d73e1303c56ae7bac0a278fc54dd90e32"
+project_hash = "73e6db968003ebce4261d422c851a310af9f92f0"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "f7304359109c768cf32dc5fa2d371565bb63b68a"
@@ -195,7 +195,7 @@ version = "2.6.1"
 
 [[deps.DESSEM2Julia]]
 deps = ["Colors", "Compose", "Dates", "GraphPlot", "Graphs", "JLD2", "Printf"]
-git-tree-sha1 = "babb082092cea659183e06326498288de1836cf7"
+git-tree-sha1 = "fcaf318449d5b938a934b681b7c1113459f5bf87"
 repo-rev = "main"
 repo-url = "https://github.com/Bittencourt/DESSEM2Julia.git"
 uuid = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"

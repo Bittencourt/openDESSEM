@@ -28,11 +28,11 @@ using Printf
 # ============================================================================
 
 mutable struct WizardState
-    config::Dict{String, Any}
+    config::Dict{String,Any}
     current_step::Int
     total_steps::Int
 
-    WizardState() = new(Dict{String, Any}(), 1, 9)
+    WizardState() = new(Dict{String,Any}(), 1, 9)
 end
 
 const wizard = WizardState()
@@ -47,9 +47,9 @@ const wizard = WizardState()
 Print a formatted header for the current step.
 """
 function print_header(title::String, step_num::Int, total_steps::Int)
-    println("\n", "=" ^ 70)
+    println("\n", "="^70)
     println("STEP \$step_num of \$total_steps: \$title")
-    println("=" ^ 70)
+    println("="^70)
 end
 
 """
@@ -119,9 +119,14 @@ Prompt user for numeric input with validation.
 # Returns
 The user's input or default value as the specified type
 """
-function prompt_number(prompt::String, default::Number;
-                       type::Type=Float64, min::Real=NaN, max::Real=NaN,
-                       integer::Bool=false)
+function prompt_number(
+    prompt::String,
+    default::Number;
+    type::Type = Float64,
+    min::Real = NaN,
+    max::Real = NaN,
+    integer::Bool = false,
+)
     default_str = string(default)
 
     # Build validation message
@@ -265,7 +270,7 @@ function prompt_list(prompt::String, item_type::String, n_items::Int)
     println("You will be asked to provide \$n_items \$item_type.\n")
 
     items = String[]
-    for i in 1:n_items
+    for i = 1:n_items
         print("  Enter name/ID for \$item_type #\$i: ")
         name = strip(readline())
         if isempty(name)
@@ -294,7 +299,6 @@ function show_help(topic::String)
         - Latitude: -23.5 (Sao Paulo)
         - Longitude: -46.6 (Sao Paulo)
         """,
-
         "submarket" => """
         SUBMARKET HELP:
         A submarket is a bidding zone or market region.
@@ -305,7 +309,6 @@ function show_help(topic::String)
         - NE: Nordeste (Northeast)
         - N: Norte (North)
         """,
-
         "thermal" => """
         THERMAL PLANT HELP:
         Thermal plants generate electricity from heat sources.
@@ -327,7 +330,6 @@ function show_help(topic::String)
         - Fuel cost: 50-300 R\$/MWh
         - Startup cost: 5000-50000 R\$
         """,
-
         "hydro" => """
         HYDRO PLANT HELP:
         Hydro plants generate electricity from water flow.
@@ -345,7 +347,6 @@ function show_help(topic::String)
         - Max generation: 50-500 MW
         - Water value: 30-100 R\$/hm³
         """,
-
         "renewable" => """
         RENEWABLE PLANT HELP:
         Wind and solar plants with variable output.
@@ -360,7 +361,6 @@ function show_help(topic::String)
         - Diurnal generation pattern
         - Zero output at night
         """,
-
         "solver" => """
         SOLVER OPTIONS HELP:
 
@@ -377,13 +377,13 @@ function show_help(topic::String)
         Threads: Number of CPU cores to use
         - 1: Single-threaded (default)
         - 4+: Multi-threaded (faster on large problems)
-        """
+        """,
     )
 
     if haskey(help_text, topic)
-        println("\n" * "-" ^ 70)
+        println("\n" * "-"^70)
         println(help_text[topic])
-        println("-" ^ 70)
+        println("-"^70)
     else
         println("\n⚠ No help available for '\$topic'")
     end
@@ -406,10 +406,7 @@ function step_1_system_basics()
     println("Type 'quit' at any time to exit.\n")
 
     # System name
-    wizard.config["system_name"] = prompt(
-        "Enter a name for your system",
-        "My Power System"
-    )
+    wizard.config["system_name"] = prompt("Enter a name for your system", "My Power System")
 
     # Base date
     print("\nEnter the base date (simulation start date)")
@@ -431,10 +428,10 @@ function step_1_system_basics()
     wizard.config["time_periods"] = prompt_number(
         "How many time periods (hours) to simulate?",
         24;
-        type=Int,
-        min=1,
-        max=168,
-        integer=true
+        type = Int,
+        min = 1,
+        max = 168,
+        integer = true,
     )
 
     println("\n✓ System basics configured")
@@ -457,20 +454,17 @@ function step_2_buses()
     n_buses = prompt_number(
         "How many buses do you want?",
         3;
-        type=Int,
-        min=1,
-        max=100,
-        integer=true
+        type = Int,
+        min = 1,
+        max = 100,
+        integer = true,
     )
 
     wizard.config["n_buses"] = n_buses
 
     # Quick mode: create with defaults
     if n_buses <= 5
-        create_simple = prompt_yes_no(
-            "Create buses with default settings?",
-            true
-        )
+        create_simple = prompt_yes_no("Create buses with default settings?", true)
 
         if create_simple
             wizard.config["buses"] = create_default_buses(n_buses)
@@ -487,7 +481,7 @@ function step_2_buses()
     default_voltage = prompt_choice(
         "Select default voltage level:",
         ["69 kV", "138 kV", "230 kV", "345 kV", "500 kV", "765 kV"],
-        3
+        3,
     )
     wizard.config["bus_voltage"] = parse(Float64, split(default_voltage)[1])
 
@@ -504,7 +498,7 @@ function create_default_buses(n::Int)
     regions = ["North", "Center", "South", "East", "West"]
     voltages = [230.0, 345.0, 500.0, 138.0, 69.0]
 
-    for i in 1:n
+    for i = 1:n
         idx = min(i, length(regions))
         bus = Bus(;
             id = "BUS_\$(i)",
@@ -512,7 +506,7 @@ function create_default_buses(n::Int)
             voltage_kv = voltages[idx],
             base_kv = voltages[idx],
             latitude = -23.5 + (i * 0.5),
-            longitude = -46.6 + (i * 0.5)
+            longitude = -46.6 + (i * 0.5),
         )
         push!(buses, bus)
     end
@@ -534,19 +528,16 @@ function step_3_submarkets()
     n_submarkets = prompt_number(
         "How many submarkets (bidding zones)?",
         min(3, wizard.config["n_buses"]);
-        type=Int,
-        min=1,
-        max=10,
-        integer=true
+        type = Int,
+        min = 1,
+        max = 10,
+        integer = true,
     )
 
     wizard.config["n_submarkets"] = n_submarkets
 
     # Quick creation
-    create_simple = prompt_yes_no(
-        "Create submarkets with default settings?",
-        true
-    )
+    create_simple = prompt_yes_no("Create submarkets with default settings?", true)
 
     if create_simple
         wizard.config["submarkets"] = create_default_submarkets(n_submarkets)
@@ -569,13 +560,13 @@ function create_default_submarkets(n::Int)
     codes = ["N", "NE", "SE", "S"]
     names = ["North", "Northeast", "Southeast", "South"]
 
-    for i in 1:n
+    for i = 1:n
         idx = min(i, length(codes))
         sub = Submarket(;
             id = "SUB_\$(i)",
             code = codes[idx],
             name = "\$(names[idx]) Region",
-            country = "BR"
+            country = "BR",
         )
         push!(submarkets, sub)
     end
@@ -596,10 +587,10 @@ function step_4_thermal_plants()
     n_thermal = prompt_number(
         "How many thermal plants?",
         3;
-        type=Int,
-        min=0,
-        max=50,
-        integer=true
+        type = Int,
+        min = 0,
+        max = 50,
+        integer = true,
     )
 
     wizard.config["n_thermal"] = n_thermal
@@ -611,16 +602,13 @@ function step_4_thermal_plants()
     end
 
     # Quick creation
-    create_simple = prompt_yes_no(
-        "Create thermal plants with default settings?",
-        true
-    )
+    create_simple = prompt_yes_no("Create thermal plants with default settings?", true)
 
     if create_simple
         wizard.config["thermal_plants"] = create_default_thermal_plants(
             n_thermal,
             wizard.config["bus_names"],
-            wizard.config["submarkets"]
+            wizard.config["submarkets"],
         )
         println("\n✓ Created \$n_thermal thermal plants with default settings")
         return
@@ -630,7 +618,7 @@ function step_4_thermal_plants()
     wizard.config["thermal_plants"] = create_default_thermal_plants(
         n_thermal,
         wizard.config["bus_names"],
-        wizard.config["submarkets"]
+        wizard.config["submarkets"],
     )
     println("\n✓ Thermal plants configured")
 end
@@ -641,14 +629,17 @@ end
 
 Create default thermal plants with diverse characteristics.
 """
-function create_default_thermal_plants(n::Int, bus_names::Vector{String},
-                                       submarkets::Vector{Submarket})
+function create_default_thermal_plants(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+)
     plants = ConventionalThermal[]
     fuel_types = [COAL, NATURAL_GAS, NATURAL_GAS]
     capacities = [500.0, 300.0, 200.0]
     costs = [80.0, 120.0, 200.0]
 
-    for i in 1:n
+    for i = 1:n
         idx = min(i, length(fuel_types))
         bus_idx = min(i, length(bus_names))
         sub_idx = min(i, length(submarkets))
@@ -669,7 +660,7 @@ function create_default_thermal_plants(n::Int, bus_names::Vector{String},
             fuel_cost_rsj_per_mwh = costs[idx],
             startup_cost_rs = 50000.0 - idx * 15000.0,
             shutdown_cost_rs = 20000.0 - idx * 5000.0,
-            commissioning_date = DateTime(2010, 6, 1, 0, 0, 0)
+            commissioning_date = DateTime(2010, 6, 1, 0, 0, 0),
         )
         push!(plants, plant)
     end
@@ -690,10 +681,10 @@ function step_5_hydro_plants()
     n_hydro = prompt_number(
         "How many hydro plants?",
         1;
-        type=Int,
-        min=0,
-        max=50,
-        integer=true
+        type = Int,
+        min = 0,
+        max = 50,
+        integer = true,
     )
 
     wizard.config["n_hydro"] = n_hydro
@@ -705,16 +696,13 @@ function step_5_hydro_plants()
     end
 
     # Quick creation
-    create_simple = prompt_yes_no(
-        "Create hydro plants with default settings?",
-        true
-    )
+    create_simple = prompt_yes_no("Create hydro plants with default settings?", true)
 
     if create_simple
         wizard.config["hydro_plants"] = create_default_hydro_plants(
             n_hydro,
             wizard.config["bus_names"],
-            wizard.config["submarkets"]
+            wizard.config["submarkets"],
         )
         println("\n✓ Created \$n_hydro hydro plants with default settings")
         return
@@ -723,7 +711,7 @@ function step_5_hydro_plants()
     wizard.config["hydro_plants"] = create_default_hydro_plants(
         n_hydro,
         wizard.config["bus_names"],
-        wizard.config["submarkets"]
+        wizard.config["submarkets"],
     )
     println("\n✓ Hydro plants configured")
 end
@@ -734,11 +722,14 @@ end
 
 Create default hydro plants.
 """
-function create_default_hydro_plants(n::Int, bus_names::Vector{String},
-                                     submarkets::Vector{Submarket})
+function create_default_hydro_plants(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+)
     plants = ReservoirHydro[]
 
-    for i in 1:n
+    for i = 1:n
         bus_idx = min(i + 1, length(bus_names))
         sub_idx = min(i + 1, length(submarkets))
 
@@ -757,7 +748,7 @@ function create_default_hydro_plants(n::Int, bus_names::Vector{String},
             min_generation_mw = 50.0,
             water_value_rs_per_hm3 = 50.0,
             subsystem_code = i,
-            initial_volume_percent = 50.0
+            initial_volume_percent = 50.0,
         )
         push!(plants, plant)
     end
@@ -775,37 +766,31 @@ function step_6_renewables()
 
     show_help("renewable")
 
-    has_wind = prompt_yes_no(
-        "Include wind farms?",
-        true
-    )
+    has_wind = prompt_yes_no("Include wind farms?", true)
 
     n_wind = 0
     if has_wind
         n_wind = prompt_number(
             "How many wind farms?",
             1;
-            type=Int,
-            min=1,
-            max=20,
-            integer=true
+            type = Int,
+            min = 1,
+            max = 20,
+            integer = true,
         )
     end
 
-    has_solar = prompt_yes_no(
-        "Include solar farms?",
-        false
-    )
+    has_solar = prompt_yes_no("Include solar farms?", false)
 
     n_solar = 0
     if has_solar
         n_solar = prompt_number(
             "How many solar farms?",
             1;
-            type=Int,
-            min=1,
-            max=20,
-            integer=true
+            type = Int,
+            min = 1,
+            max = 20,
+            integer = true,
         )
     end
 
@@ -813,13 +798,27 @@ function step_6_renewables()
     wizard.config["n_solar"] = n_solar
 
     # Create defaults
-    wind_farms = n_wind > 0 ? create_default_wind_farms(n_wind, wizard.config["bus_names"], wizard.config["submarkets"]) : WindPlant[]
-    solar_farms = n_solar > 0 ? create_default_solar_farms(n_solar, wizard.config["bus_names"], wizard.config["submarkets"]) : SolarPlant[]
+    wind_farms =
+        n_wind > 0 ?
+        create_default_wind_farms(
+            n_wind,
+            wizard.config["bus_names"],
+            wizard.config["submarkets"],
+        ) : WindPlant[]
+    solar_farms =
+        n_solar > 0 ?
+        create_default_solar_farms(
+            n_solar,
+            wizard.config["bus_names"],
+            wizard.config["submarkets"],
+        ) : SolarPlant[]
 
     wizard.config["wind_farms"] = wind_farms
     wizard.config["solar_farms"] = solar_farms
 
-    println("\n✓ Renewables configured (\$(length(wind_farms)) wind, \$(length(solar_farms)) solar)")
+    println(
+        "\n✓ Renewables configured (\$(length(wind_farms)) wind, \$(length(solar_farms)) solar)",
+    )
 end
 
 """
@@ -828,13 +827,16 @@ end
 
 Create default wind farms.
 """
-function create_default_wind_farms(n::Int, bus_names::Vector{String},
-                                   submarkets::Vector{Submarket})
+function create_default_wind_farms(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+)
     farms = WindPlant[]
     n_bus = length(bus_names)
     n_sub = length(submarkets)
 
-    for i in 1:n
+    for i = 1:n
         bus_idx = min(n_bus - i + 1, n_bus)
         sub_idx = min(n_bus - i + 1, n_sub)
 
@@ -845,7 +847,7 @@ function create_default_wind_farms(n::Int, bus_names::Vector{String},
             submarket_id = submarkets[sub_idx].code,
             capacity_mw = 150.0,
             forecast_type = DETERMINISTIC,
-            is_dispatchable = false
+            is_dispatchable = false,
         )
         push!(farms, farm)
     end
@@ -859,13 +861,16 @@ end
 
 Create default solar farms.
 """
-function create_default_solar_farms(n::Int, bus_names::Vector{String},
-                                    submarkets::Vector{Submarket})
+function create_default_solar_farms(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+)
     farms = SolarPlant[]
     n_bus = length(bus_names)
     n_sub = length(submarkets)
 
-    for i in 1:n
+    for i = 1:n
         bus_idx = min(i, n_bus)
         sub_idx = min(i, n_sub)
 
@@ -876,7 +881,7 @@ function create_default_solar_farms(n::Int, bus_names::Vector{String},
             submarket_id = submarkets[sub_idx].code,
             capacity_mw = 100.0,
             forecast_type = DETERMINISTIC,
-            is_dispatchable = false
+            is_dispatchable = false,
         )
         push!(farms, farm)
     end
@@ -895,19 +900,16 @@ function step_7_loads()
     n_loads = prompt_number(
         "How many loads?",
         wizard.config["n_buses"];
-        type=Int,
-        min=1,
-        max=50,
-        integer=true
+        type = Int,
+        min = 1,
+        max = 50,
+        integer = true,
     )
 
     wizard.config["n_loads"] = n_loads
 
     # Quick creation
-    create_simple = prompt_yes_no(
-        "Create loads with default patterns?",
-        true
-    )
+    create_simple = prompt_yes_no("Create loads with default patterns?", true)
 
     n_hours = wizard.config["time_periods"]
 
@@ -916,7 +918,7 @@ function step_7_loads()
             n_loads,
             wizard.config["bus_names"],
             wizard.config["submarkets"],
-            n_hours
+            n_hours,
         )
         println("\n✓ Created \$n_loads loads with default patterns")
         return
@@ -926,7 +928,7 @@ function step_7_loads()
         n_loads,
         wizard.config["bus_names"],
         wizard.config["submarkets"],
-        n_hours
+        n_hours,
     )
     println("\n✓ Loads configured")
 end
@@ -937,11 +939,15 @@ end
 
 Create default loads with time-varying patterns.
 """
-function create_default_loads(n::Int, bus_names::Vector{String},
-                              submarkets::Vector{Submarket}, n_hours::Int)
+function create_default_loads(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+    n_hours::Int,
+)
     loads = Load[]
 
-    for i in 1:n
+    for i = 1:n
         bus_idx = min(i, length(bus_names))
         sub_idx = min(i, length(submarkets))
 
@@ -953,13 +959,13 @@ function create_default_loads(n::Int, bus_names::Vector{String},
             # Daytime commercial peak
             profile = vcat(fill(300.0, 6), fill(500.0, 12), fill(400.0, 6))
             if n_hours > 24
-                profile = repeat(profile, outer=ceil(Int, n_hours/24))[1:n_hours]
+                profile = repeat(profile, outer = ceil(Int, n_hours / 24))[1:n_hours]
             end
         else
             # Residential evening peak
             profile = vcat(fill(200.0, 12), fill(350.0, 6), fill(250.0, 6))
             if n_hours > 24
-                profile = repeat(profile, outer=ceil(Int, n_hours/24))[1:n_hours]
+                profile = repeat(profile, outer = ceil(Int, n_hours / 24))[1:n_hours]
             end
         end
 
@@ -969,7 +975,7 @@ function create_default_loads(n::Int, bus_names::Vector{String},
             bus_id = bus_names[bus_idx],
             submarket_id = submarkets[sub_idx].code,
             base_mw = maximum(profile),
-            load_profile = profile
+            load_profile = profile,
         )
         push!(loads, load)
     end
@@ -999,10 +1005,10 @@ function step_8_interconnections()
     n_connections = prompt_number(
         "How many interconnections between buses?",
         min(n_buses - 1, max_connections);
-        type=Int,
-        min=0,
-        max=max_connections,
-        integer=true
+        type = Int,
+        min = 0,
+        max = max_connections,
+        integer = true,
     )
 
     if n_connections == 0
@@ -1012,16 +1018,13 @@ function step_8_interconnections()
     end
 
     # Quick creation
-    create_simple = prompt_yes_no(
-        "Create interconnections with default settings?",
-        true
-    )
+    create_simple = prompt_yes_no("Create interconnections with default settings?", true)
 
     if create_simple
         wizard.config["interconnections"] = create_default_interconnections(
             n_connections,
             wizard.config["bus_names"],
-            wizard.config["submarkets"]
+            wizard.config["submarkets"],
         )
         println("\n✓ Created \$n_connections interconnections")
         return
@@ -1030,7 +1033,7 @@ function step_8_interconnections()
     wizard.config["interconnections"] = create_default_interconnections(
         n_connections,
         wizard.config["bus_names"],
-        wizard.config["submarkets"]
+        wizard.config["submarkets"],
     )
     println("\n✓ Interconnections configured")
 end
@@ -1041,14 +1044,17 @@ end
 
 Create default interconnections.
 """
-function create_default_interconnections(n::Int, bus_names::Vector{String},
-                                         submarkets::Vector{Submarket})
+function create_default_interconnections(
+    n::Int,
+    bus_names::Vector{String},
+    submarkets::Vector{Submarket},
+)
     connections = Interconnection[]
     n_bus = length(bus_names)
     n_sub = length(submarkets)
 
     # Connect adjacent buses
-    for i in 1:min(n, n_bus - 1)
+    for i = 1:min(n, n_bus - 1)
         from_bus = bus_names[i]
         to_bus = bus_names[min(i + 1, n_bus)]
         from_sub = submarkets[min(i, n_sub)].code
@@ -1062,7 +1068,7 @@ function create_default_interconnections(n::Int, bus_names::Vector{String},
             from_submarket_id = from_sub,
             to_submarket_id = to_sub,
             capacity_mw = 200.0,
-            loss_percent = 2.0
+            loss_percent = 2.0,
         )
         push!(connections, conn)
     end
@@ -1084,28 +1090,28 @@ function step_9_solver_options()
     time_limit = prompt_number(
         "Maximum solve time (seconds)?",
         300.0;
-        type=Float64,
-        min=10.0,
-        max=7200.0
+        type = Float64,
+        min = 10.0,
+        max = 7200.0,
     )
 
     # MIP gap
     mip_gap = prompt_number(
         "Relative MIP gap (0.01 = 1%)?",
         0.01;
-        type=Float64,
-        min=0.0,
-        max=1.0
+        type = Float64,
+        min = 0.0,
+        max = 1.0,
     )
 
     # Threads
     threads = prompt_number(
         "Number of threads (1 for single-threaded)?",
         1;
-        type=Int,
-        min=1,
-        max=16,
-        integer=true
+        type = Int,
+        min = 1,
+        max = 16,
+        integer = true,
     )
 
     wizard.config["time_limit"] = time_limit
@@ -1125,9 +1131,9 @@ end
 Display a summary of the configured system.
 """
 function display_summary()
-    println("\n", "=" ^ 70)
+    println("\n", "="^70)
     println("SYSTEM CONFIGURATION SUMMARY")
-    println("=" ^ 70)
+    println("="^70)
 
     println("\nSystem: ", wizard.config["system_name"])
     println("Base Date: ", wizard.config["base_date"])
@@ -1152,7 +1158,7 @@ function display_summary()
     println("  MIP Gap: ", wizard.config["mip_gap"])
     println("  Threads: ", wizard.config["threads"])
 
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
 end
 
 """
@@ -1176,13 +1182,9 @@ function build_system()::ElectricitySystem
 
     for farm in wind_farms
         # Simple wind forecast: higher during day
-        forecast = vcat(
-            fill(50.0, 6),
-            fill(120.0, 12),
-            fill(80.0, 6)
-        )
+        forecast = vcat(fill(50.0, 6), fill(120.0, 12), fill(80.0, 6))
         if n_hours > 24
-            forecast = repeat(forecast, outer=ceil(Int, n_hours/24))[1:n_hours]
+            forecast = repeat(forecast, outer = ceil(Int, n_hours / 24))[1:n_hours]
         end
         farm.capacity_forecast = forecast
     end
@@ -1196,13 +1198,13 @@ function build_system()::ElectricitySystem
 
         base_profile = vcat(
             fill(0.0, 6),   # Night
-            range(0, 100, length=6),  # Morning ramp
-            range(100, 100, length=4),  # Peak
-            range(100, 0, length=4),  # Evening decline
-            fill(0.0, 4)    # Night
+            range(0, 100, length = 6),  # Morning ramp
+            range(100, 100, length = 4),  # Peak
+            range(100, 0, length = 4),  # Evening decline
+            fill(0.0, 4),    # Night
         )
 
-        forecast = repeat(base_profile, outer=ceil(Int, n_hours/24))[1:n_hours]
+        forecast = repeat(base_profile, outer = ceil(Int, n_hours / 24))[1:n_hours]
         farm.capacity_forecast = forecast
     end
 
@@ -1216,7 +1218,7 @@ function build_system()::ElectricitySystem
         solar_farms = solar_farms,
         loads = loads,
         interconnections = interconnections,
-        base_date = wizard.config["base_date"]
+        base_date = wizard.config["base_date"],
     )
 
     return system
@@ -1228,9 +1230,9 @@ end
 Run the optimization with configured solver options.
 """
 function run_optimization(system::ElectricitySystem)
-    println("\n", "=" ^ 70)
+    println("\n", "="^70)
     println("RUNNING OPTIMIZATION")
-    println("=" ^ 70)
+    println("="^70)
 
     time_periods = 1:wizard.config["time_periods"]
 
@@ -1251,11 +1253,11 @@ function run_optimization(system::ElectricitySystem)
             metadata = ConstraintMetadata(;
                 name = "Thermal Unit Commitment",
                 description = "UC constraints for thermal plants",
-                priority = 10
+                priority = 10,
             ),
             include_ramp_rates = true,
             include_min_up_down = true,
-            initial_commitment = Dict(p.id => false for p in system.thermal_plants)
+            initial_commitment = Dict(p.id => false for p in system.thermal_plants),
         )
         build!(model, system, thermal_uc)
     end
@@ -1266,8 +1268,8 @@ function run_optimization(system::ElectricitySystem)
             metadata = ConstraintMetadata(;
                 name = "Hydro Water Balance",
                 description = "Water balance for hydro plants",
-                priority = 10
-            )
+                priority = 10,
+            ),
         )
         build!(model, system, hydro_constraint)
     end
@@ -1278,8 +1280,8 @@ function run_optimization(system::ElectricitySystem)
             metadata = ConstraintMetadata(;
                 name = "Renewable Limits",
                 description = "Wind/solar generation limits",
-                priority = 10
-            )
+                priority = 10,
+            ),
         )
         build!(model, system, renewable_constraint)
     end
@@ -1289,8 +1291,8 @@ function run_optimization(system::ElectricitySystem)
         metadata = ConstraintMetadata(;
             name = "Submarket Energy Balance",
             description = "Energy balance for LMP calculation",
-            priority = 10
-        )
+            priority = 10,
+        ),
     )
     build!(model, system, balance_constraint)
 
@@ -1307,10 +1309,12 @@ function run_optimization(system::ElectricitySystem)
         startup_costs[plant.id] = fill(plant.startup_cost_rs, n_hours)
     end
 
-    build_objective!(model, system;
+    build_objective!(
+        model,
+        system;
         fuel_costs = fuel_costs,
         startup_costs = startup_costs,
-        shutdown_costs = Dict{String,Vector{Float64}}()
+        shutdown_costs = Dict{String,Vector{Float64}}(),
     )
 
     # Solve
@@ -1320,13 +1324,11 @@ function run_optimization(system::ElectricitySystem)
         time_limit_seconds = wizard.config["time_limit"],
         mip_gap = wizard.config["mip_gap"],
         threads = wizard.config["threads"],
-        verbose = false
+        verbose = false,
     )
 
-    result = compute_two_stage_lmps(
-        model, system, HiGHS.Optimizer;
-        options = solver_options
-    )
+    result =
+        compute_two_stage_lmps(model, system, HiGHS.Optimizer; options = solver_options)
 
     return result
 end
@@ -1337,9 +1339,9 @@ end
 Display optimization results.
 """
 function display_results(uc_result, sced_result, system)
-    println("\n", "=" ^ 70)
+    println("\n", "="^70)
     println("OPTIMIZATION RESULTS")
-    println("=" ^ 70)
+    println("="^70)
 
     if sced_result !== nothing && is_optimal(sced_result)
         println("\n✓ Optimization successful!")
@@ -1349,7 +1351,7 @@ function display_results(uc_result, sced_result, system)
         @printf("  Stage 2 Solve Time: %.2f seconds\n", sced_result.solve_time_seconds)
 
         # Show LMPs
-        println("\n" * "-" ^ 70)
+        println("\n" * "-"^70)
         println("LOCATIONAL MARGINAL PRICES (LMP)")
         println("-" * 70)
 
@@ -1377,7 +1379,7 @@ function display_results(uc_result, sced_result, system)
         println("\n✗ Optimization failed or did not converge")
     end
 
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
 end
 
 """
@@ -1387,9 +1389,9 @@ Main wizard orchestration function.
 """
 function run_wizard()
     println("\n")
-    println("╔" * "=" ^ 68 * "╗")
-    println("║" * " " ^ 15 * "OpenDESSEM System Builder Wizard" * " " ^ 21 * "║")
-    println("╚" * "=" ^ 68 * "╝")
+    println("╔" * "="^68 * "╗")
+    println("║" * " "^15 * "OpenDESSEM System Builder Wizard" * " "^21 * "║")
+    println("╚" * "="^68 * "╝")
 
     try
         # Run all steps
@@ -1407,10 +1409,7 @@ function run_wizard()
         display_summary()
 
         # Confirm
-        proceed = prompt_yes_no(
-            "\nProceed to build and solve the system?",
-            true
-        )
+        proceed = prompt_yes_no("\nProceed to build and solve the system?", true)
 
         if !proceed
             println("\n✗ Wizard cancelled by user")
@@ -1449,9 +1448,9 @@ end
 Create a simple system with minimal interaction.
 """
 function quick_start()
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("QUICK START MODE - Creating Simple 3-Bus System")
-    println("=" ^ 70)
+    println("="^70)
 
     # Pre-configure wizard
     wizard.config["system_name"] = "Quick Start System"
@@ -1469,28 +1468,39 @@ function quick_start()
 
     wizard.config["n_thermal"] = 3
     wizard.config["thermal_plants"] = create_default_thermal_plants(
-        3, ["BUS_1", "BUS_2", "BUS_3"], wizard.config["submarkets"]
+        3,
+        ["BUS_1", "BUS_2", "BUS_3"],
+        wizard.config["submarkets"],
     )
 
     wizard.config["n_hydro"] = 1
     wizard.config["hydro_plants"] = create_default_hydro_plants(
-        1, ["BUS_1", "BUS_2", "BUS_3"], wizard.config["submarkets"]
+        1,
+        ["BUS_1", "BUS_2", "BUS_3"],
+        wizard.config["submarkets"],
     )
 
     wizard.config["n_wind"] = 1
     wizard.config["n_solar"] = 0
     wizard.config["wind_farms"] = create_default_wind_farms(
-        1, ["BUS_1", "BUS_2", "BUS_3"], wizard.config["submarkets"]
+        1,
+        ["BUS_1", "BUS_2", "BUS_3"],
+        wizard.config["submarkets"],
     )
     wizard.config["solar_farms"] = SolarPlant[]
 
     wizard.config["n_loads"] = 3
     wizard.config["loads"] = create_default_loads(
-        3, ["BUS_1", "BUS_2", "BUS_3"], wizard.config["submarkets"], 24
+        3,
+        ["BUS_1", "BUS_2", "BUS_3"],
+        wizard.config["submarkets"],
+        24,
     )
 
     wizard.config["interconnections"] = create_default_interconnections(
-        2, ["BUS_1", "BUS_2", "BUS_3"], wizard.config["submarkets"]
+        2,
+        ["BUS_1", "BUS_2", "BUS_3"],
+        wizard.config["submarkets"],
     )
 
     wizard.config["time_limit"] = 300.0
@@ -1515,9 +1525,9 @@ end
 # MAIN ENTRY POINT
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("OpenDESSEM System Builder Wizard")
-println("=" ^ 70)
+println("="^70)
 
 println("\nChoose your mode:")
 println("  1. Interactive Wizard (guided step-by-step)")

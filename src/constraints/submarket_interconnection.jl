@@ -55,9 +55,9 @@ function build!(
 
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="SubmarketInterconnectionConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "SubmarketInterconnectionConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
@@ -70,10 +70,10 @@ function build!(
 
     if isempty(lines)
         return ConstraintBuildResult(;
-            constraint_type="SubmarketInterconnectionConstraint",
-            success=true,
-            num_constraints=0,
-            message="No interconnection lines to constrain",
+            constraint_type = "SubmarketInterconnectionConstraint",
+            success = true,
+            num_constraints = 0,
+            message = "No interconnection lines to constrain",
         )
     end
 
@@ -100,11 +100,11 @@ function build!(
     build_time = time() - start_time
 
     return ConstraintBuildResult(;
-        constraint_type="SubmarketInterconnectionConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints interconnection constraints",
+        constraint_type = "SubmarketInterconnectionConstraint",
+        num_constraints = num_constraints,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints interconnection constraints",
     )
 end
 

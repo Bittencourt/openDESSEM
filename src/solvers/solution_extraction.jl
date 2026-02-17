@@ -2,7 +2,21 @@
     Solution Extraction
 
 Functions for extracting solution values and dual values from solved models.
+
+# Scaling Notes
+The objective function uses COST_SCALE (1e-6) to prevent solver instability.
+Dual values (PLDs) from the solver are in scaled space and must be 
+multiplied by 1/COST_SCALE = 1e6 to get actual R\$/MWh values.
 """
+
+"""
+    PLD_SCALE
+
+Scaling factor to convert solver dual values (in scaled objective space)
+to actual PLDs in R\$/MWh. This is the inverse of COST_SCALE used in the
+objective function.
+"""
+const PLD_SCALE = 1e6
 
 """
     extract_solution_values!(
@@ -48,7 +62,8 @@ function extract_solution_values!(
     obj_dict = object_dictionary(model)
     thermal_indices = get(obj_dict, :thermal_indices, get_thermal_plant_indices(system))
     hydro_indices = get(obj_dict, :hydro_indices, get_hydro_plant_indices(system))
-    renewable_indices = get(obj_dict, :renewable_indices, get_renewable_plant_indices(system))
+    renewable_indices =
+        get(obj_dict, :renewable_indices, get_renewable_plant_indices(system))
 
     # Extract thermal generation
     if haskey(model, :g)
@@ -392,7 +407,8 @@ function get_submarket_lmps(
     for t in time_periods
         key = (submarket_id, t)
         if haskey(sb_dict, key)
-            push!(lmps, sb_dict[key])
+            # Scale dual from solver space (1e-6 * R$/MW) to actual R$/MWh
+            push!(lmps, sb_dict[key] * PLD_SCALE)
         else
             push!(lmps, 0.0)
         end
@@ -644,11 +660,7 @@ function get_pld_dataframe(
     time_periods::Union{UnitRange{Int},Nothing} = nothing,
 )
     # Create empty DataFrame with correct schema
-    empty_df = DataFrame(;
-        submarket = String[],
-        period = Int[],
-        pld = Float64[],
-    )
+    empty_df = DataFrame(; submarket = String[], period = Int[], pld = Float64[])
 
     # Check if dual values are available
     if !result.has_duals
@@ -677,14 +689,15 @@ function get_pld_dataframe(
             continue
         end
 
-        push!(rows, (submarket = submarket_code, period = t, pld = pld_value))
+        # Scale PLD from solver space to actual R$/MWh
+        push!(rows, (submarket = submarket_code, period = t, pld = pld_value * PLD_SCALE))
     end
 
     # Handle empty results gracefully
     if isempty(rows)
         if submarkets !== nothing || time_periods !== nothing
-            @warn "No PLD values found for specified filters" submarkets =
-                submarkets time_periods = time_periods
+            @warn "No PLD values found for specified filters" submarkets = submarkets time_periods =
+                time_periods
         end
         return empty_df
     end
@@ -892,7 +905,12 @@ function get_cost_breakdown(
     hydro_water_value = 0.0
 
     # Total cost
-    total = thermal_fuel + thermal_startup + thermal_shutdown + deficit_penalty + hydro_water_value
+    total =
+        thermal_fuel +
+        thermal_startup +
+        thermal_shutdown +
+        deficit_penalty +
+        hydro_water_value
 
     return CostBreakdown(;
         thermal_fuel = thermal_fuel,

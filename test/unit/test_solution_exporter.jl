@@ -18,11 +18,8 @@ using JSON3
 
 using OpenDESSEM
 using OpenDESSEM.Solvers
-using OpenDESSEM.Solvers:
-    SolverResult, OPTIMAL,
-    solve_model!
-using OpenDESSEM.Analysis:
-    export_csv, export_json
+using OpenDESSEM.Solvers: SolverResult, OPTIMAL, solve_model!
+using OpenDESSEM.Analysis: export_csv, export_json
 
 # Include small system factory
 include(joinpath(@__DIR__, "..", "fixtures", "small_system.jl"))
@@ -160,7 +157,8 @@ using .SmallSystemFactory: create_small_test_system
             vars = get(json, :variables, get(json, "variables", nothing))
             @test vars !== nothing
             if vars !== nothing
-                tg = get(vars, :thermal_generation, get(vars, "thermal_generation", nothing))
+                tg =
+                    get(vars, :thermal_generation, get(vars, "thermal_generation", nothing))
                 @test tg !== nothing
             end
         end

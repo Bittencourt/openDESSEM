@@ -7,7 +7,7 @@ Implements energy balance for the 4 Brazilian submarkets:
 - Northeast (NE)
 - North (N)
 
-Each submarket must balance generation, load, and interconnections.
+Each submarket must balance generation, load, deficit, and interconnections.
 """
 
 # Note: JuMP, Dates, and all entity/constraint types are imported in parent Constraints.jl module
@@ -22,29 +22,34 @@ Energy balance constraints for submarkets.
 - `submarket_ids::Vector{String}`: Specific submarket IDs to constrain (empty = all)
 - `use_time_periods::Union{Nothing, UnitRange{Int}, Vector{Int}}`: Time periods to constrain
 - `include_renewables::Bool`: Include renewable generation in balance (default true)
+- `include_deficit::Bool`: Add deficit slack variable to generation side (default true)
+- `include_interconnections::Bool`: Add interconnection flow terms (default true)
 
 # Constraints Added
 
 For each submarket `sm` and time period `t`:
 ```
-sum(thermal[g in sm] + hydro[h in sm] + renewable[r in sm]) - load[sm, t] =
-    sum(interconnection_in[from_sm, sm, t]) - sum(interconnection_out[sm, to_sm, t])
+gen(sm,t) + deficit(sm,t) + sum(imports) - sum(exports*(1-loss)) - load(sm,t) = 0
 ```
 
-Or more simply:
-```
-generation[sm, t] - load[sm, t] = net_import[sm, t]
-```
+Where:
+- `gen(sm,t)` = thermal + hydro + renewable generation in submarket
+- `deficit(sm,t)` = energy deficit variable (from create_deficit_variables!)
+- imports = ic_flow[ic,t] for interconnections where to_submarket == sm
+- exports = ic_flow[ic,t] * (1 - loss/100) for interconnections where from_submarket == sm
+- Positive flow = from → to direction
 
 # Example
 ```julia
 constraint = SubmarketBalanceConstraint(;
     metadata=ConstraintMetadata(;
         name="Submarket Energy Balance",
-        description="4-submarket energy balance",
+        description="4-submarket energy balance with deficit and interconnections",
         priority=10
     ),
-    include_renewables=true
+    include_renewables=true,
+    include_deficit=true,
+    include_interconnections=true
 )
 
 result = build!(model, system, constraint)
@@ -55,6 +60,8 @@ Base.@kwdef struct SubmarketBalanceConstraint <: AbstractConstraint
     submarket_ids::Vector{String} = String[]
     use_time_periods::Union{Nothing,UnitRange{Int},Vector{Int}} = nothing
     include_renewables::Bool = true
+    include_deficit::Bool = true
+    include_interconnections::Bool = true
 end
 
 """
@@ -74,7 +81,11 @@ Build submarket energy balance constraints.
 - `g[i,t]`: Thermal generation
 - `gh[i,t]`: Hydro generation
 - `gr[i,t]`: Renewable generation
+- `deficit[s,t]`: Energy deficit per submarket (if include_deficit=true)
 - Load data from system
+
+# Variables Created
+- `ic_flow[ic,t]`: Interconnection flow variables (if include_interconnections=true)
 """
 function build!(
     model::Model,
@@ -83,14 +94,15 @@ function build!(
 )
     start_time = time()
     num_constraints = 0
+    num_variables = 0
     warnings = String[]
 
     # Validate system
     if !validate_constraint_system(system)
         return ConstraintBuildResult(;
-            constraint_type="SubmarketBalanceConstraint",
-            success=false,
-            message="System validation failed",
+            constraint_type = "SubmarketBalanceConstraint",
+            success = false,
+            message = "System validation failed",
         )
     end
 
@@ -105,9 +117,9 @@ function build!(
     if isempty(submarkets)
         @warn "No submarkets found for constraint building"
         return ConstraintBuildResult(;
-            constraint_type="SubmarketBalanceConstraint",
-            success=false,
-            message="No submarkets found",
+            constraint_type = "SubmarketBalanceConstraint",
+            success = false,
+            message = "No submarkets found",
         )
     end
 
@@ -123,12 +135,47 @@ function build!(
         constraint.use_time_periods
     end
 
-    @info "Building submarket balance constraints" num_submarkets=length(submarkets) num_periods=length(time_periods)
+    @info "Building submarket balance constraints" num_submarkets = length(submarkets) num_periods =
+        length(time_periods) include_deficit = constraint.include_deficit include_interconnections =
+        constraint.include_interconnections
 
     # Initialize constraint storage for LMP extraction
     if !haskey(model, :submarket_balance)
-        model[:submarket_balance] = Dict{Tuple{String, Int}, ConstraintRef}()
+        model[:submarket_balance] = Dict{Tuple{String,Int},ConstraintRef}()
     end
+
+    # === Create interconnection flow variables if needed ===
+    interconnections = system.interconnections
+    sm_codes = Set(sm.code for sm in submarkets)
+
+    # Filter to interconnections relevant to our submarkets
+    relevant_ics = if constraint.include_interconnections && !isempty(interconnections)
+        [
+            ic for ic in interconnections if
+            ic.from_submarket_id in sm_codes || ic.to_submarket_id in sm_codes
+        ]
+    else
+        Interconnection[]
+    end
+
+    if !isempty(relevant_ics) && constraint.include_interconnections
+        if !haskey(object_dictionary(model), :ic_flow)
+            n_ics = length(relevant_ics)
+            n_periods = length(time_periods)
+            @variable(
+                model,
+                ic_flow[ic_idx = 1:n_ics, t = 1:n_periods],
+                lower_bound = -relevant_ics[ic_idx].capacity_mw,
+                upper_bound = relevant_ics[ic_idx].capacity_mw
+            )
+            num_variables = n_ics * n_periods
+            @info "Created interconnection flow variables" n_interconnections = n_ics n_periods =
+                n_periods
+        end
+    end
+
+    # === Get deficit variable info ===
+    submarket_indices = get_submarket_indices(system)
 
     # Build balance for each submarket
     for submarket in submarkets
@@ -147,49 +194,91 @@ function build!(
             # Calculate total generation
             thermal_gen = if haskey(object_dictionary(model), :g)
                 g = model[:g]
-                sum(g[thermal_indices[p.id], t] for p in thermal_plants; init=0.0)
+                sum(g[thermal_indices[p.id], t] for p in thermal_plants; init = 0.0)
             else
                 0.0
             end
 
             hydro_gen = if haskey(object_dictionary(model), :gh)
                 gh = model[:gh]
-                sum(gh[hydro_indices[p.id], t] for p in hydro_plants; init=0.0)
+                sum(gh[hydro_indices[p.id], t] for p in hydro_plants; init = 0.0)
             else
                 0.0
             end
 
-            renewable_gen = if constraint.include_renewables && haskey(object_dictionary(model), :gr)
-                gr = model[:gr]
-                wind_sum = sum(gr[renewable_indices[f.id], t] for f in wind_farms; init=0.0)
-                solar_sum = sum(gr[renewable_indices[f.id], t] for f in solar_farms; init=0.0)
-                wind_sum + solar_sum
-            else
-                0.0
-            end
+            renewable_gen =
+                if constraint.include_renewables && haskey(object_dictionary(model), :gr)
+                    gr = model[:gr]
+                    wind_sum =
+                        sum(gr[renewable_indices[f.id], t] for f in wind_farms; init = 0.0)
+                    solar_sum =
+                        sum(gr[renewable_indices[f.id], t] for f in solar_farms; init = 0.0)
+                    wind_sum + solar_sum
+                else
+                    0.0
+                end
 
             total_gen = thermal_gen + hydro_gen + renewable_gen
 
-            # Calculate load
-            total_load = sum(l.load_profile[t] * l.base_mw for l in loads; init=0.0)
+            # Add deficit term if enabled
+            deficit_term =
+                if constraint.include_deficit &&
+                   haskey(object_dictionary(model), :deficit) &&
+                   haskey(submarket_indices, sm_code)
+                    deficit = model[:deficit]
+                    sm_idx = submarket_indices[sm_code]
+                    deficit[sm_idx, t]
+                else
+                    0.0
+                end
 
-            # Energy balance (simplified - net exchange would be added separately)
-            model[:submarket_balance][(sm_code, t)] = @constraint(model, total_gen - total_load == 0)
+            # Add interconnection flow terms if enabled
+            import_term = 0.0  # power flowing INTO this submarket
+            export_term = 0.0  # power flowing OUT of this submarket (net of losses)
+
+            if constraint.include_interconnections &&
+               !isempty(relevant_ics) &&
+               haskey(object_dictionary(model), :ic_flow)
+                ic_flow = model[:ic_flow]
+                for (ic_idx, ic) in enumerate(relevant_ics)
+                    if ic.to_submarket_id == sm_code
+                        # This submarket is the receiver: import = flow (positive = from→to)
+                        import_term += ic_flow[ic_idx, t]
+                    end
+                    if ic.from_submarket_id == sm_code
+                        # This submarket is the sender: export = flow * (1 - loss)
+                        loss_factor = 1.0 - ic.loss_percent / 100.0
+                        export_term += ic_flow[ic_idx, t] * loss_factor
+                    end
+                end
+            end
+
+            # Calculate load
+            total_load = sum(l.load_profile[t] * l.base_mw for l in loads; init = 0.0)
+
+            # Energy balance:
+            # gen + deficit + imports - exports - load == 0
+            model[:submarket_balance][(sm_code, t)] = @constraint(
+                model,
+                total_gen + deficit_term + import_term - export_term - total_load == 0
+            )
             num_constraints += 1
         end
     end
 
     build_time = time() - start_time
 
-    @info "Submarket balance constraints built successfully" num_constraints=num_constraints build_time=build_time
+    @info "Submarket balance constraints built successfully" num_constraints =
+        num_constraints num_variables = num_variables build_time = build_time
 
     return ConstraintBuildResult(;
-        constraint_type="SubmarketBalanceConstraint",
-        num_constraints=num_constraints,
-        build_time_seconds=build_time,
-        success=true,
-        message="Built $num_constraints submarket balance constraints",
-        warnings=warnings,
+        constraint_type = "SubmarketBalanceConstraint",
+        num_constraints = num_constraints,
+        num_variables = num_variables,
+        build_time_seconds = build_time,
+        success = true,
+        message = "Built $num_constraints submarket balance constraints",
+        warnings = warnings,
     )
 end
 

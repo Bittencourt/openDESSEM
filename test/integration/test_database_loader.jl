@@ -23,7 +23,7 @@ using Dates
             dbname = "dessem_test",
             user = "test_user",
             password = "test_pass",
-            schema = "public"
+            schema = "public",
         )
 
         @test loader.host == "localhost"
@@ -283,11 +283,13 @@ using Dates
             dbname = "nonexistent_db",
             user = "invalid_user",
             password = "wrong_pass",
-            schema = "public"
+            schema = "public",
         )
 
         # Should handle connection errors gracefully
-        @test_logs (:error, r"Failed to connect") DatabaseLoaders.load_from_database(invalid_loader)
+        @test_logs (:error, r"Failed to connect") DatabaseLoaders.load_from_database(
+            invalid_loader,
+        )
     end
 
     @testset "Incremental Loading - Thermal Plants Only" begin
@@ -298,7 +300,7 @@ using Dates
             dbname = "dessem_test",
             user = "test_user",
             password = "test_pass",
-            schema = "public"
+            schema = "public",
         )
 
         # This would test selective loading
@@ -318,7 +320,7 @@ using Dates
             dbname = "dessem_test",
             user = "test_user",
             password = "test_pass",
-            schema = "dessem_2026"
+            schema = "dessem_2026",
         )
 
         @test loader.schema == "dessem_2026"
@@ -390,7 +392,8 @@ using Dates
         # Test handling of empty database results
         empty_thermal_results = []
 
-        plants = [DatabaseLoaders.row_to_thermal_plant(row) for row in empty_thermal_results]
+        plants =
+            [DatabaseLoaders.row_to_thermal_plant(row) for row in empty_thermal_results]
 
         @test isempty(plants)
         @test plants isa Vector
@@ -461,7 +464,7 @@ using Dates
             dbname = "dessem_test",
             user = "user@special",
             password = "pass with spaces",
-            schema = "public"
+            schema = "public",
         )
 
         conn_str = DatabaseLoaders.get_connection_string(loader)
@@ -478,7 +481,7 @@ using Dates
             user = "test_user",
             password = "test_pass",
             schema = "public",
-            verbose = true
+            verbose = true,
         )
 
         @test loader.verbose == true

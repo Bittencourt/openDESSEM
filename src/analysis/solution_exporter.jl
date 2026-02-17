@@ -97,9 +97,9 @@ Creates multiple CSV files in the specified directory:
 function export_csv(
     result::SolverResult,
     path::String;
-    time_periods::UnitRange{Int}=1:24,
-    scenario_id::String="",
-    base_date::Date=Date(0),
+    time_periods::UnitRange{Int} = 1:24,
+    scenario_id::String = "",
+    base_date::Date = Date(0),
 )::Vector{String}
     # Validate input
     if !result.has_values
@@ -241,10 +241,10 @@ println("Exported to: ", filepath)
 function export_json(
     result::SolverResult,
     filepath::String;
-    time_periods::UnitRange{Int}=1:24,
-    scenario_id::String="",
-    base_date::Date=Date(0),
-    pretty::Bool=true,
+    time_periods::UnitRange{Int} = 1:24,
+    scenario_id::String = "",
+    base_date::Date = Date(0),
+    pretty::Bool = true,
 )::String
     # Validate input
     if !result.has_values
@@ -262,9 +262,9 @@ function export_json(
         "time_periods" => Dict(
             "start" => first(time_periods),
             "end" => last(time_periods),
-            "count" => length(time_periods)
+            "count" => length(time_periods),
         ),
-        "solve_time_seconds" => result.solve_time_seconds
+        "solve_time_seconds" => result.solve_time_seconds,
     )
 
     # Solution info
@@ -272,7 +272,7 @@ function export_json(
         "status" => string(result.status),
         "objective_value" => result.objective_value,
         "objective_bound" => result.objective_bound,
-        "node_count" => result.node_count
+        "node_count" => result.node_count,
     )
 
     # Variables
@@ -355,11 +355,11 @@ println("Inserted ", sum(values(row_counts)), " rows total")
 function export_database(
     result::SolverResult,
     conn;
-    time_periods::UnitRange{Int}=1:24,
-    scenario_id::String="",
-    base_date::Date=Date(0),
-    schema::String="public",
-    overwrite::Bool=false,
+    time_periods::UnitRange{Int} = 1:24,
+    scenario_id::String = "",
+    base_date::Date = Date(0),
+    schema::String = "public",
+    overwrite::Bool = false,
 )::Dict{String,Int}
     # Validate input
     if !result.has_values
@@ -390,7 +390,7 @@ end
 
 function _create_thermal_generation_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:thermal_generation]
 
@@ -413,7 +413,7 @@ end
 
 function _create_thermal_commitment_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:thermal_commitment]
 
@@ -434,7 +434,7 @@ end
 
 function _create_hydro_generation_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:hydro_generation]
 
@@ -455,7 +455,7 @@ end
 
 function _create_hydro_storage_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:hydro_storage]
 
@@ -476,7 +476,7 @@ end
 
 function _create_hydro_outflow_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:hydro_outflow]
 
@@ -497,7 +497,7 @@ end
 
 function _create_renewable_generation_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:renewable_generation]
 
@@ -518,7 +518,7 @@ end
 
 function _create_renewable_curtailment_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.variables[:renewable_curtailment]
 
@@ -539,7 +539,7 @@ end
 
 function _create_submarket_lmp_df(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::DataFrame
     data = result.dual_values["submarket_balance"]
 
@@ -562,45 +562,21 @@ function _create_summary_df(
     result::SolverResult,
     time_periods::UnitRange{Int},
     scenario_id::String,
-    base_date::Date
+    base_date::Date,
 )::DataFrame
     rows = [
-        Dict(
-            "metric" => "scenario_id",
-            "value" => scenario_id
-        ),
-        Dict(
-            "metric" => "base_date",
-            "value" => string(base_date)
-        ),
-        Dict(
-            "metric" => "time_period_start",
-            "value" => first(time_periods)
-        ),
-        Dict(
-            "metric" => "time_period_end",
-            "value" => last(time_periods)
-        ),
-        Dict(
-            "metric" => "status",
-            "value" => string(result.status)
-        ),
+        Dict("metric" => "scenario_id", "value" => scenario_id),
+        Dict("metric" => "base_date", "value" => string(base_date)),
+        Dict("metric" => "time_period_start", "value" => first(time_periods)),
+        Dict("metric" => "time_period_end", "value" => last(time_periods)),
+        Dict("metric" => "status", "value" => string(result.status)),
         Dict(
             "metric" => "objective_value",
-            "value" => coalesce(result.objective_value, 0.0)
+            "value" => coalesce(result.objective_value, 0.0),
         ),
-        Dict(
-            "metric" => "solve_time_seconds",
-            "value" => result.solve_time_seconds
-        ),
-        Dict(
-            "metric" => "has_variable_values",
-            "value" => result.has_values
-        ),
-        Dict(
-            "metric" => "has_dual_values",
-            "value" => result.has_duals
-        ),
+        Dict("metric" => "solve_time_seconds", "value" => result.solve_time_seconds),
+        Dict("metric" => "has_variable_values", "value" => result.has_values),
+        Dict("metric" => "has_dual_values", "value" => result.has_duals),
     ]
 
     return DataFrame(rows)
@@ -608,43 +584,50 @@ end
 
 function _convert_variables_to_dict(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::Dict{String,Any}
     vars = Dict{String,Any}()
 
     # Thermal generation
     if haskey(result.variables, :thermal_generation)
-        vars["thermal_generation"] = _dict_to_nested(result.variables[:thermal_generation], time_periods)
+        vars["thermal_generation"] =
+            _dict_to_nested(result.variables[:thermal_generation], time_periods)
     end
 
     # Thermal commitment
     if haskey(result.variables, :thermal_commitment)
-        vars["thermal_commitment"] = _dict_to_nested(result.variables[:thermal_commitment], time_periods)
+        vars["thermal_commitment"] =
+            _dict_to_nested(result.variables[:thermal_commitment], time_periods)
     end
 
     # Hydro generation
     if haskey(result.variables, :hydro_generation)
-        vars["hydro_generation"] = _dict_to_nested(result.variables[:hydro_generation], time_periods)
+        vars["hydro_generation"] =
+            _dict_to_nested(result.variables[:hydro_generation], time_periods)
     end
 
     # Hydro storage
     if haskey(result.variables, :hydro_storage)
-        vars["hydro_storage"] = _dict_to_nested(result.variables[:hydro_storage], time_periods)
+        vars["hydro_storage"] =
+            _dict_to_nested(result.variables[:hydro_storage], time_periods)
     end
 
     # Hydro outflow
     if haskey(result.variables, :hydro_outflow)
-        vars["hydro_outflow"] = _dict_to_nested(result.variables[:hydro_outflow], time_periods)
+        vars["hydro_outflow"] =
+            _dict_to_nested(result.variables[:hydro_outflow], time_periods)
     end
 
     # Renewable generation
     if haskey(result.variables, :renewable_generation)
-        vars["renewable_generation"] = _dict_to_nested(result.variables[:renewable_generation], time_periods)
+        vars["renewable_generation"] =
+            _dict_to_nested(result.variables[:renewable_generation], time_periods)
     end
 
     # Renewable curtailment
     if haskey(result.variables, :renewable_curtailment)
-        vars["renewable_curtailment"] = _dict_to_nested(result.variables[:renewable_curtailment], time_periods)
+        vars["renewable_curtailment"] =
+            _dict_to_nested(result.variables[:renewable_curtailment], time_periods)
     end
 
     return vars
@@ -652,26 +635,28 @@ end
 
 function _convert_duals_to_dict(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::Dict{String,Any}
     duals = Dict{String,Any}()
 
     # Submarket LMPs
     if haskey(result.dual_values, "submarket_balance")
-        duals["submarket_lmps"] = _dict_to_nested(result.dual_values["submarket_balance"], time_periods)
+        duals["submarket_lmps"] =
+            _dict_to_nested(result.dual_values["submarket_balance"], time_periods)
     end
 
     return duals
 end
 
 function _dict_to_nested(
-    data::Dict{Tuple{String,Int},Float64},
-    time_periods::UnitRange{Int}
+    data::Dict{<:Tuple,Float64},
+    time_periods::UnitRange{Int},
 )::Dict{String,Vector{Float64}}
     nested = Dict{String,Vector{Float64}}()
 
     # Initialize with all entity IDs
-    for (entity_id, t) in keys(data)
+    for key in keys(data)
+        entity_id = key[1]::String
         if !haskey(nested, entity_id)
             nested[entity_id] = Float64[]
         end
@@ -693,7 +678,7 @@ end
 
 function _calculate_statistics(
     result::SolverResult,
-    time_periods::UnitRange{Int}
+    time_periods::UnitRange{Int},
 )::Dict{String,Any}
     stats = Dict{String,Any}()
 
@@ -709,26 +694,29 @@ function _calculate_statistics(
     end
 
     if haskey(result.variables, :renewable_generation)
-        renewable_plants = unique([k[1] for k in keys(result.variables[:renewable_generation])])
+        renewable_plants =
+            unique([k[1] for k in keys(result.variables[:renewable_generation])])
         stats["num_renewable_plants"] = length(renewable_plants)
     end
 
     # Calculate total generation by type
     if haskey(result.variables, :thermal_generation)
-        total_thermal = sum(v for (k, v) in result.variables[:thermal_generation]
-                           if k[2] in time_periods)
+        total_thermal = sum(
+            v for (k, v) in result.variables[:thermal_generation] if k[2] in time_periods
+        )
         stats["total_thermal_generation_mwh"] = total_thermal
     end
 
     if haskey(result.variables, :hydro_generation)
-        total_hydro = sum(v for (k, v) in result.variables[:hydro_generation]
-                         if k[2] in time_periods)
+        total_hydro =
+            sum(v for (k, v) in result.variables[:hydro_generation] if k[2] in time_periods)
         stats["total_hydro_generation_mwh"] = total_hydro
     end
 
     if haskey(result.variables, :renewable_generation)
-        total_renewable = sum(v for (k, v) in result.variables[:renewable_generation]
-                             if k[2] in time_periods)
+        total_renewable = sum(
+            v for (k, v) in result.variables[:renewable_generation] if k[2] in time_periods
+        )
         stats["total_renewable_generation_mwh"] = total_renewable
     end
 

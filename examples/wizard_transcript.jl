@@ -111,9 +111,9 @@ South Region (S)
 
 """)
 
-println("\n" * "=" ^ 78)
+println("\n" * "="^78)
 println("INTERACTIVE MODE EXAMPLE")
-println("=" ^ 78)
+println("="^78)
 
 println("""
 Choose your mode:
@@ -318,9 +318,9 @@ Solving optimization problem...
 ✓ Wizard completed successfully!
 """)
 
-println("\n" * "=" ^ 78)
+println("\n" * "="^78)
 println("KEY FEATURES DEMONSTRATED")
-println("=" ^ 78)
+println("="^78)
 
 println("""
 1. SENSIBLE DEFAULTS
@@ -350,7 +350,7 @@ println("""
    - Supports all entity types (thermal, hydro, wind, solar)
 """)
 
-println("\n" * "=" ^ 78)
+println("\n" * "="^78)
 println("To run the actual wizard:")
 println("  julia --project=. examples/wizard_example.jl")
-println("=" ^ 78)
+println("="^78)

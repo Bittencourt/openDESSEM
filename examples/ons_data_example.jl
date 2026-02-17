@@ -47,12 +47,26 @@ This is an official ONS study case for October/November 2025.
 using OpenDESSEM
 using OpenDESSEM.Entities
 using OpenDESSEM.Variables
-using OpenDESSEM.Constraints: build!, ThermalCommitmentConstraint, HydroWaterBalanceConstraint,
-    HydroGenerationConstraint, RenewableLimitConstraint, SubmarketBalanceConstraint,
+using OpenDESSEM.Constraints:
+    build!,
+    ThermalCommitmentConstraint,
+    HydroWaterBalanceConstraint,
+    HydroGenerationConstraint,
+    RenewableLimitConstraint,
+    SubmarketBalanceConstraint,
     ConstraintMetadata
-using OpenDESSEM.Objective: ProductionCostObjective, ObjectiveMetadata, build! as build_objective!
-using OpenDESSEM.Solvers: solve_model!, SolverOptions, is_optimal, get_thermal_generation,
-    get_hydro_storage, get_pld_dataframe, get_cost_breakdown, CostBreakdown, SolverResult
+using OpenDESSEM.Objective:
+    ProductionCostObjective, ObjectiveMetadata, build! as build_objective!
+using OpenDESSEM.Solvers:
+    solve_model!,
+    SolverOptions,
+    is_optimal,
+    get_thermal_generation,
+    get_hydro_storage,
+    get_pld_dataframe,
+    get_cost_breakdown,
+    CostBreakdown,
+    SolverResult
 using OpenDESSEM.Analysis: export_csv, export_json
 using OpenDESSEM: load_fcf_curves, FCFCurveData, load_dessem_case
 using OpenDESSEM.DessemLoader: load_inflow_data, InflowData
@@ -62,9 +76,9 @@ using Dates
 using DataFrames
 using Statistics: mean, std
 
-println("=" ^ 70)
+println("="^70)
 println("ONS Data Loading Example - Brazilian DESSEM Files")
-println("=" ^ 70)
+println("="^70)
 
 # ============================================================================
 # STEP 1: Check Dependencies
@@ -78,7 +92,7 @@ has_dessem2julia = try
     @info "✓ DESSEM2Julia is available"
     true
 catch e
-    @warn "✗ DESSEM2Julia not found" error=e
+    @warn "✗ DESSEM2Julia not found" error = e
     false
 end
 
@@ -88,15 +102,15 @@ has_highs = try
     @info "✓ HiGHS solver is available"
     true
 catch e
-    @warn "✗ HiGHS solver not found" error=e
+    @warn "✗ HiGHS solver not found" error = e
     false
 end
 
 # If DESSEM2Julia is not available, provide helpful instructions
 if !has_dessem2julia
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("DEPENDENCY MISSING: DESSEM2Julia")
-    println("=" ^ 70)
+    println("="^70)
     println("\nTo run this example, you need to install DESSEM2Julia:")
     println("\n1. Install DESSEM2Julia from GitHub:")
     println("   ```julia")
@@ -111,7 +125,7 @@ if !has_dessem2julia
     println("\nFor more information, see:")
     println("  - DESSEM2Julia: https://github.com/Bittencourt/DESSEM2Julia")
     println("  - ONS Website: https://www.ons.org.br")
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     exit(1)
 end
 
@@ -123,19 +137,13 @@ println("\n[STEP 2] Loading ONS sample data...")
 
 # Path to sample ONS data
 # This is the official ONS DESSEM case for October/November 2025
-ons_data_path = joinpath(
-    @__DIR__,
-    "..",
-    "docs",
-    "Sample",
-    "DS_ONS_102025_RV2D11"
-)
+ons_data_path = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025_RV2D11")
 
 # Check if the data directory exists
 if !isdir(ons_data_path)
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("DATA DIRECTORY NOT FOUND")
-    println("=" ^ 70)
+    println("="^70)
     println("\nCould not find ONS sample data at:")
     println("  $ons_data_path")
     println("\nTo use this example:")
@@ -151,7 +159,7 @@ if !isdir(ons_data_path)
     println("   - operut.dat (thermal operations)")
     println("   - renovaveis.dat (renewables)")
     println("   - desselet.dat (network index)")
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     exit(1)
 end
 
@@ -172,9 +180,9 @@ end
 # STEP 3: Parse DESSEM Files
 # ============================================================================
 
-println("\n" * "=" ^ 70)
+println("\n" * "="^70)
 println("[STEP 3] Parsing DESSEM files...")
-println("=" ^ 70)
+println("="^70)
 
 try
     # Load the complete DESSEM case
@@ -186,9 +194,9 @@ try
     system = load_dessem_case(ons_data_path; skip_validation = true)
 
     println("\n✓ Successfully loaded ONS DESSEM case!")
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("SYSTEM STATISTICS")
-    println("=" ^ 70)
+    println("="^70)
 
     # Display system statistics
     println("\nBrazilian National Interconnected System (SIN)")
@@ -244,7 +252,8 @@ try
         # Show cascade information
         has_cascade = any(p -> p.downstream_plant_id !== nothing, system.hydro_plants)
         if has_cascade
-            cascade_count = count(p -> p.downstream_plant_id !== nothing, system.hydro_plants)
+            cascade_count =
+                count(p -> p.downstream_plant_id !== nothing, system.hydro_plants)
             @printf("  Cascade Plants: %d (with downstream dependencies)\n", cascade_count)
         end
     end
@@ -276,7 +285,8 @@ try
         demand_by_submarket = Dict{String,Float64}()
         for load in system.loads
             submarket = load.submarket_id
-            demand_by_submarket[submarket] = get(demand_by_submarket, submarket, 0.0) + load.base_mw
+            demand_by_submarket[submarket] =
+                get(demand_by_submarket, submarket, 0.0) + load.base_mw
         end
 
         println("  By Submarket:")
@@ -297,9 +307,9 @@ try
     # STEP 4: Example Plant Details
     # ============================================================================
 
-    println("=" ^ 70)
+    println("="^70)
     println("SAMPLE PLANT DETAILS")
-    println("=" ^ 70)
+    println("="^70)
 
     # Show first thermal plant
     if !isempty(system.thermal_plants)
@@ -327,8 +337,11 @@ try
         @printf("  Submarket: %s\n", plant.submarket_id)
         @printf("  Max Generation: %.1f MW\n", plant.max_generation_mw)
         @printf("  Max Storage: %.2f hm³\n", plant.max_volume_hm3)
-        @printf("  Initial Storage: %.2f hm³ (%.1f%%)\n",
-                plant.initial_volume_hm3, plant.initial_volume_percent)
+        @printf(
+            "  Initial Storage: %.2f hm³ (%.1f%%)\n",
+            plant.initial_volume_hm3,
+            plant.initial_volume_percent
+        )
         @printf("  Max Outflow: %.2f m³/s\n", plant.max_outflow_m3_per_s)
         @printf("  Efficiency: %.1f%%\n", plant.efficiency)
         if plant.downstream_plant_id !== nothing
@@ -354,9 +367,9 @@ try
     # ============================================================================
 
     if has_highs
-        println("\n" * "=" ^ 70)
+        println("\n" * "="^70)
         println("COMPREHENSIVE OPTIMIZATION")
-        println("=" ^ 70)
+        println("="^70)
         println("\nRunning full OpenDESSEM optimization pipeline:")
         println("  - All constraint types with full options")
         println("  - Inter-submarket interconnections (SE<->S, SE<->NE, NE<->N)")
@@ -382,47 +395,56 @@ try
         se_code = "SE" in sm_codes ? "SE" : nothing
         s_code = "SU" in sm_codes ? "SU" : ("S" in sm_codes ? "S" : nothing)
         if se_code !== nothing && s_code !== nothing
-            push!(interconnections, Interconnection(;
-                id = "IC_SE_S",
-                name = "Southeast - South",
-                from_bus_id = bus_lookup[se_code],
-                to_bus_id = bus_lookup[s_code],
-                from_submarket_id = se_code,
-                to_submarket_id = s_code,
-                capacity_mw = 7000.0,
-                loss_percent = 1.5
-            ))
+            push!(
+                interconnections,
+                Interconnection(;
+                    id = "IC_SE_S",
+                    name = "Southeast - South",
+                    from_bus_id = bus_lookup[se_code],
+                    to_bus_id = bus_lookup[s_code],
+                    from_submarket_id = se_code,
+                    to_submarket_id = s_code,
+                    capacity_mw = 7000.0,
+                    loss_percent = 1.5,
+                ),
+            )
         end
 
         # SE <-> NE (Southeast <-> Northeast) - ~10000 MW capacity
         ne_code = "NE" in sm_codes ? "NE" : nothing
         if se_code !== nothing && ne_code !== nothing
-            push!(interconnections, Interconnection(;
-                id = "IC_SE_NE",
-                name = "Southeast - Northeast",
-                from_bus_id = bus_lookup[se_code],
-                to_bus_id = bus_lookup[ne_code],
-                from_submarket_id = se_code,
-                to_submarket_id = ne_code,
-                capacity_mw = 10000.0,
-                loss_percent = 3.0
-            ))
+            push!(
+                interconnections,
+                Interconnection(;
+                    id = "IC_SE_NE",
+                    name = "Southeast - Northeast",
+                    from_bus_id = bus_lookup[se_code],
+                    to_bus_id = bus_lookup[ne_code],
+                    from_submarket_id = se_code,
+                    to_submarket_id = ne_code,
+                    capacity_mw = 10000.0,
+                    loss_percent = 3.0,
+                ),
+            )
         end
 
         # NE <-> N (Northeast <-> North) - ~4000 MW capacity
         # NO is the ONS code for North
         n_code = "NO" in sm_codes ? "NO" : ("N" in sm_codes ? "N" : nothing)
         if ne_code !== nothing && n_code !== nothing
-            push!(interconnections, Interconnection(;
-                id = "IC_NE_N",
-                name = "Northeast - North",
-                from_bus_id = bus_lookup[ne_code],
-                to_bus_id = bus_lookup[n_code],
-                from_submarket_id = ne_code,
-                to_submarket_id = n_code,
-                capacity_mw = 4000.0,
-                loss_percent = 4.0
-            ))
+            push!(
+                interconnections,
+                Interconnection(;
+                    id = "IC_NE_N",
+                    name = "Northeast - North",
+                    from_bus_id = bus_lookup[ne_code],
+                    to_bus_id = bus_lookup[n_code],
+                    from_submarket_id = ne_code,
+                    to_submarket_id = n_code,
+                    capacity_mw = 4000.0,
+                    loss_percent = 4.0,
+                ),
+            )
         end
 
         @printf("  Created %d inter-submarket interconnections\n", length(interconnections))
@@ -447,20 +469,22 @@ try
         # Try to load FCF curves for water values
         fcf_data = try
             fcf = load_fcf_curves(ons_data_path)
-            @info "Loaded FCF curves" num_plants=length(fcf.curves)
+            @info "Loaded FCF curves" num_plants = length(fcf.curves)
             fcf
         catch e
-            @warn "Could not load FCF curves (infofcf.dat), using base water values" error=e
+            @warn "Could not load FCF curves (infofcf.dat), using base water values" error =
+                e
             nothing
         end
 
         # Try to load inflow data
         inflow_data = try
             inflows = load_inflow_data(ons_data_path)
-            @info "Loaded inflow data" num_plants=length(inflows.plant_numbers) num_periods=inflows.num_periods
+            @info "Loaded inflow data" num_plants = length(inflows.plant_numbers) num_periods =
+                inflows.num_periods
             inflows
         catch e
-            @warn "Could not load inflow data (dadvaz.dat)" error=e
+            @warn "Could not load inflow data (dadvaz.dat)" error = e
             nothing
         end
 
@@ -482,11 +506,11 @@ try
             metadata = ConstraintMetadata(;
                 name = "Thermal Unit Commitment",
                 description = "Full UC constraints with ramp rates and min up/down time",
-                priority = 10
+                priority = 10,
             ),
             include_ramp_rates = true,
             include_min_up_down = true,
-            initial_commitment = Dict(p.id => false for p in system.thermal_plants)
+            initial_commitment = Dict(p.id => false for p in system.thermal_plants),
         )
         result_tc = build!(model, system, thermal_constraint)
         @printf("    Built %d constraints\n", result_tc.num_constraints)
@@ -497,14 +521,12 @@ try
             metadata = ConstraintMetadata(;
                 name = "Hydro Water Balance",
                 description = "Water balance with cascade topology and spill",
-                priority = 10
+                priority = 10,
             ),
             include_cascade = true,
-            include_spill = true
+            include_spill = true,
         )
-        result_hwb = build!(model, system, hydro_wb_constraint;
-            inflow_data = inflow_data
-        )
+        result_hwb = build!(model, system, hydro_wb_constraint; inflow_data = inflow_data)
         @printf("    Built %d constraints\n", result_hwb.num_constraints)
 
         # Hydro generation function (linear model)
@@ -513,9 +535,9 @@ try
             metadata = ConstraintMetadata(;
                 name = "Hydro Generation",
                 description = "Linear generation function linking outflow to power",
-                priority = 10
+                priority = 10,
             ),
-            model_type = "linear"
+            model_type = "linear",
         )
         result_hg = build!(model, system, hydro_gen_constraint)
         @printf("    Built %d constraints\n", result_hg.num_constraints)
@@ -526,9 +548,9 @@ try
             metadata = ConstraintMetadata(;
                 name = "Renewable Limits",
                 description = "Wind/solar generation limits with curtailment",
-                priority = 10
+                priority = 10,
             ),
-            include_curtailment = true
+            include_curtailment = true,
         )
         result_rl = build!(model, system, renewable_constraint)
         @printf("    Built %d constraints\n", result_rl.num_constraints)
@@ -539,19 +561,26 @@ try
             metadata = ConstraintMetadata(;
                 name = "Submarket Energy Balance",
                 description = "Balance with deficit slack and inter-submarket flows",
-                priority = 10
+                priority = 10,
             ),
             use_time_periods = time_periods,
             include_deficit = true,
             include_interconnections = true,
-            include_renewables = true
+            include_renewables = true,
         )
         result_sb = build!(model, system, balance_constraint)
-        @printf("    Built %d constraints (%d flow variables)\n",
-            result_sb.num_constraints, result_sb.num_variables)
+        @printf(
+            "    Built %d constraints (%d flow variables)\n",
+            result_sb.num_constraints,
+            result_sb.num_variables
+        )
 
-        total_constraints = result_tc.num_constraints + result_hwb.num_constraints +
-            result_hg.num_constraints + result_rl.num_constraints + result_sb.num_constraints
+        total_constraints =
+            result_tc.num_constraints +
+            result_hwb.num_constraints +
+            result_hg.num_constraints +
+            result_rl.num_constraints +
+            result_sb.num_constraints
         @printf("  Total: %d constraints\n", total_constraints)
 
         # --- 5d: Build objective ---
@@ -570,7 +599,7 @@ try
         objective = ProductionCostObjective(;
             metadata = ObjectiveMetadata(;
                 name = "Production Cost Minimization",
-                description = "Minimize total system operating cost"
+                description = "Minimize total system operating cost",
             ),
             thermal_fuel_cost = true,
             thermal_startup_cost = true,
@@ -580,7 +609,7 @@ try
             deficit_penalty = deficit_penalty_rsj,
             time_varying_fuel_costs = fuel_costs,
             fcf_data = fcf_data,
-            use_terminal_water_value = (fcf_data !== nothing)
+            use_terminal_water_value = (fcf_data !== nothing),
         )
         build_objective!(model, system, objective)
 
@@ -591,19 +620,21 @@ try
         println("  Stage 2: SCED (LP) for valid PLDs")
         println("  (This may take several minutes for large systems)")
 
-        result = solve_model!(model, system;
+        result = solve_model!(
+            model,
+            system;
             solver = HiGHS.Optimizer,
             time_limit = 300.0,
             mip_gap = 0.01,
             output_level = 1,
-            pricing = true
+            pricing = true,
         )
 
         # --- 5f: Display results ---
 
-        println("\n" * "=" ^ 70)
+        println("\n" * "="^70)
         println("OPTIMIZATION RESULTS")
-        println("=" ^ 70)
+        println("="^70)
 
         @printf("\n  Status: %s\n", result.solve_status)
         @printf("  Solve Time: %.2f seconds\n", result.solve_time_seconds)
@@ -664,8 +695,13 @@ try
                         avg_pld = mean(sm_df.pld)
                         min_pld = minimum(sm_df.pld)
                         max_pld = maximum(sm_df.pld)
-                        @printf("  %-4s: Avg=%.2f  Min=%.2f  Max=%.2f R\$/MWh\n",
-                            sm.code, avg_pld, min_pld, max_pld)
+                        @printf(
+                            "  %-4s: Avg=%.2f  Min=%.2f  Max=%.2f R\$/MWh\n",
+                            sm.code,
+                            avg_pld,
+                            min_pld,
+                            max_pld
+                        )
                     end
                 end
             else
@@ -676,9 +712,9 @@ try
             # STEP 6: Optional Nodal Pricing with PWF Network (if PowerModels available)
             # ============================================================================
 
-            println("\n" * "=" ^ 70)
+            println("\n" * "="^70)
             println("NODAL PRICING (OPTIONAL)")
-            println("=" ^ 70)
+            println("="^70)
 
             # Check if PowerModels is available
             has_powermodels = try
@@ -704,13 +740,20 @@ try
 
                         # Parse PWF file
                         pwf_network = OpenDESSEM.Integration.parse_pwf_file(pwf_path)
-                        @printf("  Loaded: %d buses, %d branches\n",
-                            length(pwf_network.buses), length(pwf_network.branches))
+                        @printf(
+                            "  Loaded: %d buses, %d branches\n",
+                            length(pwf_network.buses),
+                            length(pwf_network.branches)
+                        )
 
                         # Convert to OpenDESSEM entities
-                        pwf_buses, pwf_lines = OpenDESSEM.Integration.pwf_to_entities(pwf_network)
-                        @printf("  Converted: %d buses, %d AC lines\n",
-                            length(pwf_buses), length(pwf_lines))
+                        pwf_buses, pwf_lines =
+                            OpenDESSEM.Integration.pwf_to_entities(pwf_network)
+                        @printf(
+                            "  Converted: %d buses, %d AC lines\n",
+                            length(pwf_buses),
+                            length(pwf_lines)
+                        )
 
                         # Get generator dispatch from solved model (first period)
                         # Map to PowerModels generators at their buses
@@ -725,7 +768,7 @@ try
                             buses = pwf_buses,
                             lines = pwf_lines,
                             thermals = pm_gens,
-                            base_mva = 100.0
+                            base_mva = 100.0,
                         )
 
                         # Validate conversion
@@ -736,7 +779,9 @@ try
 
                             # Solve DC-OPF and extract nodal LMPs
                             nodal_result = OpenDESSEM.Integration.solve_dc_opf_nodal_lmps(
-                                pm_data, HiGHS.Optimizer)
+                                pm_data,
+                                HiGHS.Optimizer,
+                            )
 
                             if nodal_result["status"] == "OPTIMAL" ||
                                nodal_result["status"] == "LOCALLY_SOLVED"
@@ -746,35 +791,57 @@ try
                                 println("  " * "-"^60)
 
                                 # Show top 10 buses by LMP
-                                sorted_lmps = sort(collect(nodal_lmps); by = x -> x[2], rev = true)
-                                for (i, (bus_id, lmp)) in enumerate(sorted_lmps[1:min(10, end)])
+                                sorted_lmps =
+                                    sort(collect(nodal_lmps); by = x -> x[2], rev = true)
+                                for (i, (bus_id, lmp)) in
+                                    enumerate(sorted_lmps[1:min(10, end)])
                                     # Find bus name if available
                                     bus_idx = parse(Int, bus_id)
-                                    bus_name = bus_idx <= length(pwf_buses) ?
-                                               pwf_buses[bus_idx].name : "Bus $bus_id"
-                                    @printf("  %2d. %-30s %8.2f R\$/MWh\n", i, bus_name, lmp)
+                                    bus_name =
+                                        bus_idx <= length(pwf_buses) ?
+                                        pwf_buses[bus_idx].name : "Bus $bus_id"
+                                    @printf(
+                                        "  %2d. %-30s %8.2f R\$/MWh\n",
+                                        i,
+                                        bus_name,
+                                        lmp
+                                    )
                                 end
 
                                 # Summary statistics
                                 lmp_values = collect(values(nodal_lmps))
                                 println("\nLMP Statistics:")
                                 @printf("  Buses with LMP: %d\n", length(lmp_values))
-                                @printf("  Average LMP:    %.2f R\$/MWh\n", mean(lmp_values))
-                                @printf("  Min LMP:        %.2f R\$/MWh\n", minimum(lmp_values))
-                                @printf("  Max LMP:        %.2f R\$/MWh\n", maximum(lmp_values))
+                                @printf(
+                                    "  Average LMP:    %.2f R\$/MWh\n",
+                                    mean(lmp_values)
+                                )
+                                @printf(
+                                    "  Min LMP:        %.2f R\$/MWh\n",
+                                    minimum(lmp_values)
+                                )
+                                @printf(
+                                    "  Max LMP:        %.2f R\$/MWh\n",
+                                    maximum(lmp_values)
+                                )
                                 @printf("  Std Dev:        %.2f R\$/MWh\n", std(lmp_values))
 
                                 println("\nComparison with Submarket PLDs:")
-                                println("  Nodal pricing shows congestion costs within submarkets")
+                                println(
+                                    "  Nodal pricing shows congestion costs within submarkets",
+                                )
                                 println("  Submarket PLDs = uniform price per submarket")
-                                println("  Nodal LMPs = location-specific prices including losses")
+                                println(
+                                    "  Nodal LMPs = location-specific prices including losses",
+                                )
                             else
-                                @warn "DC-OPF did not converge" status=nodal_result["status"]
+                                @warn "DC-OPF did not converge" status =
+                                    nodal_result["status"]
                             end
                         end
                     end
                 catch e
-                    @warn "Nodal pricing section failed" error=e
+                    @warn "Nodal pricing section failed" error = e
                     println("  Continuing with example...")
                 end
             elseif !has_powermodels
@@ -805,16 +872,22 @@ try
             export_dir = mktempdir()
 
             # Export to CSV
-            csv_files = export_csv(result, joinpath(export_dir, "csv");
-                time_periods = time_periods)
-            @printf("  CSV files: %d files in %s\n", length(csv_files),
-                joinpath(export_dir, "csv"))
+            csv_files =
+                export_csv(result, joinpath(export_dir, "csv"); time_periods = time_periods)
+            @printf(
+                "  CSV files: %d files in %s\n",
+                length(csv_files),
+                joinpath(export_dir, "csv")
+            )
 
             # Export to JSON
             json_path = joinpath(export_dir, "solution.json")
-            export_json(result, json_path;
+            export_json(
+                result,
+                json_path;
                 time_periods = time_periods,
-                scenario_id = "DS_ONS_102025_RV2D11")
+                scenario_id = "DS_ONS_102025_RV2D11",
+            )
             @printf("  JSON file: %s\n", json_path)
 
             println("\n  Export directory: $export_dir")
@@ -823,9 +896,9 @@ try
             @printf("  Status: %s\n", result.solve_status)
         end
     else
-        println("\n" * "=" ^ 70)
+        println("\n" * "="^70)
         println("OPTIMIZATION SKIPPED")
-        println("=" ^ 70)
+        println("="^70)
         println("\nHiGHS solver not available. Install with:")
         println("  Pkg.add(\"HiGHS\")")
     end
@@ -834,9 +907,9 @@ try
     # SUMMARY
     # ============================================================================
 
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("SUMMARY")
-    println("=" ^ 70)
+    println("="^70)
 
     println("\nSuccessfully loaded ONS DESSEM data:")
     println("  ✓ Parsed official ONS DESSEM files")
@@ -860,14 +933,14 @@ try
     println("  - Compute valid marginal prices via two-stage pricing")
     println("  - Export results for external analysis")
 
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("End of ONS Data Example")
-    println("=" ^ 70)
+    println("="^70)
 
 catch e
-    println("\n" * "=" ^ 70)
+    println("\n" * "="^70)
     println("ERROR")
-    println("=" ^ 70)
+    println("="^70)
     println("\nFailed to load ONS DESSEM data:")
     println(e)
 

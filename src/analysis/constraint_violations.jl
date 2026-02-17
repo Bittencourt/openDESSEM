@@ -105,7 +105,8 @@ function _classify_constraint(name::String)::String
     end
 
     # Hydro constraints (including water balance and storage)
-    if contains(lname, "hydro") || contains(lname, "water_balance") ||
+    if contains(lname, "hydro") ||
+       contains(lname, "water_balance") ||
        contains(lname, "storage")
         return "hydro"
     end
@@ -116,8 +117,7 @@ function _classify_constraint(name::String)::String
     end
 
     # Network constraints (power flow, transmission)
-    if contains(lname, "network") || contains(lname, "flow") ||
-       contains(lname, "line")
+    if contains(lname, "network") || contains(lname, "flow") || contains(lname, "line")
         return "network"
     end
 
@@ -242,10 +242,7 @@ report = check_constraint_violations(model; model_name="my_model")
 write_violation_report(report, "output/violations.txt")
 ```
 """
-function write_violation_report(
-    report::ViolationReport,
-    filepath::String,
-)::String
+function write_violation_report(report::ViolationReport, filepath::String)::String
     # Create parent directory if needed
     dir = dirname(filepath)
     if !isempty(dir)

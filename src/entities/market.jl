@@ -382,9 +382,7 @@ struct Interconnection <: MarketEntity
         # Validate loss percentage (0-100)
         if loss_percent < 0 || loss_percent > 100
             throw(
-                ArgumentError(
-                    "loss_percent must be between 0 and 100 (got $loss_percent)",
-                ),
+                ArgumentError("loss_percent must be between 0 and 100 (got $loss_percent)"),
             )
         end
 
