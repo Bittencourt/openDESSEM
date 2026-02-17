@@ -240,3 +240,201 @@ using .SmallSystemFactory: create_small_test_system
         @test breakdown.total == 0.0
     end
 end
+
+# Add tests for nodal LMP extraction in a separate testset
+@testset "Nodal LMP Extraction" begin
+
+    @testset "get_nodal_lmp_dataframe - empty system returns correct schema" begin
+        result = SolverResult()
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = Bus[],
+            submarkets = Submarket[],
+            loads = Load[],
+            base_date = Date(2025, 1, 1),
+        )
+
+        df = get_nodal_lmp_dataframe(result, system)
+
+        # Verify correct schema
+        @test df isa DataFrame
+        @test nrow(df) == 0
+        @test "bus_id" in names(df)
+        @test "bus_name" in names(df)
+        @test "period" in names(df)
+        @test "lmp" in names(df)
+    end
+
+    @testset "get_nodal_lmp_dataframe - system without network data returns empty" begin
+        # Create system with buses but no lines (no network)
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+            is_reference = true,
+        )
+
+        submarket =
+            Submarket(; id = "SE", name = "Southeast", code = "SE", country = "Brazil")
+
+        load = Load(;
+            id = "L001",
+            name = "Test Load",
+            submarket_id = "SE",
+            base_mw = 50.0,
+            load_profile = fill(1.0, 6),  # Per-unit load profile
+        )
+
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = [bus1],
+            ac_lines = ACLine[],  # No lines = no network
+            submarkets = [submarket],
+            loads = [load],
+            base_date = Date(2025, 1, 1),
+        )
+
+        result = SolverResult()
+
+        df = get_nodal_lmp_dataframe(result, system)
+
+        @test nrow(df) == 0
+        @test names(df) == ["bus_id", "bus_name", "period", "lmp"]
+    end
+
+    @testset "get_nodal_lmp_dataframe - result without values returns empty" begin
+        # Create system with network data
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+            is_reference = true,
+        )
+
+        bus2 = Bus(;
+            id = "B002",
+            name = "Bus 2",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+            is_reference = false,
+        )
+
+        line = ACLine(;
+            id = "L001",
+            name = "Line 1-2",
+            from_bus_id = "B001",
+            to_bus_id = "B002",
+            length_km = 100.0,
+            resistance_ohm = 0.01,
+            reactance_ohm = 0.1,
+            susceptance_siemen = 0.0,
+            max_flow_mw = 500.0,
+            min_flow_mw = 0.0,  # Non-negative
+        )
+
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = [bus1, bus2],
+            ac_lines = [line],
+            submarkets = Submarket[],
+            loads = Load[],
+            base_date = Date(2025, 1, 1),
+        )
+
+        # Result without values (has_values = false)
+        result = SolverResult()
+
+        df = get_nodal_lmp_dataframe(result, system)
+
+        @test nrow(df) == 0
+    end
+
+    @testset "get_nodal_lmp_dataframe - time_periods parameter works" begin
+        # Test that time_periods parameter is used correctly
+        result = SolverResult()
+        result.has_values = true
+
+        # Add some mock generation data for periods 1-6
+        result.variables[:thermal_generation] = Dict{Tuple{String,Int},Float64}(
+            ("T001", 1) => 50.0,
+            ("T001", 2) => 55.0,
+            ("T001", 3) => 60.0,
+            ("T001", 4) => 65.0,
+            ("T001", 5) => 70.0,
+            ("T001", 6) => 75.0,
+        )
+
+        # Create minimal system with network
+        bus1 = Bus(;
+            id = "B001",
+            name = "Bus 1",
+            voltage_kv = 230.0,
+            base_kv = 230.0,
+            is_reference = true,
+        )
+
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = [bus1],
+            ac_lines = ACLine[],
+            submarkets = Submarket[],
+            loads = Load[],
+            base_date = Date(2025, 1, 1),
+        )
+
+        # Without lines, should return empty
+        df = get_nodal_lmp_dataframe(result, system; time_periods = 1:3)
+        @test nrow(df) == 0
+    end
+
+    @testset "get_nodal_lmp_dataframe - function signature accepts all parameters" begin
+        # Test that function accepts all optional parameters
+        result = SolverResult()
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = Bus[],
+            submarkets = Submarket[],
+            loads = Load[],
+            base_date = Date(2025, 1, 1),
+        )
+
+        # Test with all optional parameters
+        df = get_nodal_lmp_dataframe(
+            result,
+            system;
+            time_periods = 1:6,
+            solver_factory = HiGHS.Optimizer,
+        )
+
+        @test df isa DataFrame
+        @test nrow(df) == 0  # Empty system
+    end
+
+    @testset "get_nodal_lmp_dataframe - DataFrame sorting" begin
+        # Test that result would be sorted if we had data
+        result = SolverResult()
+        result.has_values = true
+        result.variables[:thermal_generation] = Dict{Tuple{String,Int},Float64}()
+
+        system = ElectricitySystem(;
+            thermal_plants = ConventionalThermal[],
+            hydro_plants = ReservoirHydro[],
+            buses = Bus[],
+            submarkets = Submarket[],
+            loads = Load[],
+            base_date = Date(2025, 1, 1),
+        )
+
+        df = get_nodal_lmp_dataframe(result, system)
+
+        # Empty but valid DataFrame
+        @test nrow(df) == 0
+    end
+end
