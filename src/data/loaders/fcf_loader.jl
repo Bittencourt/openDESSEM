@@ -394,6 +394,22 @@ function parse_infofcf_file(filepath::String)::FCFCurveData
                 continue
             end
 
+            # Skip metadata record types (not FCF curve data)
+            # - MAPFCF: mapping records (TVIAG, SISGNL, DURPAT)
+            # - XXXXXX: template/header lines
+            # - FCFFIX: fixed cost records for thermal plants
+            if startswith(line, "MAPFCF") ||
+               startswith(line, "XXXXXX") ||
+               startswith(line, "FCFFIX")
+                continue
+            end
+
+            # FCF curve data lines start with a number (plant number)
+            # Skip lines that don't start with a digit
+            if !isempty(line) && !isdigit(first(line))
+                continue
+            end
+
             # Try to parse as FCF record
             curve = parse_fcf_line(line, line_num)
             if curve !== nothing
@@ -402,7 +418,11 @@ function parse_infofcf_file(filepath::String)::FCFCurveData
         end
     end
 
-    @info "Parsed $(length(curves)) FCF curves from $filepath"
+    if length(curves) == 0
+        @info "Parsed $(length(curves)) FCF curves from $filepath (file contains metadata only, no FCF curve data)"
+    else
+        @info "Parsed $(length(curves)) FCF curves from $filepath"
+    end
 
     return FCFCurveData(;
         curves = curves,
