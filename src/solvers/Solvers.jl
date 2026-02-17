@@ -132,6 +132,7 @@ export
     get_hydro_storage,
     get_renewable_generation,
     get_pld_dataframe,
+    get_pricing_dataframe,
     get_nodal_lmp_dataframe,
     CostBreakdown,
     get_cost_breakdown,

@@ -710,6 +710,74 @@ function get_pld_dataframe(
 end
 
 """
+    get_pricing_dataframe(result, system; level=:auto, submarkets=nothing, time_periods=nothing) -> DataFrame
+
+Unified pricing extraction: tries nodal LMPs first, falls back to zonal PLD.
+
+# Arguments
+- `result::SolverResult`: Solver result (with optional nodal_lmps from solve_model!)
+- `system::ElectricitySystem`: System with bus/submarket mapping for enrichment
+- `level::Symbol`: `:nodal` (bus-level), `:zonal` (submarket), or `:auto` (nodal if available, else zonal)
+- `submarkets::Union{Vector{String},Nothing}`: Filter by submarket codes
+- `time_periods::Union{UnitRange{Int},Nothing}`: Filter by time periods
+
+# Returns
+- `DataFrame`: Columns depend on pricing level:
+  - Nodal: bus_id, bus_name, submarket, period, lmp
+  - Zonal: submarket, period, pld
+
+# Notes
+- With `:auto`, returns nodal DataFrame enriched with submarket mapping when nodal_lmps available
+- Falls back to get_pld_dataframe() when nodal LMPs not available or empty
+- Submarket mapping derived from plant bus_id -> submarket_id assignments
+"""
+function get_pricing_dataframe(
+    result::SolverResult,
+    system::ElectricitySystem;
+    level::Symbol = :auto,
+    submarkets::Union{Vector{String},Nothing} = nothing,
+    time_periods::Union{UnitRange{Int},Nothing} = nothing,
+)
+    use_nodal =
+        level == :nodal ||
+        (level == :auto && result.nodal_lmps !== nothing && !isempty(result.nodal_lmps))
+
+    if use_nodal && result.nodal_lmps !== nothing && !isempty(result.nodal_lmps)
+        df = copy(result.nodal_lmps)
+
+        # Enrich with submarket info by mapping bus_id -> submarket via plants
+        bus_submarket = Dict{String,String}()
+        for plant in system.thermal_plants
+            if !isempty(plant.bus_id) && !isempty(plant.submarket_id)
+                bus_submarket[plant.bus_id] = plant.submarket_id
+            end
+        end
+        for plant in system.hydro_plants
+            if !isempty(plant.bus_id) && !isempty(plant.submarket_id)
+                bus_submarket[plant.bus_id] = plant.submarket_id
+            end
+        end
+
+        # Add submarket column
+        df.submarket = [get(bus_submarket, bid, "unknown") for bid in df.bus_id]
+
+        # Apply filters
+        if submarkets !== nothing
+            df = filter(row -> row.submarket in submarkets, df)
+        end
+        if time_periods !== nothing
+            df = filter(row -> row.period in time_periods, df)
+        end
+
+        sort!(df, [:period, :bus_id])
+        return df
+    end
+
+    # Fallback to zonal PLD
+    return get_pld_dataframe(result; submarkets = submarkets, time_periods = time_periods)
+end
+
+"""
     CostBreakdown
 
 Detailed breakdown of total system cost by component.
@@ -1271,6 +1339,7 @@ export extract_solution_values!,
     get_hydro_storage,
     get_renewable_generation,
     get_pld_dataframe,
+    get_pricing_dataframe,
     get_nodal_lmp_dataframe,
     CostBreakdown,
     get_cost_breakdown

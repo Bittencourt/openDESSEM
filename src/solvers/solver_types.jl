@@ -124,6 +124,7 @@ Complete solution result from optimization.
 - `lp_result::Union{SolverResult, Nothing}`: Stage 2 LP result (for two-stage pricing)
 - `cost_breakdown::Dict{String, Float64}`: Component costs (thermal, hydro, startup, etc.)
 - `log_file::Union{String, Nothing}`: Path to solver log file (if generated)
+- `nodal_lmps::Union{DataFrame, Nothing}`: Bus-level nodal LMPs from DC-OPF (auto-populated by solve_model! when network data available)
 
 # Example
 ```julia
@@ -154,6 +155,7 @@ mutable struct SolverResult
     lp_result::Union{SolverResult,Nothing}
     cost_breakdown::Dict{String,Float64}
     log_file::Union{String,Nothing}
+    nodal_lmps::Union{DataFrame,Nothing}
 end
 
 # Outer constructor with keyword arguments and defaults for SolverResult
@@ -172,6 +174,7 @@ function SolverResult(;
     lp_result::Union{SolverResult,Nothing} = nothing,
     cost_breakdown::Dict{String,Float64} = Dict{String,Float64}(),
     log_file::Union{String,Nothing} = nothing,
+    nodal_lmps::Union{DataFrame,Nothing} = nothing,
 )
     return SolverResult(
         status,
@@ -188,6 +191,7 @@ function SolverResult(;
         lp_result,
         cost_breakdown,
         log_file,
+        nodal_lmps,
     )
 end
 

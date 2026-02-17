@@ -175,6 +175,13 @@ function export_csv(
         push!(created_files, filepath)
     end
 
+    # Export nodal LMPs (if available)
+    if result.nodal_lmps !== nothing && !isempty(result.nodal_lmps)
+        filepath_nodal = joinpath(path, "nodal_lmps.csv")
+        CSV.write(filepath_nodal, result.nodal_lmps)
+        push!(created_files, filepath_nodal)
+    end
+
     # Export summary
     df_summary = _create_summary_df(result, time_periods, scenario_id, base_date)
     filepath_summary = joinpath(path, "summary.csv")
@@ -281,6 +288,22 @@ function export_json(
     # Dual values
     if result.has_duals
         json_data["dual_values"] = _convert_duals_to_dict(result, time_periods)
+    end
+
+    # Nodal LMPs (if available)
+    if result.nodal_lmps !== nothing && !isempty(result.nodal_lmps)
+        nodal_dict = Dict{String,Any}()
+        for row in eachrow(result.nodal_lmps)
+            bus_key = row.bus_id
+            if !haskey(nodal_dict, bus_key)
+                nodal_dict[bus_key] = Dict{String,Any}(
+                    "bus_name" => row.bus_name,
+                    "lmps" => Dict{Int,Float64}(),
+                )
+            end
+            nodal_dict[bus_key]["lmps"][row.period] = row.lmp
+        end
+        json_data["nodal_lmps"] = nodal_dict
     end
 
     # Statistics

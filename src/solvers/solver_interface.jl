@@ -698,6 +698,29 @@ function solve_model!(
     # Log solve summary to file
     _write_log_summary(result, log_file, start_time)
 
+    # Auto-extract nodal LMPs when network data is available
+    if has_solution(result) &&
+       !isempty(system.buses) &&
+       (!isempty(system.ac_lines) || !isempty(system.dc_lines))
+        try
+            if progress_callback !== nothing
+                progress_callback("Extracting nodal LMPs via DC-OPF...")
+            end
+            # Use LP result for pricing if available (two-stage), otherwise main result
+            pricing_result = result.lp_result !== nothing ? result.lp_result : result
+            nodal_df = get_nodal_lmp_dataframe(pricing_result, system)
+            if !isempty(nodal_df)
+                result.nodal_lmps = nodal_df
+                @info "Nodal LMPs extracted" num_buses = length(unique(nodal_df.bus_id)) num_periods =
+                    length(unique(nodal_df.period))
+            else
+                @debug "Nodal LMP extraction returned empty DataFrame (PowerModels may not be available)"
+            end
+        catch e
+            @warn "Nodal LMP extraction failed, zonal PLD still available" exception = e
+        end
+    end
+
     return result
 end
 
