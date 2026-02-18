@@ -104,7 +104,7 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 - [x] 04-01-PLAN.md — Fix extraction gaps (deficit variables, JSON3.pretty bug) + unit tests for extraction/export
 - [x] 04-02-PLAN.md — Constraint violation reporter with type classification + unit tests
 - [x] 04-03-PLAN.md — Nodal LMP extraction via PowerModels DC-OPF
-- [ ] 04-04-PLAN.md — Integrate nodal LMPs into solve pipeline with auto-extraction and unified pricing
+- [x] 04-04-PLAN.md — Integrate nodal LMPs into solve pipeline with auto-extraction and unified pricing
 
 ---
 
@@ -131,10 +131,10 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 | 1 - Objective Function | ✓ Complete (2026-02-15) | OBJ-01, OBJ-02, OBJ-03, OBJ-04 | 5/5 criteria |
 | 2 - Hydro Modeling | ✓ Complete (2026-02-16) | HYDR-01, HYDR-02, HYDR-03 | 4/4 criteria |
 | 3 - Solver Interface | ✓ Complete (2026-02-16) | SOLV-01, SOLV-02, SOLV-03, SOLV-04 | 5/5 criteria |
-| 4 - Solution Extraction | Gap Closure (2026-02-17) | EXTR-01, EXTR-02, EXTR-03, EXTR-04, EXTR-05 | 5/5 criteria + 1 gap |
+| 4 - Solution Extraction | ✓ Complete (2026-02-17) | EXTR-01, EXTR-02, EXTR-03, EXTR-04, EXTR-05 | 11/11 criteria |
 | 5 - Validation | Not Started | VALD-01, VALD-02, VALD-03 | 0/4 criteria |
 
-**Overall:** 19/23 success criteria complete
+**Overall:** 25/29 success criteria complete
 
 ---
 
