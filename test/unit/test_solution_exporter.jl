@@ -178,4 +178,60 @@ using .SmallSystemFactory: create_small_test_system
             @test_throws ErrorException export_json(result, filepath)
         end
     end
+
+    @testset "export_csv includes nodal LMPs" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        # Manually set nodal_lmps to simulate available data
+        result.nodal_lmps = DataFrame(
+            bus_id = ["B1", "B2"],
+            bus_name = ["Bus 1", "Bus 2"],
+            period = [1, 1],
+            lmp = [50.0, 55.0],
+        )
+
+        mktempdir() do tmpdir
+            files = export_csv(result, tmpdir; time_periods = 1:6)
+            nodal_file = joinpath(tmpdir, "nodal_lmps.csv")
+            @test isfile(nodal_file)
+            df = CSV.read(nodal_file, DataFrame)
+            @test "bus_id" in names(df)
+            @test "lmp" in names(df)
+            @test nrow(df) == 2
+        end
+    end
+
+    @testset "export_json includes nodal LMPs" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        result.nodal_lmps = DataFrame(
+            bus_id = ["B1", "B2"],
+            bus_name = ["Bus 1", "Bus 2"],
+            period = [1, 1],
+            lmp = [50.0, 55.0],
+        )
+
+        mktempdir() do tmpdir
+            filepath = joinpath(tmpdir, "solution.json")
+            export_json(result, filepath; time_periods = 1:6)
+            @test isfile(filepath)
+            content = read(filepath, String)
+            @test contains(content, "nodal_lmps")
+            @test contains(content, "B1")
+        end
+    end
+
+    @testset "export_csv without nodal LMPs omits nodal file" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+        # nodal_lmps is nothing by default
+
+        mktempdir() do tmpdir
+            files = export_csv(result, tmpdir; time_periods = 1:6)
+            nodal_file = joinpath(tmpdir, "nodal_lmps.csv")
+            @test !isfile(nodal_file)
+        end
+    end
 end

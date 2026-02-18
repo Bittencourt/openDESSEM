@@ -29,6 +29,7 @@ using OpenDESSEM.Solvers:
     NOT_SOLVED,
     solve_model!,
     get_pld_dataframe,
+    get_pricing_dataframe,
     get_cost_breakdown,
     CostBreakdown,
     get_thermal_generation,
@@ -436,5 +437,109 @@ end
 
         # Empty but valid DataFrame
         @test nrow(df) == 0
+    end
+end
+
+# Add tests for nodal LMP pipeline integration
+@testset "Nodal LMP Pipeline Integration" begin
+
+    @testset "SolverResult nodal_lmps field" begin
+        result = SolverResult()
+        @test result.nodal_lmps === nothing
+
+        # Can set to a DataFrame
+        df = DataFrame(bus_id = ["B1"], bus_name = ["Bus 1"], period = [1], lmp = [50.0])
+        result.nodal_lmps = df
+        @test result.nodal_lmps !== nothing
+        @test nrow(result.nodal_lmps) == 1
+    end
+
+    @testset "get_pricing_dataframe falls back to zonal when no nodal LMPs" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        # nodal_lmps is nothing by default (no network in small test system)
+        @test result.nodal_lmps === nothing
+
+        # Use LP result for duals
+        pricing_result = result.lp_result !== nothing ? result.lp_result : result
+
+        if pricing_result.has_duals
+            df = get_pricing_dataframe(pricing_result, system)
+            @test df isa DataFrame
+            # Should be zonal format (fallback)
+            @test "submarket" in names(df)
+            @test "pld" in names(df)
+            # Should NOT have bus_id (that's nodal)
+            @test !("bus_id" in names(df))
+        end
+    end
+
+    @testset "get_pricing_dataframe returns nodal data when nodal_lmps populated" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        # Manually set nodal_lmps to simulate available data
+        result.nodal_lmps = DataFrame(
+            bus_id = ["B1", "B2", "B1", "B2"],
+            bus_name = ["Bus 1", "Bus 2", "Bus 1", "Bus 2"],
+            period = [1, 1, 2, 2],
+            lmp = [50.0, 55.0, 52.0, 57.0],
+        )
+
+        df = get_pricing_dataframe(result, system)
+        @test df isa DataFrame
+        # Should have nodal columns
+        @test "bus_id" in names(df)
+        @test "lmp" in names(df)
+        # Should be enriched with submarket column
+        @test "submarket" in names(df)
+        # Row count matches nodal data
+        @test nrow(df) == 4
+    end
+
+    @testset "get_pricing_dataframe with level=:zonal forces zonal" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        # Populate nodal LMPs
+        result.nodal_lmps = DataFrame(
+            bus_id = ["B1", "B2"],
+            bus_name = ["Bus 1", "Bus 2"],
+            period = [1, 1],
+            lmp = [50.0, 55.0],
+        )
+
+        # Use LP result for duals
+        pricing_result = result.lp_result !== nothing ? result.lp_result : result
+
+        if pricing_result.has_duals
+            # Force zonal even though nodal is available on result
+            # Need to set nodal on pricing_result too for the test to be meaningful
+            pricing_result.nodal_lmps = result.nodal_lmps
+            df = get_pricing_dataframe(pricing_result, system; level = :zonal)
+            @test df isa DataFrame
+            @test "submarket" in names(df)
+            @test "pld" in names(df)
+            @test !("bus_id" in names(df))
+        end
+    end
+
+    @testset "get_pricing_dataframe with time_period filter" begin
+        model, system = create_small_test_system()
+        result = solve_model!(model, system; pricing = true)
+
+        # Set nodal_lmps spanning 2 periods and 2 buses
+        result.nodal_lmps = DataFrame(
+            bus_id = ["B1", "B2", "B1", "B2"],
+            bus_name = ["Bus 1", "Bus 2", "Bus 1", "Bus 2"],
+            period = [1, 1, 2, 2],
+            lmp = [50.0, 55.0, 52.0, 57.0],
+        )
+
+        # Filter to period 1 only
+        df = get_pricing_dataframe(result, system; time_periods = 1:1)
+        @test nrow(df) == 2
+        @test all(df.period .== 1)
     end
 end
