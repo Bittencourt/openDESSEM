@@ -116,11 +116,19 @@ Complete the solver pipeline for OpenDESSEM by finishing the objective function 
 
 **Requirements:** VALD-01, VALD-02, VALD-03
 
+**Plans:** 4 plans in 3 waves
+
 **Success Criteria:**
 1. Integration test loads ONS sample data DS_ONS_102025_RV2D11, solves model, and extracts results without errors
 2. Total optimization cost matches official DESSEM within 5% relative tolerance
 3. Per-submarket PLD marginal prices match official DESSEM trends (correlation > 0.85, qualitative validation)
 4. Validation report documents input data comparison, solution metrics, and tolerance checks
+
+**Plans:**
+- [ ] 05-01-PLAN.md -- Validation types and reference data loaders (TDD)
+- [ ] 05-02-PLAN.md -- Comparators for cost, PLD, and dispatch (TDD)
+- [ ] 05-03-PLAN.md -- Multi-format reporters and Validation module wiring
+- [ ] 05-04-PLAN.md -- PDO reference extraction and end-to-end integration test
 
 ---
 
