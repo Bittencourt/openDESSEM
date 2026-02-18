@@ -1,0 +1,336 @@
+& ==========================================================================================================================
+& FJUSC + FPOTPPA Nº 1
+& Em função do FNXG
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE     1 FJUSC + FPOTPPA em função do FNXG
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA     1 CONTR  DREF    9008
+&TABSEG TABELA     1 PARAM  DREF    9090
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+&TABSEG LIMITE     1          0
+&TABSEG LIMITE     1       2000
+&TABSEG LIMITE     1       5000
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA     1       6800               0        2000
+&TABSEG CELULA     1       6600            2000        5000
+&
+& ==========================================================================================================================
+& Fluxo Ji-Paraná - Pimenta Bueno (FJIPB) Nº 7
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE     7 Fluxo Ji-Paraná - Pimenta Bueno em função do back-to-back
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA     7 CONTR  DREF    9004
+&TABSEG TABELA     7 PARAM  DREF    9003
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+&TABSEG LIMITE     7          0
+&TABSEG LIMITE     7        500
+&TABSEG LIMITE     7        600
+&TABSEG LIMITE     7        700
+&TABSEG LIMITE     7        800
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA     7        970               0         500
+&TABSEG CELULA     7        400             500         600
+&TABSEG CELULA     7        350             600         700
+&TABSEG CELULA     7        300             700         800
+&
+& ==========================================================================================================================
+& Fluxo Jorge Teixeira Maua III Nº 9
+& (-) FMTJT
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE     9 FMTJT
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA     9 CONTR  DREF    9028
+&TABSEG TABELA     9 PARAM  DREF    9037      
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+&TABSEG LIMITE     9          0
+&TABSEG LIMITE     9        120
+&TABSEG LIMITE     9        190
+&TABSEG LIMITE     9      99999
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA     9        400             190       99999
+&TABSEG CELULA     9        300             120         190
+&TABSEG CELULA     9        200               0         120
+&
+& ==========================================================================================================================
+& Fluxo na Transformação 345/230 kV – 500 MVA da SE Baixada Santista F(TR1 BSA) - Condição 1
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+&TABSEG INDICE    12 Fluxo na Transformação SE Baixada Santista - 1
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    12 CONTR  DREF    9050
+&TABSEG TABELA    12 PARAM  DREF    9049
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+&TABSEG LIMITE    12          0
+&TABSEG LIMITE    12        318
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    12        580               0         318
+&
+& ==========================================================================================================================
+& Fluxo na Transformação 345/230 kV – 500 MVA da SE Baixada Santista F(TR1 BSA) - Condição 2
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE    13 Fluxo na Transformação SE Baixada Santista - 2
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    13 CONTR  DREF    9051
+&TABSEG TABELA    13 PARAM  DREF    9049
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+&TABSEG LIMITE    13        318
+&TABSEG LIMITE    13      99999
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    13        580             318       99999
+&
+& ==========================================================================================================================
+& Fluxo Araraquara 2 - Araraquara (F AR440) Nº 24
+& Em funcao do fluxo FBTA
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE    24 Fluxo Araraquara 2 - Araraquara
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    24 CONTR  DREF    9091
+&TABSEG TABELA    24 PARAM  DREF    9073
+&TABSEG TABELA    24 PARAM  DREF    9093
+&TABSEG TABELA    24 PARAM  CARGA    SIN
+&
+&ABSEG LIMITE NUM   VAR PARM 1 VAR PARM 2 VAR PARM 3
+&XXXXX XXXXXX XXXXX XXXXXXXXXX XXXXXXXXXX XXXXXXXXXX
+&TABSEG LIMITE    24          0       8000          0
+&TABSEG LIMITE    24       2000      99999      72000
+&TABSEG LIMITE    24       2200                 82000
+&TABSEG LIMITE    24       2400                 92000
+&TABSEG LIMITE    24       2600                999999
+&TABSEG LIMITE    24       2800                      
+&TABSEG LIMITE    24       3000                      
+&TABSEG LIMITE    24       3100                      
+&TABSEG LIMITE    24       3200                      
+&TABSEG LIMITE    24      99999                      
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP   PAR.2.INF   PAR.2.SUP   PAR.3.INF   PAR.3.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    24      99999               0        2000        8000       99999       72000       82000
+&TABSEG CELULA    24       2900            2000        2600        8000       99999       72000       82000
+&TABSEG CELULA    24       2600            2600        3200        8000       99999       72000       82000
+&TABSEG CELULA    24      99999               0        2000        8000       99999       82000       92000
+&TABSEG CELULA    24       2600            2000        2200        8000       99999       82000       92000
+&TABSEG CELULA    24       2500            2200        2400        8000       99999       82000       92000
+&TABSEG CELULA    24       2400            2400        2600        8000       99999       82000       92000
+&TABSEG CELULA    24       2300            2600        2800        8000       99999       82000       92000
+&TABSEG CELULA    24       2200            2800        3000        8000       99999       82000       92000
+&TABSEG CELULA    24       2100            3000        3100        8000       99999       82000       92000
+&TABSEG CELULA    24       2000            3100        3200        8000       99999       82000       92000
+&TABSEG CELULA    24      99999               0        2000        8000       99999       92000      999999
+&TABSEG CELULA    24       2450            2000        2200        8000       99999       92000      999999
+&TABSEG CELULA    24       2350            2200        2400        8000       99999       92000      999999
+&TABSEG CELULA    24       2250            2400        2600        8000       99999       92000      999999
+&TABSEG CELULA    24       2150            2600        2800        8000       99999       92000      999999
+&TABSEG CELULA    24       2050            2800        3000        8000       99999       92000      999999
+&TABSEG CELULA    24       2000            3000        3200        8000       99999       92000      999999
+&
+& ==========================================================================================================================
+& Fluxo Araraquara 2 - Araraquara (F AR440) - 0.2 * GPC Nº 25
+& Em funcao do fluxo FBTA
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE    25 Fluxo Araraquara 2 - Araraquara - 0.2 * GPC
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    25 CONTR  DREF    9083
+&TABSEG TABELA    25 PARAM  DREF    9073
+&TABSEG TABELA    25 PARAM  DREF    9093
+&TABSEG TABELA    25 PARAM  CARGA    SIN
+&
+&ABSEG LIMITE NUM   VAR PARM 1 VAR PARM 2 VAR PARM 3
+&XXXXX XXXXXX XXXXX XXXXXXXXXX XXXXXXXXXX XXXXXXXXXX
+&TABSEG LIMITE    25          0       8000          0
+&TABSEG LIMITE    25       2000      99999      72000
+&TABSEG LIMITE    25       2200                 82000
+&TABSEG LIMITE    25       2400                 92000
+&TABSEG LIMITE    25       2600                999999
+&TABSEG LIMITE    25       2800                      
+&TABSEG LIMITE    25       3000                      
+&TABSEG LIMITE    25       3100                      
+&TABSEG LIMITE    25       3200                      
+&TABSEG LIMITE    25      99999                      
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP   PAR.2.INF   PAR.2.SUP   PAR.3.INF   PAR.3.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    25      99999               0        2000        8000       99999       72000       82000
+&TABSEG CELULA    25       2260            2000        2600        8000       99999       72000       82000
+&TABSEG CELULA    25       1960            2600        3200        8000       99999       72000       82000
+&TABSEG CELULA    25      99999               0        2000        8000       99999       82000       92000
+&TABSEG CELULA    25       1960            2000        2200        8000       99999       82000       92000
+&TABSEG CELULA    25       1860            2200        2400        8000       99999       82000       92000
+&TABSEG CELULA    25       1760            2400        2600        8000       99999       82000       92000
+&TABSEG CELULA    25       1660            2600        2800        8000       99999       82000       92000
+&TABSEG CELULA    25       1560            2800        3000        8000       99999       82000       92000
+&TABSEG CELULA    25       1460            3000        3100        8000       99999       82000       92000
+&TABSEG CELULA    25       1360            3100        3200        8000       99999       82000       92000
+&TABSEG CELULA    25      99999               0        2000        8000       99999       92000      999999
+&TABSEG CELULA    25       1810            2000        2200        8000       99999       92000      999999
+&TABSEG CELULA    25       1710            2200        2400        8000       99999       92000      999999
+&TABSEG CELULA    25       1610            2400        2600        8000       99999       92000      999999
+&TABSEG CELULA    25       1510            2600        2800        8000       99999       92000      999999
+&TABSEG CELULA    25       1410            2800        3000        8000       99999       92000      999999
+&TABSEG CELULA    25       1360            3000        3200        8000       99999       92000      999999
+&
+& ==========================================================================================================================
+& Fluxo Estreito - Fernao Dias (F ETFD) Nº 26
+& Em funcao do fluxo FBTA
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE    26 Fluxo Estreito - Fernao Dias
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    26 CONTR  DREF    9092
+&TABSEG TABELA    26 PARAM  DREF    9073
+&TABSEG TABELA    26 PARAM  DREF    9093
+&TABSEG TABELA    26 PARAM  CARGA    SIN
+&
+&ABSEG LIMITE NUM   VAR PARM 1 VAR PARM 2 VAR PARM 3
+&XXXXX XXXXXX XXXXX XXXXXXXXXX XXXXXXXXXX XXXXXXXXXX
+&TABSEG LIMITE    26          0       8000          0
+&TABSEG LIMITE    26       2000      99999      72000
+&TABSEG LIMITE    26       2400                 82000
+&TABSEG LIMITE    26       2600                 92000
+&TABSEG LIMITE    26       2800                999999
+&TABSEG LIMITE    26       3000                      
+&TABSEG LIMITE    26       3100                      
+&TABSEG LIMITE    26       3200                      
+&TABSEG LIMITE    26      99999                      
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP   PAR.2.INF   PAR.2.SUP   PAR.3.INF   PAR.3.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    26      99999               0        2000        8000       99999       72000       82000
+&TABSEG CELULA    26       2200            2000        2400        8000       99999       72000       82000
+&TABSEG CELULA    26       2100            2400        2600        8000       99999       72000       82000
+&TABSEG CELULA    26       2000            2600        3200        8000       99999       72000       82000
+&TABSEG CELULA    26      99999               0        2000        8000       99999       82000       92000
+&TABSEG CELULA    26       2200            2000        2400        8000       99999       82000       92000
+&TABSEG CELULA    26       2100            2400        2600        8000       99999       82000       92000
+&TABSEG CELULA    26       2000            2600        2800        8000       99999       82000       92000
+&TABSEG CELULA    26       1900            2800        3000        8000       99999       82000       92000
+&TABSEG CELULA    26       1800            3000        3100        8000       99999       82000       92000
+&TABSEG CELULA    26       1600            3100        3200        8000       99999       82000       92000
+&TABSEG CELULA    26      99999               0        2000        8000       99999       92000      999999
+&TABSEG CELULA    26       1950            2000        2400        8000       99999       92000      999999
+&TABSEG CELULA    26       1850            2400        2600        8000       99999       92000      999999
+&TABSEG CELULA    26       1750            2600        2800        8000       99999       92000      999999
+&TABSEG CELULA    26       1650            2800        3000        8000       99999       92000      999999
+&TABSEG CELULA    26       1600            3000        3200        8000       99999       92000      999999
+&
+& ==========================================================================================================================
+& Fluxo Estreito - Fernao Dias (F ETFD) - 0.2 * GPC Nº 27
+& Em funcao do fluxo FBTA
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+&TABSEG INDICE    27 Fluxo Estreito - Fernao Dias - 0.2 * GPC
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+&TABSEG TABELA    27 CONTR  DREF    9084
+&TABSEG TABELA    27 PARAM  DREF    9073
+&TABSEG TABELA    27 PARAM  DREF    9093
+&TABSEG TABELA    27 PARAM  CARGA    SIN
+&
+&ABSEG LIMITE NUM   VAR PARM 1 VAR PARM 2 VAR PARM 3
+&XXXXX XXXXXX XXXXX XXXXXXXXXX XXXXXXXXXX XXXXXXXXXX
+&TABSEG LIMITE    27          0       8000          0
+&TABSEG LIMITE    27       2000      99999      72000
+&TABSEG LIMITE    27       2400                 82000
+&TABSEG LIMITE    27       2600                 92000
+&TABSEG LIMITE    27       2800                999999
+&TABSEG LIMITE    27       3000                      
+&TABSEG LIMITE    27       3100                      
+&TABSEG LIMITE    27       3200                      
+&TABSEG LIMITE    27      99999                      
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP   PAR.2.INF   PAR.2.SUP   PAR.3.INF   PAR.3.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX  XXXXXXXXXX
+&TABSEG CELULA    27      99999               0        2000        8000       99999       72000       82000
+&TABSEG CELULA    27       1560            2000        2400        8000       99999       72000       82000
+&TABSEG CELULA    27       1460            2400        2600        8000       99999       72000       82000
+&TABSEG CELULA    27       1360            2600        3200        8000       99999       72000       82000
+&TABSEG CELULA    27      99999               0        2000        8000       99999       82000       92000
+&TABSEG CELULA    27       1560            2000        2400        8000       99999       82000       92000
+&TABSEG CELULA    27       1460            2400        2600        8000       99999       82000       92000
+&TABSEG CELULA    27       1360            2600        2800        8000       99999       82000       92000
+&TABSEG CELULA    27       1260            2800        3000        8000       99999       82000       92000
+&TABSEG CELULA    27       1160            3000        3100        8000       99999       82000       92000
+&TABSEG CELULA    27        960            3100        3200        8000       99999       82000       92000
+&TABSEG CELULA    27      99999               0        2000        8000       99999       92000      999999
+&TABSEG CELULA    27       1310            2000        2400        8000       99999       92000      999999
+&TABSEG CELULA    27       1210            2400        2600        8000       99999       92000      999999
+&TABSEG CELULA    27       1110            2600        2800        8000       99999       92000      999999
+&TABSEG CELULA    27       1010            2800        3000        8000       99999       92000      999999
+&TABSEG CELULA    27        960            3000        3200        8000       99999       92000      999999
+&
+& ==========================================================================================================================
+& Limite Fornecimento Sudeste (FSUL) Nº 197
+& Em função da carga da região sul
+&
+&ABSEG INDICE NUM   DESCRICAO
+&XXXXX XXXXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+TABSEG INDICE   197 Fornecimento Sudeste (FSUL)
+&
+&ABSEG TABELA NUM   TIPO1  TIPO2  NUM   %CARG
+&XXXXX XXXXXX XXXXX XXXXXX XXXXXX XXXXX XXXXX
+TABSEG TABELA   197 CONTR  RE       986
+TABSEG TABELA   197 PARAM  CARGA      S
+&
+&ABSEG LIMITE NUM   VAR PARM 1
+&XXXXX XXXXXX XXXXX XXXXXXXXXX
+TABSEG LIMITE   197          0
+TABSEG LIMITE   197      13000
+TABSEG LIMITE   197    9999999
+&
+&ABSEG CELULA NUM   LIMITE     F    PAR.1.INF   PAR.1.SUP 
+&XXXXX XXXXXX XXXXX XXXXXXXXXX X    XXXXXXXXXX  XXXXXXXXXX
+TABSEG CELULA   197       7000           13000     9999999
+TABSEG CELULA   197       8600               0       13000
+&
+&===========================================================================================================================

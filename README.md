@@ -106,27 +106,37 @@ openDESSEM/
 
 ## Development Status
 
-### ✅ Phase 1: Foundation (Complete)
-- [x] Entity type system (733+ tests)
-- [x] Database schema and loaders (PostgreSQL, SQLite)
-- [x] Variable manager (152+ tests)
-- [x] Basic constraints (7 constraint types)
+### ✅ Phase 1: Objective Function (Complete)
+- [x] FCF curve loader from infofcf.dat
+- [x] Load shedding and deficit variables
+- [x] Production cost objective with scaling
+- [x] Terminal water value from FCF curves
 
-### ✅ Phase 2: Core Model (Complete)
-- [x] Thermal unit commitment constraints
-- [x] Hydro water balance constraints
-- [x] Energy balance constraints (4-submarket)
-- [x] DC-OPF network model (PowerModels.jl integration)
-- [x] Renewable limits (wind, solar)
-- [x] Submarket interconnection constraints
+### ✅ Phase 2: Hydro Modeling (Complete)
+- [x] Cascade topology utility with cycle detection
+- [x] Inflow data loading from dadvaz.dat
+- [x] Water balance with cascade delays and inflows
 
-### 🚧 Phase 3: Optimization & Solvers (In Progress)
-- [x] Constraint builder system (TASK-006)
-- [x] Variable manager (TASK-005)
-- [x] Data loaders: Database & DESSEM files (TASK-009, TASK-010)
-- [ ] Objective function builder (TASK-007)
-- [ ] Solver interface & results extraction (TASK-008, TASK-011)
-- [ ] Validation against official DESSEM (TASK-012)
+### ✅ Phase 3: Solver Interface (Complete)
+- [x] Unified solve_model!() API with two-stage pricing
+- [x] Lazy loading for optional solvers (Gurobi, CPLEX, GLPK)
+- [x] Infeasibility diagnostics with compute_iis!()
+- [x] PLD DataFrame output and cost breakdown
+- [x] End-to-end integration tests
+
+### ✅ Phase 4: Solution Extraction & Export (Complete)
+- [x] All variable extraction (thermal, hydro, renewable, deficit)
+- [x] PLD dual extraction from energy balance constraints
+- [x] CSV/JSON export with formatting
+- [x] Constraint violation reporting with type classification
+- [x] Nodal LMP extraction via PowerModels DC-OPF
+- [x] Unified pricing pipeline (nodal-first, zonal-fallback)
+
+### 📋 Phase 5: End-to-End Validation (Planned)
+- [ ] Validation types and reference data loaders
+- [ ] Comparators for cost, PLD, and dispatch
+- [ ] Multi-format reporters (console, markdown, JSON)
+- [ ] End-to-end integration test with ONS sample data
 
 ## Technology Stack
 
@@ -201,8 +211,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: 🚧 Phase 2 Complete - Core Model Implemented
+**Status:** ✅ Phases 1-4 Complete - Ready for Validation
 
-**Test Coverage**: 980+ tests with >90% coverage
+**Test Coverage:** 2075+ tests with >90% coverage
 
-**Note**: This is an independent open-source project and is not affiliated with or endorsed by ONS, CCEE, or CEPEL.
+**Sample Data:** ONS DS_ONS_102025_RV2D11, CCEE DS_CCEE_102025_SEMREDE_RV1D04
+
+**Note:** This is an independent open-source project and is not affiliated with or endorsed by ONS, CCEE, or CEPEL.

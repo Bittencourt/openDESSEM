@@ -1,9 +1,9 @@
 # Project State: OpenDESSEM
 
 **Last Updated:** 2026-02-17
-**Current Phase:** Phase 4 (Solution Extraction & Export) - COMPLETE (with gap closure)
-**Current Plan:** 04-04 Complete (4/4, gap closure)
-**Last Activity:** 2026-02-17 - Completed 04-04: Nodal LMP Pipeline Integration (gap closure)
+**Current Phase:** Phase 5 (End-to-End Validation) - PLANNED
+**Current Plan:** 05-01 to 05-04 (4 plans, not started)
+**Last Activity:** 2026-02-17 - Phase 5 planning complete, verified, ready for execution
 
 ---
 
@@ -13,19 +13,19 @@
 End-to-end solve pipeline: load official ONS DESSEM data, build the full SIN optimization model, solve it, and extract validated dispatch + PLD marginal prices that match official DESSEM results within 5%.
 
 **Current Focus:**
-Phase 4 COMPLETE with gap closure (4/4 plans). Nodal LMP pipeline fully integrated. Ready for Phase 5.
+Phase 5 PLANNED (4 plans). Validation infrastructure ready for implementation. ONS and CCEE sample data cases run successfully.
 
 ---
 
 ## Current Position
 
-**Phase:** Phase 4 - Solution Extraction & Export (COMPLETE with gap closure)
-**Plan:** 04-04 Complete (4/4, gap closure)
-**Status:** Phase 4 COMPLETE, 5/5 criteria + gap closure (nodal LMP pipeline), ready for Phase 5
+**Phase:** Phase 5 - End-to-End Validation (PLANNED, not started)
+**Plan:** 05-01 to 05-04 (4 plans in 4 waves)
+**Status:** Phase 5 planning complete and verified. Ready for execution.
 
 **Progress Bar:**
 ```
-[████████████████████] 4/4 plans complete (Phase 4 COMPLETE + gap closure)
+[░░░░░░░░░░░░░░░░░░░░] 0/4 plans complete (Phase 5 - ready to start)
 ```
 
 **Milestones:**
@@ -48,6 +48,7 @@ Phase 4 COMPLETE with gap closure (4/4 plans). Nodal LMP pipeline fully integrat
 - [x] Phase 4 Plan 03: Nodal LMP Extraction ✅
 - [x] Phase 4 Plan 04: Nodal LMP Pipeline Integration (gap closure) ✅
 - [x] Phase 4: Solution Extraction & Export (5/5 criteria + gap closure) ✅
+- [x] Phase 5 Planning: CONTEXT.md + 4 PLANs created and verified ✅
 - [ ] Phase 5: End-to-End Validation (0/4 criteria)
 
 ### Quick Tasks
@@ -161,6 +162,15 @@ Phase 4 COMPLETE with gap closure (4/4 plans). Nodal LMP pipeline fully integrat
 
 ### Recent Changes
 
+**2026-02-17 (Session 17 - Phase 5 Planning):**
+- Added CCEE sample data case DS_CCEE_102025_SEMREDE_RV1D04
+- Created ccee_data_example.jl - runs successfully (R$ 1,083M objective)
+- Phase 4 UAT completed: 8/8 tests passed
+- Phase 5 CONTEXT.md created with validation decisions
+- Phase 5 plans (05-01 to 05-04) created and verified
+- README.md updated: Phases 1-4 complete, 2075+ tests
+- ROADMAP.md updated: Phase 5 planned status
+
 **2026-02-17 (Session 16 - Plan 04-04 Gap Closure):**
 - Completed Phase 4 Plan 04: Nodal LMP Pipeline Integration (gap closure)
 - Added nodal_lmps field to SolverResult
@@ -198,36 +208,35 @@ Phase 4 COMPLETE with gap closure (4/4 plans). Nodal LMP pipeline fully integrat
 
 ## Session Continuity
 
-**Last Session:** 2026-02-17 - Plan 04-04 Complete (Gap Closure)
+**Last Session:** 2026-02-17 - Phase 5 Planning Complete
 
 **Session Goals Achieved:**
-- Nodal LMP pipeline fully integrated into solve workflow
-- SolverResult caches nodal LMPs to avoid recomputation
-- Unified pricing via get_pricing_dataframe() (nodal-first, zonal-fallback)
-- CSV/JSON export includes nodal LMPs when available
-- 27 new test assertions
-- 2075+ tests passing
+- Added CCEE sample data example (ccee_data_example.jl)
+- Both ONS and CCEE sample cases run successfully
+- Phase 5 CONTEXT.md created with validation decisions
+- Phase 5 plans (05-01 to 05-04) created and verified
+- README.md updated to reflect current status
 
 **Next Session Goals:**
-- Start Phase 5: End-to-End Validation
-- Create integration test for ONS sample data
-- Implement tolerance checking (5% cost, PLD correlation)
+- Execute Phase 5: End-to-End Validation (4 plans)
+- Plan 05-01: Validation types and reference data loaders
+- Plan 05-02: Comparators for cost, PLD, dispatch
+- Plan 05-03: Reporters and Validation module wiring
+- Plan 05-04: PDO extraction and end-to-end integration test
 
 **Context for Next Session:**
-Phase 4 COMPLETE with gap closure (4/4 plans).
-- solve_model!() auto-extracts nodal LMPs when network data present
-- get_pricing_dataframe() provides unified nodal/zonal pricing
-- get_nodal_lmp_dataframe() extracts bus-level LMPs
-- Graceful degradation when PowerModels unavailable
-- extract_solution_values!() handles all variable types
-- export_csv() and export_json() produce valid output (including nodal LMPs)
-- check_constraint_violations() classifies violations by type
-- ons_data_example.jl demonstrates nodal pricing
-- 2075+ tests passing
+Phase 5 PLANNED (4 plans verified).
+- Validation infrastructure: types, loaders, comparators, reporters
+- Reference data in sample/expected/ directories
+- Cost: 5% relative tolerance
+- PLD: Configurable pass-rate threshold approach
+- Dispatch: Per-plant per-period comparison
+- Reports: Console (sectioned), Markdown (complete), JSON
+- Exit codes: 0=pass, 1=cost fail, 2=PLD fail, 3=dispatch fail
 
-Ready for Phase 5: End-to-End Validation.
+Ready for: /gsd-execute-phase 05
 
 ---
 
 **State saved:** 2026-02-17
-**Ready for:** Phase 5 - End-to-End Validation
+**Ready for:** Phase 5 Execution - End-to-End Validation
