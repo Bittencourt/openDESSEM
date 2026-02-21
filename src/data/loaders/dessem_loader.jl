@@ -949,14 +949,13 @@ end
 Convert a DESSEM subsystem record to OpenDESSEM Submarket.
 """
 function convert_dessem_submarket(sist::SISTRecord)
-    code = String(strip(sist.subsystem_code))
+    # Map numeric subsystem to consistent code (same as plants/loads)
+    code = get(SUBSYSTEM_CODE_MAP, sist.subsystem_num, String(strip(sist.subsystem_code)))
     name_str = String(strip(sist.subsystem_name))
     name = isempty(name_str) ? code : name_str
 
-    submarket_id = "SM_$(code)"
-
     return Submarket(;
-        id = submarket_id,
+        id = "SM_$(code)",
         name = name,
         code = code,
         country = "Brazil",
@@ -1144,19 +1143,18 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
 
     @info "Converted $(length(hydro_plants)) hydro plants"
 
-    # Step 5: Convert renewable plants (limit to avoid overwhelming the system)
-    max_renewables = 1000  # Limit for performance
+    # Step 5: Convert renewable plants
     if case_data.renovaveis_data !== nothing
-        # Build subsystem lookup for renewables
+        # Build subsystem lookup for renewables with proper code mapping
         renewable_subsystems = Dict{Int,String}()
         for mapping in case_data.renovaveis_data.subsystem_mappings
-            renewable_subsystems[mapping.plant_code] = mapping.subsystem
+            # Map raw subsystem string to consistent code
+            raw_code = mapping.subsystem
+            mapped_code = get(Dict("S" => "SU", "N" => "NO"), raw_code, raw_code)
+            renewable_subsystems[mapping.plant_code] = mapped_code
         end
 
-        count = 0
         for record in case_data.renovaveis_data.plants
-            count >= max_renewables && break
-
             try
                 subsystem_code = get(renewable_subsystems, record.plant_code, "SE")
                 bus_id = "B_$(subsystem_code)_0001"
@@ -1168,7 +1166,6 @@ function load_dessem_case(path::String; skip_validation::Bool = false)
                 else
                     push!(solar_farms, plant)
                 end
-                count += 1
             catch e
                 @warn "Failed to convert renewable $(record.plant_code): $e"
             end

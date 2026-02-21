@@ -38,7 +38,14 @@ module FCFCurveLoader
 using Dates
 
 export load_fcf_curves,
-    parse_infofcf_file, get_water_value, interpolate_water_value, FCFCurve, FCFCurveData
+    parse_infofcf_file,
+    get_water_value,
+    interpolate_water_value,
+    FCFCurve,
+    FCFCurveData,
+    load_water_values_from_pdo_hidr,
+    load_water_value_data,
+    WaterValueData
 
 #=============================================================================
 # Data Structures
@@ -661,6 +668,143 @@ function load_fcf_curves_with_mapping(
         num_periods = raw_data.num_periods,
         source_file = raw_data.source_file,
     )
+end
+
+"""
+    load_water_values_from_pdo_hidr(filepath::String) -> Dict{Int, NamedTuple}
+
+Extract water values from a DESSEM pdo_hidr.dat output file.
+
+The pdo_hidr.dat file contains the official DESSEM results, including water values
+(Vagua column) for each hydro plant. This function extracts these water values
+for use as reference data or fallback values in OpenDESSEM.
+
+# Arguments
+- `filepath::String`: Path to pdo_hidr.dat file
+
+# Returns
+- `Dict{Int, NamedTuple}`: Dictionary mapping plant code (posto) to water value data
+  - `name::String`: Plant name
+  - `water_value::Float64`: Water value in R\$/MWh
+  - `subsystem::String`: Subsystem code (SE, S, NE, N)
+
+# File Format
+The pdo_hidr.dat file has semicolon-delimited columns:
+- Column 3: Plant code (posto)
+- Column 4: Plant name
+- Column 5: Subsystem
+- Column 8: Vagua (water value in R\$/MWh)
+
+Water value rows have CONJ=99 and Unid=99 (aggregate row for each plant).
+
+# Example
+```julia
+water_values = load_water_values_from_pdo_hidr("docs/Sample/DS_ONS_102025_RV2D11/pdo_hidr.dat")
+
+# Get water value for plant 6 (FURNAS)
+if haskey(water_values, 6)
+    wv = water_values[6]
+    println("Plant: ", wv.name, ", Water value: ", wv.water_value, " R\$/MWh")
+end
+```
+"""
+function load_water_values_from_pdo_hidr(filepath::String)::Dict{Int,NamedTuple{(:name, :water_value, :subsystem),Tuple{String,Float64,String}}}
+    if !isfile(filepath)
+        throw(ArgumentError("pdo_hidr.dat file not found: $filepath"))
+    end
+
+    @info "Loading water values from: $filepath"
+
+    content = read(filepath, String)
+    content = replace(content, "\r\n" => "\n")
+    lines = split(content, "\n")
+
+    water_values = Dict{Int,NamedTuple{(:name, :water_value, :subsystem),Tuple{String,Float64,String}}}()
+
+    for line in lines
+        if occursin(r";\s*99\s*;\s*99\s*;", line)
+            parts = split(line, ";")
+            if length(parts) >= 8
+                plant_code_str = strip(parts[3])
+                plant_name = strip(parts[4])
+                subsystem = strip(parts[5])
+                v_agua_str = strip(parts[8])
+
+                try
+                    code = parse(Int, plant_code_str)
+                    if !isempty(v_agua_str) && v_agua_str != "-"
+                        v_agua = parse(Float64, v_agua_str)
+                        water_values[code] = (name = plant_name, water_value = v_agua, subsystem = subsystem)
+                    end
+                catch
+                end
+            end
+        end
+    end
+
+    @info "Loaded $(length(water_values)) water values from pdo_hidr.dat"
+
+    return water_values
+end
+
+"""
+    WaterValueData
+
+Container for water values loaded from DESSEM output.
+
+Holds water values for hydro plants that can be used as:
+1. Reference data for validation against official DESSEM
+2. Fallback water values when FCF curves are not available
+3. Initial water values for sensitivity analysis
+
+# Fields
+- `values::Dict{Int,NamedTuple}`: Water values by plant code
+- `source_file::String`: Path to source pdo_hidr.dat file
+- `mean_value::Float64`: Mean water value across all plants
+- `min_value::Float64`: Minimum water value
+- `max_value::Float64`: Maximum water value
+"""
+struct WaterValueData
+    values::Dict{Int,NamedTuple{(:name, :water_value, :subsystem),Tuple{String,Float64,String}}}
+    source_file::String
+    mean_value::Float64
+    min_value::Float64
+    max_value::Float64
+
+    function WaterValueData(
+        water_values::Dict{Int,NamedTuple{(:name, :water_value, :subsystem),Tuple{String,Float64,String}}},
+        source_file::String,
+    )
+        if isempty(water_values)
+            new(water_values, source_file, 0.0, 0.0, 0.0)
+        else
+            wv_list = [v.water_value for v in values(water_values)]
+            new(water_values, source_file, sum(wv_list) / length(wv_list), minimum(wv_list), maximum(wv_list))
+        end
+    end
+end
+
+"""
+    load_water_value_data(filepath::String) -> WaterValueData
+
+Load water value data from a pdo_hidr.dat file with statistics.
+
+# Arguments
+- `filepath::String`: Path to pdo_hidr.dat file
+
+# Returns
+- `WaterValueData`: Container with water values and statistics
+
+# Example
+```julia
+wv_data = load_water_value_data("docs/Sample/DS_ONS_102025_RV2D11/pdo_hidr.dat")
+println("Mean water value: \$(wv_data.mean_value) R\$/MWh")
+println("Range: \$(wv_data.min_value) - \$(wv_data.max_value) R\$/MWh")
+```
+"""
+function load_water_value_data(filepath::String)::WaterValueData
+    values = load_water_values_from_pdo_hidr(filepath)
+    return WaterValueData(values, filepath)
 end
 
 end # module FCFCurveLoader
