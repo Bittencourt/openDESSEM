@@ -173,20 +173,6 @@ function build!(
     @info "Building thermal commitment constraints" num_plants = length(plants) num_periods =
         n_periods
 
-    # Set initial conditions (first period commitment)
-    if !isempty(constraint.initial_commitment)
-        for plant in plants
-            plant_idx = plant_indices[plant.id]
-            if haskey(constraint.initial_commitment, plant.id)
-                initial_online = constraint.initial_commitment[plant.id]
-                t_first = first(time_periods)
-                # Fix the commitment status in the first period
-                @constraint(model, u[plant_idx, t_first] == initial_online)
-                num_constraints += 1
-            end
-        end
-    end
-
     # Build constraints for each plant
     for (idx, plant) in enumerate(plants)
         plant_idx = plant_indices[plant.id]
@@ -214,12 +200,22 @@ function build!(
             end
 
             # Startup/shutdown logic
-            if v !== nothing && w !== nothing && t > 1
-                @constraint(
-                    model,
-                    u[plant_idx, t] - u[plant_idx, t-1] ==
-                    v[plant_idx, t] - w[plant_idx, t]
-                )
+            if v !== nothing && w !== nothing
+                if t > 1
+                    @constraint(
+                        model,
+                        u[plant_idx, t] - u[plant_idx, t-1] ==
+                        v[plant_idx, t] - w[plant_idx, t]
+                    )
+                else
+                    # For t=1, use initial commitment state
+                    initial_state = get(constraint.initial_commitment, plant.id, false) ? 1.0 : 0.0
+                    @constraint(
+                        model,
+                        u[plant_idx, t] - initial_state ==
+                        v[plant_idx, t] - w[plant_idx, t]
+                    )
+                end
                 @constraint(model, v[plant_idx, t] + w[plant_idx, t] <= 1)
                 num_constraints += 2
             end
